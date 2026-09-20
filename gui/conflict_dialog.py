@@ -70,12 +70,12 @@ class ConflictDetailDialog(QDialog):
         is_dark = StyleManager.get_active_theme() == "modern"
 
         if self.custom_block is not None and len(self.entries) > 0:
-            self.setWindowTitle(f"⚠️ Ders & Etkinlik Çakışması - {self.day_name} {self.time_slot}")
+            self.setWindowTitle(f"Ders & Etkinlik Çakışması - {self.day_name} {self.time_slot}")
         elif is_conflict:
-            self.setWindowTitle(f"⚠️ Ders Çakışma Detayları - {self.day_name} {self.time_slot}")
+            self.setWindowTitle(f"Ders Çakışma Detayları - {self.day_name} {self.time_slot}")
         else:
             course_title = distinct_codes[0] if distinct_codes else ""
-            self.setWindowTitle(f"📚 {course_title} Ders Bilgisi & Sayfası - {self.day_name}")
+            self.setWindowTitle(f"{course_title} Ders Bilgisi & Sayfası - {self.day_name}")
 
         self.setMinimumWidth(580)
         self.setMaximumWidth(720)
@@ -125,7 +125,7 @@ class ConflictDetailDialog(QDialog):
         h_layout.setSpacing(3)
 
         if self.custom_block is not None and len(self.entries) > 0:
-            lbl_title = QLabel(f"⚠️ <b>DERS VE KİŞİSEL ETKİNLİK ÇAKIŞMASI TESPİT EDİLDİ</b>")
+            lbl_title = QLabel("<b>DERS VE KİŞİSEL ETKİNLİK ÇAKIŞMASI TESPİT EDİLDİ</b>")
             lbl_title.setStyleSheet(f"color: {conf_text}; font-size: 14px;")
             lbl_desc = QLabel(
                 f"<b>{self.day_name}</b> günü <b>{self.time_slot}</b> saatinde "
@@ -133,7 +133,7 @@ class ConflictDetailDialog(QDialog):
             )
             lbl_desc.setStyleSheet(f"color: {'#cdd6f4' if is_dark else '#334155'}; font-size: 12px;")
         elif is_conflict:
-            lbl_title = QLabel(f"⚠️ <b>DERS ÇAKIŞMASI TESPİT EDİLDİ</b>")
+            lbl_title = QLabel("<b>DERS ÇAKIŞMASI TESPİT EDİLDİ</b>")
             lbl_title.setStyleSheet(f"color: {conf_text}; font-size: 14px;")
             lbl_desc = QLabel(
                 f"<b>{self.day_name}</b> günü <b>{self.time_slot}</b> saatinde "
@@ -142,7 +142,7 @@ class ConflictDetailDialog(QDialog):
             lbl_desc.setStyleSheet(f"color: {'#cdd6f4' if is_dark else '#334155'}; font-size: 12px;")
         else:
             h_title_color = "#89b4fa" if is_dark else "#0369a1"
-            lbl_title = QLabel(f"📚 <b>DERS BİLGİSİ VE SAYFASI</b>")
+            lbl_title = QLabel("<b>DERS BİLGİSİ VE SAYFASI</b>")
             lbl_title.setStyleSheet(f"color: {h_title_color}; font-size: 14px;")
             lbl_desc = QLabel(f"<b>{self.day_name}</b> {self.time_slot} - Ayrıntılı ders tanımı ve şube bilgileri:")
             lbl_desc.setStyleSheet(f"color: {'#cdd6f4' if is_dark else '#334155'}; font-size: 12px;")
@@ -187,11 +187,11 @@ class ConflictDetailDialog(QDialog):
             b_layout.setSpacing(6)
 
             b_top = QHBoxLayout()
-            lbl_b_title = QLabel(f"📌 <b>Kişisel Etkinliğiniz: {self.custom_block['title']}</b>")
+            lbl_b_title = QLabel(f"<b>Kişisel Etkinliğiniz: {self.custom_block['title']}</b>")
             lbl_b_title.setStyleSheet(f"color: {text_hex}; font-size: 13px; font-weight: bold; border: none; background: transparent;")
             b_top.addWidget(lbl_b_title, 1)
 
-            btn_edit_block = QPushButton("✏️ Etkinliği Düzenle / Sil")
+            btn_edit_block = QPushButton("Etkinliği Düzenle / Sil")
             btn_edit_block.setCursor(POINTING_HAND_CURSOR)
             btn_edit_block.setStyleSheet(f"""
                 QPushButton {{
@@ -213,11 +213,11 @@ class ConflictDetailDialog(QDialog):
             b_layout.addLayout(b_top)
 
             if self.custom_block.get("note"):
-                lbl_b_note = QLabel(f"📝 <b>Not:</b> {self.custom_block['note']}")
+                lbl_b_note = QLabel(f"<b>Not:</b> {self.custom_block['note']}")
                 lbl_b_note.setStyleSheet(f"color: {text_hex}; font-size: 11px; border: none; background: transparent;")
                 b_layout.addWidget(lbl_b_note)
 
-            lbl_b_time = QLabel(f"⏰ <b>Zaman:</b> {self.day_name} {self.time_slot}")
+            lbl_b_time = QLabel(f"<b>Zaman:</b> {self.day_name} {self.time_slot}")
             lbl_b_time.setStyleSheet(f"color: {text_hex}; font-size: 11px; border: none; background: transparent;")
             b_layout.addWidget(lbl_b_time)
 
@@ -286,7 +286,7 @@ class ConflictDetailDialog(QDialog):
                 cr_bg = "#1e2030" if is_dark else "#dcfce7"
                 cr_fg = "#a6e3a1" if is_dark else "#166534"
                 cr_border = "#45475a" if is_dark else "#86efac"
-                lbl_cr_badge = QLabel(f"💳 {info['credit']} Kredi | 🌟 {info['ects']} AKTS")
+                lbl_cr_badge = QLabel(f"{info['credit']} Kredi | {info['ects']} AKTS")
                 lbl_cr_badge.setStyleSheet(f"""
                     background-color: {cr_bg};
                     color: {cr_fg};
@@ -316,12 +316,12 @@ class ConflictDetailDialog(QDialog):
             info_layout.setSpacing(4)
 
             meta_text_color = "#9399b2" if is_dark else "#64748b"
-            lbl_meta = QLabel(f"🎓 <b>Bölüm & Düzey:</b> <span style='color: {'#cdd6f4' if is_dark else '#0f172a'};'>{info['dept_name']} • {info['level']}. Sınıf Lisans Dersi</span>")
+            lbl_meta = QLabel(f"<b>Bölüm & Düzey:</b> <span style='color: {'#cdd6f4' if is_dark else '#0f172a'};'>{info['dept_name']} • {info['level']}. Sınıf Lisans Dersi</span>")
             lbl_meta.setStyleSheet(f"color: {meta_text_color}; font-size: 11px;")
             info_layout.addWidget(lbl_meta)
 
             desc_color = "#bac2de" if is_dark else "#334155"
-            lbl_desc = QLabel(f"📖 <b>Ders Tanımı / Kapsamı:</b> {info['description']}")
+            lbl_desc = QLabel(f"<b>Ders Tanımı / Kapsamı:</b> {info['description']}")
             lbl_desc.setStyleSheet(f"color: {desc_color}; font-size: 11px; line-height: 1.4;")
             lbl_desc.setWordWrap(True)
             info_layout.addWidget(lbl_desc)
@@ -330,14 +330,14 @@ class ConflictDetailDialog(QDialog):
             if self.data_manager:
                 prereq = self.data_manager.check_course_prerequisites(c_code)
                 if prereq.get("already_passed"):
-                    prereq_text = "🎓 <b>Ön Koşul / Durum:</b> <span style='color: #10b981; font-weight: bold;'>Bu dersi daha önce başarıyla verdiniz.</span>"
+                    prereq_text = "<b>Ön Koşul / Durum:</b> <span style='color: #10b981; font-weight: bold;'>Bu dersi daha önce başarıyla verdiniz.</span>"
                 elif prereq.get("can_take"):
                     if prereq.get("has_prereqs"):
-                        prereq_text = f"✅ <b>Ön Koşul Durumu:</b> <span style='color: #10b981; font-weight: bold;'>Sağlandı</span> <span style='color: {'#a6adc8' if is_dark else '#475569'};'>({prereq['rule_description']})</span>"
+                        prereq_text = f"<b>Ön Koşul Durumu:</b> <span style='color: #10b981; font-weight: bold;'>Sağlandı</span> <span style='color: {'#a6adc8' if is_dark else '#475569'};'>({prereq['rule_description']})</span>"
                     else:
-                        prereq_text = f"ℹ️ <b>Ön Koşul Durumu:</b> <span style='color: {'#9399b2' if is_dark else '#64748b'};'>Ön koşulsuz ders</span>"
+                        prereq_text = f"<b>Ön Koşul Durumu:</b> <span style='color: {'#9399b2' if is_dark else '#64748b'};'>Ön koşulsuz ders</span>"
                 else:
-                    prereq_text = f"❌ <b>Ön Koşul Durumu:</b> <span style='color: #ef4444; font-weight: bold;'>SAĞLANMADI!</span> <span style='color: {'#f38ba8' if is_dark else '#b91c1c'};'>({prereq['message']})</span>"
+                    prereq_text = f"<b>Ön Koşul Durumu:</b> <span style='color: #ef4444; font-weight: bold;'>SAĞLANMADI!</span> <span style='color: {'#f38ba8' if is_dark else '#b91c1c'};'>({prereq['message']})</span>"
 
                 lbl_prereq = QLabel(prereq_text)
                 lbl_prereq.setStyleSheet("font-size: 11px; margin-top: 2px;")
@@ -361,7 +361,7 @@ class ConflictDetailDialog(QDialog):
             links_layout = QVBoxLayout(links_box)
             links_layout.setSpacing(6)
 
-            lbl_links_title = QLabel("🔗 <b>Ders Sayfası ve Bağlantılar:</b>")
+            lbl_links_title = QLabel("<b>Ders Sayfası ve Bağlantılar:</b>")
             lbl_links_title.setStyleSheet(f"color: {'#89b4fa' if is_dark else '#1d4ed8'}; font-size: 11px;")
             links_layout.addWidget(lbl_links_title)
 
@@ -379,7 +379,7 @@ class ConflictDetailDialog(QDialog):
             btn_row = QHBoxLayout()
             btn_row.setSpacing(8)
 
-            btn_open_page = QPushButton(f"🌐 Ders Sayfasını Aç")
+            btn_open_page = QPushButton("Ders Sayfasını Aç")
             btn_open_page.setCursor(POINTING_HAND_CURSOR)
             btn_open_page.setToolTip(f"Tarayıcıda aç: {link_url}")
             btn_open_page.setStyleSheet(f"""
@@ -400,7 +400,7 @@ class ConflictDetailDialog(QDialog):
             btn_row.addWidget(btn_open_page)
 
             if info.get('dept_url'):
-                btn_open_dept = QPushButton("📋 Bölüm Ders Tanımları")
+                btn_open_dept = QPushButton("Bölüm Ders Tanımları")
                 btn_open_dept.setCursor(POINTING_HAND_CURSOR)
                 btn_open_dept.setToolTip(f"Tarayıcıda aç: {info['dept_url']}")
                 btn_open_dept.setStyleSheet(f"""
@@ -419,7 +419,7 @@ class ConflictDetailDialog(QDialog):
                 btn_open_dept.clicked.connect(lambda _, u=info['dept_url']: webbrowser.open(u))
                 btn_row.addWidget(btn_open_dept)
 
-            btn_search = QPushButton("🔍 Google'da İzlence Ara")
+            btn_search = QPushButton("Google'da İzlence Ara")
             btn_search.setCursor(POINTING_HAND_CURSOR)
             btn_search.setToolTip(f"Tarayıcıda aç: {info['search_url']}")
             btn_search.setStyleSheet(f"""
@@ -462,11 +462,11 @@ class ConflictDetailDialog(QDialog):
                 sec_layout = QVBoxLayout(sec_box)
                 sec_layout.setSpacing(3)
 
-                lbl_sec_title = QLabel(f"🔹 <b>Section {sec.section_no}</b>")
+                lbl_sec_title = QLabel(f"<b>Section {sec.section_no}</b>")
                 lbl_sec_title.setStyleSheet(f"color: {'#89b4fa' if is_dark else '#002855'}; font-size: 12px;")
                 sec_layout.addWidget(lbl_sec_title)
 
-                lbl_inst = QLabel(f"👨‍🏫 <b>Öğretim Elemanı:</b> {sec.instructor or 'Belirsiz'}")
+                lbl_inst = QLabel(f"<b>Öğretim Elemanı:</b> {sec.instructor or 'Belirsiz'}")
                 lbl_inst.setStyleSheet(f"color: {'#a6adc8' if is_dark else '#475569'}; font-size: 11px;")
                 sec_layout.addWidget(lbl_inst)
 
@@ -478,17 +478,17 @@ class ConflictDetailDialog(QDialog):
                         sec_room = ", ".join(sorted(set(slot_rooms)))
 
                 if sec_room:
-                    lbl_room = QLabel(f"📍 <b>Derslik / Sınıf:</b> <span style='color: {'#4ade80' if is_dark else '#15803d'}; font-weight: bold;'>{sec_room}</span>")
+                    lbl_room = QLabel(f"<b>Derslik / Sınıf:</b> <span style='color: {'#4ade80' if is_dark else '#15803d'}; font-weight: bold;'>{sec_room}</span>")
                     lbl_room.setStyleSheet("font-size: 11px;")
                     sec_layout.addWidget(lbl_room)
                 else:
-                    lbl_room = QLabel("📍 <b>Derslik:</b> <span style='color: #64748b;'>Okul sitesinde belirtilmemiş</span>")
+                    lbl_room = QLabel("<b>Derslik:</b> <span style='color: #64748b;'>Okul sitesinde belirtilmemiş</span>")
                     lbl_room.setStyleSheet("font-size: 11px;")
                     sec_layout.addWidget(lbl_room)
 
                 # All weekly slots for this section
                 all_slots_str = ", ".join(f"{s.day} {s.time_slot}" for s in sec.slots)
-                lbl_all_slots = QLabel(f"📅 <b>Tüm Saatleri:</b> {all_slots_str}")
+                lbl_all_slots = QLabel(f"<b>Tüm Saatleri:</b> {all_slots_str}")
                 lbl_all_slots.setStyleSheet(f"color: {'#9399b2' if is_dark else '#64748b'}; font-size: 11px;")
                 lbl_all_slots.setWordWrap(True)
                 sec_layout.addWidget(lbl_all_slots)
@@ -502,14 +502,14 @@ class ConflictDetailDialog(QDialog):
                 other_secs = [s for s_no, s in full_course.sections.items() if s_no not in active_sec_nos]
 
                 if other_secs:
-                    lbl_alt_title = QLabel("💡 <i>Çakışmayı çözmek için alternatif diğer şubeler:</i>")
+                    lbl_alt_title = QLabel("<i>Çakışmayı çözmek için alternatif diğer şubeler:</i>")
                     lbl_alt_title.setStyleSheet(f"color: {'#a6e3a1' if is_dark else '#15803d'}; font-size: 11px; margin-top: 4px;")
                     card_layout.addWidget(lbl_alt_title)
 
                     for alt_sec in sorted(other_secs, key=lambda x: int(x.section_no) if x.section_no.isdigit() else x.section_no):
                         alt_slots_str = ", ".join(f"{s.day} {s.time_slot}" for s in alt_sec.slots)
                         alt_room = getattr(alt_sec, 'classroom', '')
-                        room_suffix = f" [📍 {alt_room}]" if alt_room else ""
+                        room_suffix = f" [{alt_room}]" if alt_room else ""
                         lbl_alt = QLabel(f"  • <b>Sec {alt_sec.section_no}</b> ({alt_sec.instructor}{room_suffix}): {alt_slots_str}")
                         lbl_alt.setStyleSheet(f"color: {'#a6adc8' if is_dark else '#475569'}; font-size: 11px;")
                         lbl_alt.setWordWrap(True)

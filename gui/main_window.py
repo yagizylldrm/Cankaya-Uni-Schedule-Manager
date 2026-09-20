@@ -31,16 +31,51 @@ class ScraperThread(QThread):
         self._is_cancelled = True
 
     def run(self):
-        scraper = CankayaScraper()
-        def callback(cur, total, msg):
-            self.progress_signal.emit(cur, total, msg)
-
         def cancel_check():
             return self._is_cancelled
 
         try:
+            # ==============================================================
+            # AŞAMA 1: Bilgi Paketi Müfredat, Seçmeli Havuzları & Ön Koşul
+            # ==============================================================
+            self.progress_signal.emit(5, 100, "1/2: Bilgi Paketi müfredat ve seçmeli havuzları güncelleniyor...")
+
+            from curriculum_fetcher import CurriculumFetcher
+            curr_fetcher = CurriculumFetcher()
+
+            def curr_callback(cur, total, msg):
+                pct = int(5 + (cur / max(1, total)) * 40)
+                self.progress_signal.emit(pct, 100, f"1/2: {msg}")
+
+            try:
+                c_ok, c_depts, c_details = curr_fetcher.fetch_all_curricula(
+                    progress_callback=curr_callback,
+                    dept_list=self.dept_list,
+                    cancel_check=cancel_check
+                )
+                if c_ok:
+                    self.data_manager.reload_official_curricula()
+                    from prerequisite_manager import PrerequisiteManager
+                    PrerequisiteManager.reload_official_prerequisites()
+            except Exception as e:
+                print(f"[ScraperThread] Bilgi Paketi güncelleme uyarısı: {e}")
+
+            if self._is_cancelled:
+                self.finished_signal.emit(False, 0, 0, "İşlem kullanıcı tarafından iptal edildi.")
+                return
+
+            # ==============================================================
+            # AŞAMA 2: cankaya.edu.tr/dersler/ Açılan Dersler & Şubeler
+            # ==============================================================
+            self.progress_signal.emit(50, 100, "2/2: cankaya.edu.tr/dersler/ üzerinden açılan dersler çekiliyor...")
+
+            scraper = CankayaScraper()
+            def scrape_callback(cur, total, msg):
+                pct = int(50 + (cur / max(1, total)) * 45)
+                self.progress_signal.emit(pct, 100, f"2/2: {msg}")
+
             raw_entries = scraper.fetch_all_schedules(
-                progress_callback=callback,
+                progress_callback=scrape_callback,
                 dept_list=self.dept_list,
                 cancel_check=cancel_check
             )
@@ -50,15 +85,16 @@ class ScraperThread(QThread):
                 return
 
             if not raw_entries:
-                self.finished_signal.emit(False, 0, 0, "Web sitesinden herhangi bir ders verisi alınamadı.")
+                self.finished_signal.emit(False, 0, 0, "Açılan dersler sayfasından herhangi bir ders verisi alınamadı.")
                 return
 
             # Process and save in BACKGROUND thread so GUI thread never freezes!
-            self.progress_signal.emit(100, 100, "Veriler işleniyor ve diske kaydediliyor...")
+            self.progress_signal.emit(98, 100, "Veriler işleniyor ve diske kaydediliyor...")
             self.data_manager.process_raw_entries(raw_entries)
 
             c_count = len(self.data_manager.courses)
             d_count = len(self.data_manager.departments)
+            self.progress_signal.emit(100, 100, "Tamamlandı!")
             self.finished_signal.emit(True, c_count, d_count, "Başarılı")
 
         except Exception as e:
@@ -112,35 +148,35 @@ class MainWindow(QMainWindow):
         header_layout.setContentsMargins(10, 6, 10, 6)
         header_layout.setSpacing(8)
 
-        lbl_title = QLabel("🎓 Çankaya Üniversitesi Ders Programı Oluşturucu")
+        lbl_title = QLabel("Çankaya Üniversitesi Ders Programı Oluşturucu")
         lbl_title.setObjectName("titleLabel")
         header_layout.addWidget(lbl_title)
 
         header_layout.addStretch()
 
         active_theme = StyleManager.get_active_theme()
-        theme_btn_text = "🎨 ☀️ Açık Tema" if active_theme == "cankaya" else "🎨 🌙 Karanlık Tema"
+        theme_btn_text = "Açık Tema" if active_theme == "cankaya" else "Karanlık Tema"
         self.btn_theme = QPushButton(theme_btn_text)
-        self.btn_theme.setToolTip("☀️ Açık Tema (Çankaya) ile 🌙 Karanlık Tema (Eski Görünüm) arasında geçiş yapar")
+        self.btn_theme.setToolTip("Açık Tema (Çankaya) ile Karanlık Tema (Eski Görünüm) arasında geçiş yapar")
         self.btn_theme.clicked.connect(self.toggle_theme)
         header_layout.addWidget(self.btn_theme)
 
-        self.btn_transcript = QPushButton("📜 Transkript & Ön Koşul")
+        self.btn_transcript = QPushButton("Transkript & Ön Koşul")
         self.btn_transcript.setToolTip("Transkriptinizi yükleyerek verdiğiniz dersleri kaydedin ve derslerin ön koşullarını denetleyin")
         self.btn_transcript.clicked.connect(self.open_transcript_dialog)
         header_layout.addWidget(self.btn_transcript)
 
-        self.btn_refresh = QPushButton("🔄 Verileri Çek")
+        self.btn_refresh = QPushButton("Verileri Çek")
         self.btn_refresh.setToolTip("Çankaya web sitesinden güncel ders programlarını çeker")
         self.btn_refresh.clicked.connect(self.start_web_scraping)
         header_layout.addWidget(self.btn_refresh)
 
-        self.btn_generate = QPushButton("⚡ Program Oluştur")
+        self.btn_generate = QPushButton("Program Oluştur")
         self.btn_generate.setObjectName("primaryButton")
         self.btn_generate.clicked.connect(self.generate_schedule_combinations)
         header_layout.addWidget(self.btn_generate)
 
-        self.btn_export = QPushButton("💾 Dışa Aktar")
+        self.btn_export = QPushButton("Dışa Aktar")
         self.btn_export.setToolTip("Haftalık programı PNG görseli veya JSON olarak kaydeder")
         self.btn_export.clicked.connect(self.export_schedule)
         header_layout.addWidget(self.btn_export)
@@ -192,8 +228,8 @@ class MainWindow(QMainWindow):
         msg_box.setWindowTitle("Veri Çekme Modu")
         msg_box.setText("Nasıl bir güncelleme yapmak istersiniz?")
         
-        btn_quick = msg_box.addButton("⚡ Hızlı Güncelleme (Ana Bölümler ~15 sn)", QMessageBox.ButtonRole.ActionRole)
-        btn_full = msg_box.addButton("🌐 Tüm Üniversite (100+ Bölüm ~1-2 dk)", QMessageBox.ButtonRole.ActionRole)
+        btn_quick = msg_box.addButton("Hızlı Güncelleme (Ana Bölümler ~15 sn)", QMessageBox.ButtonRole.ActionRole)
+        btn_full = msg_box.addButton("Tüm Üniversite (100+ Bölüm ~1-2 dk)", QMessageBox.ButtonRole.ActionRole)
         btn_cancel = msg_box.addButton("İptal", QMessageBox.ButtonRole.RejectRole)
         
         msg_box.exec()
@@ -233,7 +269,9 @@ class MainWindow(QMainWindow):
             QMessageBox.information(
                 self,
                 "Başarılı",
-                f"Toplam {course_count} ders ve {dept_count} bölüm bilgisi başarıyla güncellendi!"
+                f"Bilgi Paketi ve Açılan Dersler başarıyla güncellendi!\n\n"
+                f"• Aşama 1: Bilgi Paketi müfredatları, teknik/sosyal seçmeli havuzları ve ön koşul kuralları güncellendi.\n"
+                f"• Aşama 2: Açılan {course_count} ders ve {dept_count} bölüm ders programı sisteme aktarıldı."
             )
         else:
             if not self.scraper_thread or not self.scraper_thread._is_cancelled:
@@ -264,10 +302,14 @@ class MainWindow(QMainWindow):
         from gui.transcript_dialog import TranscriptDialog
         dlg = TranscriptDialog(self.data_manager, parent=self)
         dlg.transcript_updated.connect(self.on_transcript_updated)
-        if hasattr(dlg, 'exec'):
-            dlg.exec()
-        else:
-            dlg.exec_()
+        try:
+            if hasattr(dlg, 'exec'):
+                dlg.exec()
+            else:
+                dlg.exec_()
+        finally:
+            self.activateWindow()
+            self.raise_()
 
     def on_transcript_updated(self):
         self.search_panel.populate_departments()
@@ -279,81 +321,85 @@ class MainWindow(QMainWindow):
             self.on_basket_courses_changed()
 
     def generate_schedule_combinations(self, silent=False):
-        target_dict = self.search_panel.get_selected_target_dict()
-        if not target_dict:
+        try:
+            target_dict = self.search_panel.get_selected_target_dict()
+            if not target_dict:
+                if not silent:
+                    QMessageBox.warning(self, "Ders Seçilmedi", "Lütfen önce sol panelden alınmak istenen dersleri sepete ekleyin.")
+                return
+
+            # Check prerequisites for selected courses
             if not silent:
-                QMessageBox.warning(self, "Ders Seçilmedi", "Lütfen önce sol panelden alınmak istenen dersleri sepete ekleyin.")
-            return
+                missing_prereqs = []
+                for c_code in target_dict.keys():
+                    p_info = self.data_manager.check_course_prerequisites(c_code)
+                    if not p_info.get("can_take", True):
+                        missing_prereqs.append(f"• <b>{c_code}</b>: {p_info['message']}")
 
-        # Check prerequisites for selected courses
-        if not silent:
-            missing_prereqs = []
-            for c_code in target_dict.keys():
-                p_info = self.data_manager.check_course_prerequisites(c_code)
-                if not p_info.get("can_take", True):
-                    missing_prereqs.append(f"• <b>{c_code}</b>: {p_info['message']}")
-
-            if missing_prereqs:
-                warning_text = (
-                    "Sepetinizdeki bazı derslerin ön koşulları transkriptinizde eksik görünmektedir:\n\n" +
-                    "\n".join(missing_prereqs) +
-                    "\n\nYine de bu dersler için program oluşturmak istiyor musunuz?"
-                )
-                res = QMessageBox.question(
-                    self,
-                    "⚠️ Ön Koşul Eksik Uyarısı",
-                    warning_text,
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.Yes
-                )
-                if res != QMessageBox.StandardButton.Yes:
-                    return
-
-        prefs = {
-            "no_morning": self.combination_bar.chk_no_morning.isChecked(),
-            "free_friday": self.combination_bar.chk_free_friday.isChecked(),
-            "free_monday": self.combination_bar.chk_free_monday.isChecked(),
-        }
-
-        custom_blocks = self.data_manager.get_custom_schedule_blocks() if self.data_manager else {}
-        self.current_combinations = self.scheduler_engine.generate_combinations(
-            target_dict, preferences=prefs, custom_blocks=custom_blocks
-        )
-        count = len(self.current_combinations)
-        self.combination_bar.set_combinations_count(count)
-
-        if count > 0:
-            self.display_combination_by_index(0)
-            if not silent:
-                QMessageBox.information(self, "Kombinasyon Üretildi", f"Çakışma oluşturmayan toplam {count} adet ders programı kombinasyonu bulundu!")
-        else:
-            self.timetable_widget.clear_schedule()
-            if not silent:
-                # Check if custom blocks caused conflicts for any selected courses
-                custom_block_clash_courses = []
-                if custom_blocks:
-                    for c_code, sec_list in target_dict.items():
-                        if sec_list and all(self.scheduler_engine.section_overlaps_custom_blocks(s, custom_blocks)[0] for s in sec_list):
-                            custom_block_clash_courses.append(c_code)
-
-                if custom_block_clash_courses:
-                    clash_info = ", ".join(custom_block_clash_courses)
-                    msg = (
-                        f"Seçtiğiniz derslerden bazılarının tüm şubeleri eklediğiniz kişisel etkinliklerle çakışmaktadır:\n\n"
-                        f"👉 Çakışan dersler: {clash_info}\n\n"
-                        f"Lütfen tablodaki ilgili saatlerdeki kişisel etkinliğinizi düzenlemeyi/kaldırmayı veya farklı dersler seçmeyi deneyin."
+                if missing_prereqs:
+                    warning_text = (
+                        "Sepetinizdeki bazı derslerin ön koşulları transkriptinizde eksik görünmektedir:\n\n" +
+                        "\n".join(missing_prereqs) +
+                        "\n\nYine de bu dersler için program oluşturmak istiyor musunuz?"
                     )
-                else:
-                    msg = (
-                        "Seçtiğiniz dersler/section'lar veya kişisel etkinlikler arasında çakışma oluşturmayan bir kombinasyon bulunamadı.\n"
-                        "Lütfen farklı section'lar seçmeyi, kişisel etkinliklerinizi düzenlemeyi veya filtreleri esnetmeyi deneyin."
+                    res = QMessageBox.question(
+                        self,
+                        "Ön Koşul Eksik Uyarısı",
+                        warning_text,
+                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                        QMessageBox.StandardButton.Yes
                     )
-                QMessageBox.warning(self, "Çakışmasız Program Bulunamadı", msg)
+                    if res != QMessageBox.StandardButton.Yes:
+                        return
+
+            prefs = {
+                "no_morning": self.combination_bar.chk_no_morning.isChecked(),
+                "free_friday": self.combination_bar.chk_free_friday.isChecked(),
+                "free_monday": self.combination_bar.chk_free_monday.isChecked(),
+            }
+
+            custom_blocks = self.data_manager.get_custom_schedule_blocks() if self.data_manager else {}
+            self.current_combinations = self.scheduler_engine.generate_combinations(
+                target_dict, preferences=prefs, custom_blocks=custom_blocks
+            )
+            count = len(self.current_combinations)
+            self.combination_bar.set_combinations_count(count)
+
+            if count > 0:
+                self.display_combination_by_index(0)
+                if not silent:
+                    QMessageBox.information(self, "Kombinasyon Üretildi", f"Çakışma oluşturmayan toplam {count} adet ders programı kombinasyonu bulundu!")
+            else:
+                self.timetable_widget.clear_schedule()
+                if not silent:
+                    # Check if custom blocks caused conflicts for any selected courses
+                    custom_block_clash_courses = []
+                    if custom_blocks:
+                        for c_code, sec_list in target_dict.items():
+                            if sec_list and all(self.scheduler_engine.section_overlaps_custom_blocks(s, custom_blocks)[0] for s in sec_list):
+                                custom_block_clash_courses.append(c_code)
+
+                    if custom_block_clash_courses:
+                        clash_info = ", ".join(custom_block_clash_courses)
+                        msg = (
+                            f"Seçtiğiniz derslerden bazılarının tüm şubeleri eklediğiniz kişisel etkinliklerle çakışmaktadır:\n\n"
+                            f"Çakışan dersler: {clash_info}\n\n"
+                            f"Lütfen tablodaki ilgili saatlerdeki kişisel etkinliğinizi düzenlemeyi/kaldırmayı veya farklı dersler seçmeyi deneyin."
+                        )
+                    else:
+                        msg = (
+                            "Seçtiğiniz dersler/section'lar veya kişisel etkinlikler arasında çakışma oluşturmayan bir kombinasyon bulunamadı.\n"
+                            "Lütfen farklı section'lar seçmeyi, kişisel etkinliklerinizi düzenlemeyi veya filtreleri esnetmeyi deneyin."
+                        )
+                    QMessageBox.warning(self, "Çakışmasız Program Bulunamadı", msg)
+        finally:
+            self.activateWindow()
+            self.raise_()
 
     def on_preferences_changed(self, prefs):
         target_dict = self.search_panel.get_selected_target_dict()
         if target_dict:
-            self.generate_schedule_combinations()
+            self.generate_schedule_combinations(silent=True)
 
     def display_combination_by_index(self, index):
         if 0 <= index < len(self.current_combinations):
@@ -378,15 +424,17 @@ class MainWindow(QMainWindow):
     def export_schedule(self):
         if self.timetable_widget.findChildren(QWidget) == 0:
             QMessageBox.warning(self, "Program Boş", "Dışa aktarmak için önce bir ders programı oluşturun.")
-            return
-
-        filepath, selected_filter = QFileDialog.getSaveFileName(
-            self, "Ders Programını Kaydet", "haftalik_program.png", "PNG Görsel (*.png);;JSON Dosyası (*.json)"
-        )
-        if not filepath:
+            self.activateWindow()
+            self.raise_()
             return
 
         try:
+            filepath, selected_filter = QFileDialog.getSaveFileName(
+                self, "Ders Programını Kaydet", "haftalik_program.png", "PNG Görsel (*.png);;JSON Dosyası (*.json)"
+            )
+            if not filepath:
+                return
+
             if filepath.endswith('.json'):
                 current_combo_idx = self.combination_bar.current_index
                 sections = self.current_combinations[current_combo_idx] if 0 <= current_combo_idx < len(self.current_combinations) else []
@@ -400,6 +448,9 @@ class MainWindow(QMainWindow):
                 QMessageBox.information(self, "Kaydedildi", f"Program görseli kaydedildi:\n{filepath}")
         except Exception as e:
             QMessageBox.critical(self, "Hata", f"Dosya kaydedilirken hata oluştu: {e}")
+        finally:
+            self.activateWindow()
+            self.raise_()
 
     def toggle_theme(self):
         new_theme = StyleManager.toggle_theme()
@@ -410,7 +461,7 @@ class MainWindow(QMainWindow):
             self.data_manager.student_profile.get("secondary_dept", "YOK"),
             self.data_manager.student_profile.get("secondary_type", "YOK")
         )
-        self.btn_theme.setText("🎨 Tema: ☀️ Açık (Çankaya)" if new_theme == "cankaya" else "🎨 Tema: 🌙 Karanlık")
+        self.btn_theme.setText("Açık Tema (Çankaya)" if new_theme == "cankaya" else "Karanlık Tema")
         self.timetable_widget.refresh_theme()
         if hasattr(self.search_panel, "refresh_theme"):
             self.search_panel.refresh_theme()

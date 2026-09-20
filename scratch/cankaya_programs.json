@@ -1,0 +1,234 @@
+[
+  {
+    "fak_no": 1,
+    "fak_adi": null,
+    "program_id": 469410,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Computer Sciences"
+  },
+  {
+    "fak_no": 1,
+    "fak_adi": null,
+    "program_id": 157349,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "English Language and Literature"
+  },
+  {
+    "fak_no": 1,
+    "fak_adi": null,
+    "program_id": 420205,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Translation and Interpreting Studies (English)"
+  },
+  {
+    "fak_no": 1,
+    "fak_adi": null,
+    "program_id": 378141,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Mathematics"
+  },
+  {
+    "fak_no": 1,
+    "fak_adi": null,
+    "program_id": 157351,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Translation and Interpreting Studies (English)"
+  },
+  {
+    "fak_no": 1,
+    "fak_adi": null,
+    "program_id": 226246,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Psychology"
+  },
+  {
+    "fak_no": 2,
+    "fak_adi": null,
+    "program_id": 226273,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Banking and Finance"
+  },
+  {
+    "fak_no": 2,
+    "fak_adi": null,
+    "program_id": 378142,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Public Relations and Advertising"
+  },
+  {
+    "fak_no": 2,
+    "fak_adi": null,
+    "program_id": 157358,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Economics"
+  },
+  {
+    "fak_no": 2,
+    "fak_adi": null,
+    "program_id": 157359,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Management"
+  },
+  {
+    "fak_no": 2,
+    "fak_adi": null,
+    "program_id": 157361,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Political Science and International Relations"
+  },
+  {
+    "fak_no": 2,
+    "fak_adi": null,
+    "program_id": 157362,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "International Trade"
+  },
+  {
+    "fak_no": 2,
+    "fak_adi": null,
+    "program_id": 420206,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "International Trade and Finance"
+  },
+  {
+    "fak_no": 2,
+    "fak_adi": null,
+    "program_id": 432448,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Management Information Systems"
+  },
+  {
+    "fak_no": 4,
+    "fak_adi": null,
+    "program_id": 157347,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Law"
+  },
+  {
+    "fak_no": 7,
+    "fak_adi": null,
+    "program_id": 157371,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Computer Engineering"
+  },
+  {
+    "fak_no": 7,
+    "fak_adi": null,
+    "program_id": 252880,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Electrical-Electronics Engineering"
+  },
+  {
+    "fak_no": 7,
+    "fak_adi": null,
+    "program_id": 157381,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Electronic and Communication Engineering"
+  },
+  {
+    "fak_no": 7,
+    "fak_adi": null,
+    "program_id": 157383,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Industrial Engineering"
+  },
+  {
+    "fak_no": 7,
+    "fak_adi": null,
+    "program_id": 226263,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Civil Engineering"
+  },
+  {
+    "fak_no": 7,
+    "fak_adi": null,
+    "program_id": 226252,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Mechanical Engineering"
+  },
+  {
+    "fak_no": 7,
+    "fak_adi": null,
+    "program_id": 226255,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Materials Science and Engineering"
+  },
+  {
+    "fak_no": 7,
+    "fak_adi": null,
+    "program_id": 226258,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Mechatronics Engineering"
+  },
+  {
+    "fak_no": 7,
+    "fak_adi": null,
+    "program_id": 404203,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Software Engineering"
+  },
+  {
+    "fak_no": 8,
+    "fak_adi": null,
+    "program_id": 107048,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Interior Architecture"
+  },
+  {
+    "fak_no": 8,
+    "fak_adi": null,
+    "program_id": 226261,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Architecture"
+  },
+  {
+    "fak_no": 8,
+    "fak_adi": null,
+    "program_id": 226267,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "City and Regional Planning"
+  },
+  {
+    "fak_no": 54,
+    "fak_adi": null,
+    "program_id": 130437,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Department of Inter-Curricular Courses"
+  },
+  {
+    "fak_no": 55,
+    "fak_adi": null,
+    "program_id": 331357,
+    "bolum_kodu": null,
+    "program_adi_tr": null,
+    "program_adi_en": "Department of Foreign Languages"
+  }
+]

@@ -77,7 +77,7 @@ class CombinationBar(QFrame):
 
     def set_combination_credits(self, course_count=0, credit=0, ects=0):
         if course_count > 0:
-            self.lbl_credit_summary.setText(f"📚 {course_count} Ders | 💳 {credit} Kr | 🌟 {ects} AKTS")
+            self.lbl_credit_summary.setText(f"{course_count} Ders | {credit} Kr | {ects} AKTS")
         else:
             self.lbl_credit_summary.setText("")
 

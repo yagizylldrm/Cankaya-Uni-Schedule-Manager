@@ -1,0 +1,6090 @@
+{
+  "ENG121": {
+    "bim_kod": "108350",
+    "muf_no": "523",
+    "bolum_kod": "101",
+    "code": "ENG121",
+    "name_tr": "Akademik İngilizce I",
+    "name_en": "Academic English I"
+  },
+  "BIO101": {
+    "bim_kod": "102576",
+    "muf_no": "523",
+    "bolum_kod": "102",
+    "code": "BIO101",
+    "name_tr": "Biyolojiye Giriş",
+    "name_en": "Introduction to Biology"
+  },
+  "MATH157": {
+    "bim_kod": "108204",
+    "muf_no": "523",
+    "bolum_kod": "103",
+    "code": "MATH157",
+    "name_tr": "Mühendisler İçin Genel Matematik I",
+    "name_en": "Calculus for Engineering I"
+  },
+  "CENG111": {
+    "bim_kod": "107867",
+    "muf_no": "523",
+    "bolum_kod": "104",
+    "code": "CENG111",
+    "name_tr": "Bilgisayar Programlama I",
+    "name_en": "Computer Programming I"
+  },
+  "TURK101": {
+    "bim_kod": "102145",
+    "muf_no": "523",
+    "bolum_kod": "105",
+    "code": "TURK101",
+    "name_tr": "Türk Dili I",
+    "name_en": "Turkish I"
+  },
+  "CS101": {
+    "bim_kod": "109544",
+    "muf_no": "523",
+    "bolum_kod": "106",
+    "code": "CS101",
+    "name_tr": "Bilgisayar Bilimlerine Giriş",
+    "name_en": "Introduction to Computer Science"
+  },
+  "CS103": {
+    "bim_kod": "109542",
+    "muf_no": "523",
+    "bolum_kod": "107",
+    "code": "CS103",
+    "name_tr": "Ayrık Matematik ve Uygulamaları I",
+    "name_en": "Discrete Mathematics and Applications I"
+  },
+  "ENG122": {
+    "bim_kod": "108351",
+    "muf_no": "523",
+    "bolum_kod": "108",
+    "code": "ENG122",
+    "name_tr": "Akademik İngilizce II",
+    "name_en": "Academic English II"
+  },
+  "CS104": {
+    "bim_kod": "109543",
+    "muf_no": "523",
+    "bolum_kod": "109",
+    "code": "CS104",
+    "name_tr": "Ayrık Matematik ve Uygulamaları II",
+    "name_en": "Discrete Mathematics and Applications II"
+  },
+  "MATH158": {
+    "bim_kod": "108203",
+    "muf_no": "523",
+    "bolum_kod": "110",
+    "code": "MATH158",
+    "name_tr": "Mühendisler İçin Genel Matematik II",
+    "name_en": "Calculus for Engineering II"
+  },
+  "CENG114": {
+    "bim_kod": "107868",
+    "muf_no": "523",
+    "bolum_kod": "111",
+    "code": "CENG114",
+    "name_tr": "Bilgisayar Programlama II",
+    "name_en": "Computer Programming II"
+  },
+  "MATH205": {
+    "bim_kod": "106487",
+    "muf_no": "523",
+    "bolum_kod": "112",
+    "code": "MATH205",
+    "name_tr": "Temel Lineer Cebir",
+    "name_en": "Basic Linear Algebra"
+  },
+  "TURK102": {
+    "bim_kod": "102147",
+    "muf_no": "523",
+    "bolum_kod": "113",
+    "code": "TURK102",
+    "name_tr": "Türk Dili II",
+    "name_en": "Turkish II"
+  },
+  "MATH223": {
+    "bim_kod": "109292",
+    "muf_no": "523",
+    "bolum_kod": "114",
+    "code": "MATH223",
+    "name_tr": "Uygulamalı Olasılık ve İstatistiğe Giriş",
+    "name_en": "Introduction to Applied Probability and Statistics"
+  },
+  "HIST201": {
+    "bim_kod": "100914",
+    "muf_no": "523",
+    "bolum_kod": "115",
+    "code": "HIST201",
+    "name_tr": "Atatürk İlke ve İnkilap Tarihi I",
+    "name_en": "Principles of Atatürk and History of Turkish Revolution I"
+  },
+  "MATH254": {
+    "bim_kod": "108200",
+    "muf_no": "523",
+    "bolum_kod": "116",
+    "code": "MATH254",
+    "name_tr": "Diferansiyel Denklemlere Giriş",
+    "name_en": "Introduction to Differential Equations"
+  },
+  "CENG241": {
+    "bim_kod": "107872",
+    "muf_no": "523",
+    "bolum_kod": "117",
+    "code": "CENG241",
+    "name_tr": "Nesneye Yönelik Programlama",
+    "name_en": "Object Oriented Programming"
+  },
+  "CS201": {
+    "bim_kod": "109930",
+    "muf_no": "523",
+    "bolum_kod": "124",
+    "code": "CS201",
+    "name_tr": "Çizge Kuramı",
+    "name_en": "Graph Theory"
+  },
+  "SENG201": {
+    "bim_kod": "109302",
+    "muf_no": "523",
+    "bolum_kod": "125",
+    "code": "SENG201",
+    "name_tr": "Veri Yapıları",
+    "name_en": "Data Structures"
+  },
+  "COL201": {
+    "bim_kod": "109754",
+    "muf_no": "523",
+    "bolum_kod": "126",
+    "code": "COL201",
+    "name_tr": "Ders Dışı Öğrenmeler-I",
+    "name_en": "Co-Curricular Learning-I"
+  },
+  "HIST202": {
+    "bim_kod": "100917",
+    "muf_no": "523",
+    "bolum_kod": "122",
+    "code": "HIST202",
+    "name_tr": "Atatürk İlke ve İnkilap Tarihi II",
+    "name_en": "Principles of Atatürk and History of Turkish Revolution II"
+  },
+  "CENG383": {
+    "bim_kod": "107878",
+    "muf_no": "523",
+    "bolum_kod": "123",
+    "code": "CENG383",
+    "name_tr": "Algoritmalar",
+    "name_en": "Algorithms"
+  },
+  "CS204": {
+    "bim_kod": "109756",
+    "muf_no": "523",
+    "bolum_kod": "127",
+    "code": "CS204",
+    "name_tr": "Veri Bilimi",
+    "name_en": "Data Science"
+  },
+  "CS206": {
+    "bim_kod": "109757",
+    "muf_no": "523",
+    "bolum_kod": "128",
+    "code": "CS206",
+    "name_tr": "Bilgisayar Sistemleri",
+    "name_en": "Computer Systems"
+  },
+  "COL202": {
+    "bim_kod": "109755",
+    "muf_no": "523",
+    "bolum_kod": "129",
+    "code": "COL202",
+    "name_tr": "Ders Dışı Öğrenmeler-II",
+    "name_en": "Co-Curricular Learning-II"
+  },
+  "CS301": {
+    "bim_kod": "109758",
+    "muf_no": "523",
+    "bolum_kod": "130",
+    "code": "CS301",
+    "name_tr": "Kriptografi I",
+    "name_en": "Cryptography I"
+  },
+  "CS303": {
+    "bim_kod": "109759",
+    "muf_no": "523",
+    "bolum_kod": "131",
+    "code": "CS303",
+    "name_tr": "Sayısal Hesaplama",
+    "name_en": "Numerical Computing"
+  },
+  "CS305": {
+    "bim_kod": "109760",
+    "muf_no": "523",
+    "bolum_kod": "132",
+    "code": "CS305",
+    "name_tr": "Esnek Hesaplama ve Akıllı Sistemler",
+    "name_en": "Soft Computing and Intelligent Systems"
+  },
+  "MIS303": {
+    "bim_kod": "109410",
+    "muf_no": "523",
+    "bolum_kod": "133",
+    "code": "MIS303",
+    "name_tr": "Veritabanı Yönetim Sistemleri",
+    "name_en": "Database Management System"
+  },
+  "CS302": {
+    "bim_kod": "109761",
+    "muf_no": "523",
+    "bolum_kod": "134",
+    "code": "CS302",
+    "name_tr": "Kriptografi II",
+    "name_en": "Cryptography II"
+  },
+  "CS304": {
+    "bim_kod": "109762",
+    "muf_no": "523",
+    "bolum_kod": "135",
+    "code": "CS304",
+    "name_tr": "Yapay Zekaya Giriş",
+    "name_en": "Introduction to Artificial Intellegence"
+  },
+  "CENG328": {
+    "bim_kod": "108945",
+    "muf_no": "523",
+    "bolum_kod": "136",
+    "code": "CENG328",
+    "name_tr": "İşletim Sistemleri",
+    "name_en": "Operating Systems"
+  },
+  "MIS316": {
+    "bim_kod": "109331",
+    "muf_no": "523",
+    "bolum_kod": "137",
+    "code": "MIS316",
+    "name_tr": "Sistem Analizi ve Tasarım",
+    "name_en": "System Analysis and Design"
+  },
+  "CS401": {
+    "bim_kod": "109763",
+    "muf_no": "523",
+    "bolum_kod": "138",
+    "code": "CS401",
+    "name_tr": "Makine Öğrenmesi için Matematik",
+    "name_en": "Mathematics for Machine Learning"
+  },
+  "CENG393": {
+    "bim_kod": "108947",
+    "muf_no": "523",
+    "bolum_kod": "139",
+    "code": "CENG393",
+    "name_tr": "Bilgisayar Ağları",
+    "name_en": "Computer Networks"
+  },
+  "CS491": {
+    "bim_kod": "109764",
+    "muf_no": "523",
+    "bolum_kod": "140",
+    "code": "CS491",
+    "name_tr": "Mezuniyet Projesi I",
+    "name_en": "Graduation Project I"
+  },
+  "CS300": {
+    "bim_kod": "109765",
+    "muf_no": "523",
+    "bolum_kod": "141",
+    "code": "CS300",
+    "name_tr": "Yaz Stajı",
+    "name_en": "Summer Training"
+  },
+  "CENG497": {
+    "bim_kod": "107885",
+    "muf_no": "523",
+    "bolum_kod": "142",
+    "code": "CENG497",
+    "name_tr": "Bilgisayar Grafikleri",
+    "name_en": "Computer Graphics"
+  },
+  "CS402": {
+    "bim_kod": "109766",
+    "muf_no": "523",
+    "bolum_kod": "143",
+    "code": "CS402",
+    "name_tr": "Yapay Sinir Ağları ve Derin Öğrenme",
+    "name_en": "Artificial Neural Networks and Deep Learning"
+  },
+  "CS492": {
+    "bim_kod": "109767",
+    "muf_no": "523",
+    "bolum_kod": "144",
+    "code": "CS492",
+    "name_tr": "Mezuniyet Projesi II",
+    "name_en": "Graduation Project II"
+  },
+  "ELL121": {
+    "bim_kod": "108072",
+    "muf_no": "515",
+    "bolum_kod": "102",
+    "code": "ELL121",
+    "name_tr": "Okuma ve Çözümleme I",
+    "name_en": "Reading and Analysis I"
+  },
+  "ELL123": {
+    "bim_kod": "108073",
+    "muf_no": "515",
+    "bolum_kod": "103",
+    "code": "ELL123",
+    "name_tr": "Akademik Yazı Becerileri I",
+    "name_en": "Academic Writing I"
+  },
+  "ELL125": {
+    "bim_kod": "108074",
+    "muf_no": "515",
+    "bolum_kod": "104",
+    "code": "ELL125",
+    "name_tr": "Dil ve İletişim",
+    "name_en": "Language and Communication"
+  },
+  "ELL131": {
+    "bim_kod": "108075",
+    "muf_no": "515",
+    "bolum_kod": "105",
+    "code": "ELL131",
+    "name_tr": "Edebiyata Giriş I",
+    "name_en": "Introduction to Literature I"
+  },
+  "ELL133": {
+    "bim_kod": "105904",
+    "muf_no": "515",
+    "bolum_kod": "106",
+    "code": "ELL133",
+    "name_tr": "Mitoloji",
+    "name_en": "Mythology"
+  },
+  "ELL122": {
+    "bim_kod": "108076",
+    "muf_no": "515",
+    "bolum_kod": "201",
+    "code": "ELL122",
+    "name_tr": "Okuma ve Çözümleme II",
+    "name_en": "Reading and Analysis II"
+  },
+  "ELL124": {
+    "bim_kod": "108077",
+    "muf_no": "515",
+    "bolum_kod": "202",
+    "code": "ELL124",
+    "name_tr": "Akademik Yazı Becerileri II",
+    "name_en": "Academic Writing II"
+  },
+  "ELL130": {
+    "bim_kod": "108078",
+    "muf_no": "515",
+    "bolum_kod": "203",
+    "code": "ELL130",
+    "name_tr": "İngiliz Kültürü ve Toplumu",
+    "name_en": "British Culture and Society"
+  },
+  "ELL132": {
+    "bim_kod": "108079",
+    "muf_no": "515",
+    "bolum_kod": "204",
+    "code": "ELL132",
+    "name_tr": "Edebiyata Giriş II",
+    "name_en": "Introduction to Literature II"
+  },
+  "ELL136": {
+    "bim_kod": "105909",
+    "muf_no": "515",
+    "bolum_kod": "205",
+    "code": "ELL136",
+    "name_tr": "Klasik Edebiyat",
+    "name_en": "Classical Literature"
+  },
+  "ELL223": {
+    "bim_kod": "109865",
+    "muf_no": "515",
+    "bolum_kod": "301",
+    "code": "ELL223",
+    "name_tr": "Çeviri",
+    "name_en": "Translation"
+  },
+  "ELL233": {
+    "bim_kod": "108050",
+    "muf_no": "515",
+    "bolum_kod": "302",
+    "code": "ELL233",
+    "name_tr": "İngiliz Edebiyatı I",
+    "name_en": "Survey of English Literature I"
+  },
+  "ELL225": {
+    "bim_kod": "107987",
+    "muf_no": "515",
+    "bolum_kod": "303",
+    "code": "ELL225",
+    "name_tr": "Akademik Yazı Becerileri III",
+    "name_en": "Academic Writing III"
+  },
+  "ELL237": {
+    "bim_kod": "108053",
+    "muf_no": "515",
+    "bolum_kod": "304",
+    "code": "ELL237",
+    "name_tr": "Kültür Üzerine Kavramlar",
+    "name_en": "Concepts in Culture"
+  },
+  "ELL224": {
+    "bim_kod": "109866",
+    "muf_no": "515",
+    "bolum_kod": "401",
+    "code": "ELL224",
+    "name_tr": "Edebi Çeviri",
+    "name_en": "Literary Translation"
+  },
+  "ELL234": {
+    "bim_kod": "108051",
+    "muf_no": "515",
+    "bolum_kod": "402",
+    "code": "ELL234",
+    "name_tr": "İngiliz Edebiyatı II",
+    "name_en": "Survey of English Literature II"
+  },
+  "ELL236": {
+    "bim_kod": "108052",
+    "muf_no": "515",
+    "bolum_kod": "403",
+    "code": "ELL236",
+    "name_tr": "Disiplinlerarası Çalışmalar",
+    "name_en": "Interdisciplinary Studies"
+  },
+  "ELL282": {
+    "bim_kod": "108054",
+    "muf_no": "515",
+    "bolum_kod": "404",
+    "code": "ELL282",
+    "name_tr": "Ortaçağ ve Erken Modern Dönem Edebiyatı",
+    "name_en": "Medieval and Early Modern Literature"
+  },
+  "ELL331": {
+    "bim_kod": "108055",
+    "muf_no": "515",
+    "bolum_kod": "501",
+    "code": "ELL331",
+    "name_tr": "Amerikan Edebiyatından Seçmeler",
+    "name_en": "Selections from American Literature"
+  },
+  "ELL341": {
+    "bim_kod": "108060",
+    "muf_no": "515",
+    "bolum_kod": "502",
+    "code": "ELL341",
+    "name_tr": "Tiyatro I",
+    "name_en": "Drama I"
+  },
+  "ELL381": {
+    "bim_kod": "108067",
+    "muf_no": "515",
+    "bolum_kod": "503",
+    "code": "ELL381",
+    "name_tr": "18. Yüzyıl Edebiyatı",
+    "name_en": "18th-Century Literature"
+  },
+  "ELL391": {
+    "bim_kod": "107984",
+    "muf_no": "515",
+    "bolum_kod": "504",
+    "code": "ELL391",
+    "name_tr": "Edebiyat Kuramları I",
+    "name_en": "Literary Theory I"
+  },
+  "ELL344": {
+    "bim_kod": "108061",
+    "muf_no": "515",
+    "bolum_kod": "601",
+    "code": "ELL344",
+    "name_tr": "Shakespeare",
+    "name_en": "Shakespeare"
+  },
+  "ELL374": {
+    "bim_kod": "108066",
+    "muf_no": "515",
+    "bolum_kod": "602",
+    "code": "ELL374",
+    "name_tr": "19. Yüzyıl Şiiri",
+    "name_en": "19th-Century Poetry"
+  },
+  "ELL392": {
+    "bim_kod": "107985",
+    "muf_no": "515",
+    "bolum_kod": "603",
+    "code": "ELL392",
+    "name_tr": "Edebiyat Kuramları II",
+    "name_en": "Literary Theory II"
+  },
+  "ELL362": {
+    "bim_kod": "105925",
+    "muf_no": "515",
+    "bolum_kod": "604",
+    "code": "ELL362",
+    "name_tr": "19. Yüzyıl Romanı",
+    "name_en": "19th-Century Fiction"
+  },
+  "ELL431": {
+    "bim_kod": "107986",
+    "muf_no": "515",
+    "bolum_kod": "701",
+    "code": "ELL431",
+    "name_tr": "Dünya Edebiyatı",
+    "name_en": "World Literature"
+  },
+  "ELL467": {
+    "bim_kod": "105928",
+    "muf_no": "515",
+    "bolum_kod": "702",
+    "code": "ELL467",
+    "name_tr": "20.Yüzyıl Romanı",
+    "name_en": "20th-Century Fiction"
+  },
+  "ELL471": {
+    "bim_kod": "105929",
+    "muf_no": "515",
+    "bolum_kod": "703",
+    "code": "ELL471",
+    "name_tr": "20.Yüzyıl Şiiri",
+    "name_en": "20th-Century Poetry"
+  },
+  "ELL442": {
+    "bim_kod": "108071",
+    "muf_no": "515",
+    "bolum_kod": "802",
+    "code": "ELL442",
+    "name_tr": "Tiyatro II",
+    "name_en": "Drama II"
+  },
+  "ELL468": {
+    "bim_kod": "105933",
+    "muf_no": "515",
+    "bolum_kod": "803",
+    "code": "ELL468",
+    "name_tr": "Çağdaş Roman",
+    "name_en": "Contemporary Fiction"
+  },
+  "ELL472": {
+    "bim_kod": "105934",
+    "muf_no": "515",
+    "bolum_kod": "804",
+    "code": "ELL472",
+    "name_tr": "Çağdaş Şiir",
+    "name_en": "Contemporary Poetry"
+  },
+  "TINS101": {
+    "bim_kod": "109096",
+    "muf_no": "522",
+    "bolum_kod": "101",
+    "code": "TINS101",
+    "name_tr": "Dil Çalışmalarına Giriş",
+    "name_en": "Introduction to Language Studies"
+  },
+  "TINS103": {
+    "bim_kod": "109098",
+    "muf_no": "522",
+    "bolum_kod": "102",
+    "code": "TINS103",
+    "name_tr": "Karşılaştırmalı İngilizce-Türkçe Dilbilgisi I",
+    "name_en": "Comparative English-Turkish Grammar I"
+  },
+  "TINS105": {
+    "bim_kod": "109100",
+    "muf_no": "522",
+    "bolum_kod": "103",
+    "code": "TINS105",
+    "name_tr": "İngilizce Sözlü Anlatım I",
+    "name_en": "Oral Communication in English I"
+  },
+  "TINS107": {
+    "bim_kod": "109102",
+    "muf_no": "522",
+    "bolum_kod": "104",
+    "code": "TINS107",
+    "name_tr": "Çeviriye Giriş I: İngilizce-Türkçe",
+    "name_en": "Introduction to Translation I: English-Turkish"
+  },
+  "TINS102": {
+    "bim_kod": "109097",
+    "muf_no": "522",
+    "bolum_kod": "106",
+    "code": "TINS102",
+    "name_tr": "İleri Düzey İngilizce Okuma Yazma Becerileri",
+    "name_en": "Advanced Reading and Writing Skills in English"
+  },
+  "TINS104": {
+    "bim_kod": "109099",
+    "muf_no": "522",
+    "bolum_kod": "107",
+    "code": "TINS104",
+    "name_tr": "Karşılaştırmalı İngilizce-Türkçe Dilbilgisi II",
+    "name_en": "Comparative English-Turkish Grammar II"
+  },
+  "TINS106": {
+    "bim_kod": "109101",
+    "muf_no": "522",
+    "bolum_kod": "108",
+    "code": "TINS106",
+    "name_tr": "İngilizce Sözlü Anlatım II",
+    "name_en": "Oral Communication in English II"
+  },
+  "TINS108": {
+    "bim_kod": "109103",
+    "muf_no": "522",
+    "bolum_kod": "109",
+    "code": "TINS108",
+    "name_tr": "Çeviriye Giriş II: Türkçe-İngilizce",
+    "name_en": "Introduction to Translation II: Turkish-English"
+  },
+  "TINS201": {
+    "bim_kod": "109104",
+    "muf_no": "522",
+    "bolum_kod": "111",
+    "code": "TINS201",
+    "name_tr": "Yazılı Metinden Sözlü Çeviri I",
+    "name_en": "Sight Translation I"
+  },
+  "TINS203": {
+    "bim_kod": "109106",
+    "muf_no": "522",
+    "bolum_kod": "112",
+    "code": "TINS203",
+    "name_tr": "Dil Çalışmaları ve Çeviri",
+    "name_en": "Language Studies for Translation"
+  },
+  "TINS205": {
+    "bim_kod": "109869",
+    "muf_no": "522",
+    "bolum_kod": "113",
+    "code": "TINS205",
+    "name_tr": "Çevirmenler için Dijital Okuryazarlık, Yapay Zeka ve Son Düzelti",
+    "name_en": "Digital Literacy for Translators, AI and Post-Editing"
+  },
+  "TINS207": {
+    "bim_kod": "109110",
+    "muf_no": "522",
+    "bolum_kod": "114",
+    "code": "TINS207",
+    "name_tr": "Özetleyerek Çeviri",
+    "name_en": "Précis Writing and Translation"
+  },
+  "TINS202": {
+    "bim_kod": "109105",
+    "muf_no": "522",
+    "bolum_kod": "115",
+    "code": "TINS202",
+    "name_tr": "Yazılı Metinden Sözlü Çeviri II",
+    "name_en": "Sight Translation II"
+  },
+  "TINS204": {
+    "bim_kod": "109107",
+    "muf_no": "522",
+    "bolum_kod": "116",
+    "code": "TINS204",
+    "name_tr": "Çeviribilime Giriş",
+    "name_en": "Introduction to Translation Studies"
+  },
+  "TINS206": {
+    "bim_kod": "109109",
+    "muf_no": "522",
+    "bolum_kod": "117",
+    "code": "TINS206",
+    "name_tr": "Çeviri Amaçlı Söylem Çözümlemesi",
+    "name_en": "Translation-oriented Discourse Analysis"
+  },
+  "TINS208": {
+    "bim_kod": "109868",
+    "muf_no": "522",
+    "bolum_kod": "118",
+    "code": "TINS208",
+    "name_tr": "Yaratıcı Yazın ve Sözbilim",
+    "name_en": "Rhetorics of Imaginative Writing"
+  },
+  "TINS301": {
+    "bim_kod": "109112",
+    "muf_no": "522",
+    "bolum_kod": "121",
+    "code": "TINS301",
+    "name_tr": "Not Alma ve Ardıl Çeviri I",
+    "name_en": "Note-taking and Consecutive Translation I"
+  },
+  "TINS303": {
+    "bim_kod": "109114",
+    "muf_no": "522",
+    "bolum_kod": "122",
+    "code": "TINS303",
+    "name_tr": "Sosyal Bilimler Metinleri Çevirisi",
+    "name_en": "Translation for Social Sciences"
+  },
+  "TINS305": {
+    "bim_kod": "109116",
+    "muf_no": "522",
+    "bolum_kod": "123",
+    "code": "TINS305",
+    "name_tr": "Hukuk Metinleri Çevirisi",
+    "name_en": "Translation for Law"
+  },
+  "TINS307": {
+    "bim_kod": "109118",
+    "muf_no": "522",
+    "bolum_kod": "124",
+    "code": "TINS307",
+    "name_tr": "Tıp Metinleri Çevirisi",
+    "name_en": "Translation for Medicine"
+  },
+  "TINS302": {
+    "bim_kod": "109113",
+    "muf_no": "522",
+    "bolum_kod": "125",
+    "code": "TINS302",
+    "name_tr": "Not Alma ve Ardıl Çeviri II",
+    "name_en": "Note-taking and Consecutive Translation II"
+  },
+  "TINS304": {
+    "bim_kod": "109115",
+    "muf_no": "522",
+    "bolum_kod": "126",
+    "code": "TINS304",
+    "name_tr": "Bilim ve Teknoloji Metinleri Çevirisi",
+    "name_en": "Translation for Science and Technology"
+  },
+  "TINS306": {
+    "bim_kod": "109117",
+    "muf_no": "522",
+    "bolum_kod": "127",
+    "code": "TINS306",
+    "name_tr": "Sözlü Çeviriye Giriş",
+    "name_en": "Introduction to Interpreting"
+  },
+  "TINS308": {
+    "bim_kod": "109119",
+    "muf_no": "522",
+    "bolum_kod": "128",
+    "code": "TINS308",
+    "name_tr": "Ekonomi Metinleri Çevirisi",
+    "name_en": "Translation for Economics"
+  },
+  "TINS380": {
+    "bim_kod": "109217",
+    "muf_no": "522",
+    "bolum_kod": "137",
+    "code": "TINS380",
+    "name_tr": "Staj",
+    "name_en": "Summer Practice"
+  },
+  "TINS401": {
+    "bim_kod": "109120",
+    "muf_no": "522",
+    "bolum_kod": "129",
+    "code": "TINS401",
+    "name_tr": "Uluslararası İlişkiler ve Diplomasi Çevirisi",
+    "name_en": "Translation for Diplomacy and International Relations"
+  },
+  "TINS405": {
+    "bim_kod": "109124",
+    "muf_no": "522",
+    "bolum_kod": "130",
+    "code": "TINS405",
+    "name_tr": "Çeviribilimde Araştırma Yöntemleri",
+    "name_en": "Research in Translation Studies"
+  },
+  "TINS407": {
+    "bim_kod": "109126",
+    "muf_no": "522",
+    "bolum_kod": "131",
+    "code": "TINS407",
+    "name_tr": "Konferans Çevirmenliği I",
+    "name_en": "Conference Interpreting I"
+  },
+  "TINS409": {
+    "bim_kod": "109128",
+    "muf_no": "522",
+    "bolum_kod": "132",
+    "code": "TINS409",
+    "name_tr": "Toplum ve Afet Çevirmenliği",
+    "name_en": "Community and Disaster Interpreting"
+  },
+  "TINS402": {
+    "bim_kod": "109121",
+    "muf_no": "522",
+    "bolum_kod": "133",
+    "code": "TINS402",
+    "name_tr": "Uygulamalı Çeviri Çalışmaları",
+    "name_en": "Applied Translation Studies"
+  },
+  "TINS406": {
+    "bim_kod": "109125",
+    "muf_no": "522",
+    "bolum_kod": "134",
+    "code": "TINS406",
+    "name_tr": "Çeviri Projesi",
+    "name_en": "Translation Project"
+  },
+  "TINS408": {
+    "bim_kod": "109127",
+    "muf_no": "522",
+    "bolum_kod": "135",
+    "code": "TINS408",
+    "name_tr": "Konferans Çevirmenliği II",
+    "name_en": "Conference Interpreting II"
+  },
+  "TINS410": {
+    "bim_kod": "109129",
+    "muf_no": "522",
+    "bolum_kod": "136",
+    "code": "TINS410",
+    "name_tr": "Konferans Çevirmenliğinde Özel Konular",
+    "name_en": "Special Topics in Conference Interpreting"
+  },
+  "CENG161": {
+    "bim_kod": "106463",
+    "muf_no": "519",
+    "bolum_kod": "101",
+    "code": "CENG161",
+    "name_tr": "Bilgisayar Programlamaya Giriş",
+    "name_en": "Introduction to Computer Programming"
+  },
+  "MATH141": {
+    "bim_kod": "107980",
+    "muf_no": "519",
+    "bolum_kod": "103",
+    "code": "MATH141",
+    "name_tr": "Analitik Geometri",
+    "name_en": "Analytic Geometry"
+  },
+  "MATH153": {
+    "bim_kod": "108206",
+    "muf_no": "519",
+    "bolum_kod": "104",
+    "code": "MATH153",
+    "name_tr": "Analiz I",
+    "name_en": "Calculus I"
+  },
+  "PHYS131": {
+    "bim_kod": "103453",
+    "muf_no": "519",
+    "bolum_kod": "105",
+    "code": "PHYS131",
+    "name_tr": "Fizik 1",
+    "name_en": "Physics I"
+  },
+  "CENG162": {
+    "bim_kod": "106464",
+    "muf_no": "519",
+    "bolum_kod": "201",
+    "code": "CENG162",
+    "name_tr": "Bilgisayar Programlama",
+    "name_en": "Computer Programming"
+  },
+  "MATH146": {
+    "bim_kod": "108207",
+    "muf_no": "519",
+    "bolum_kod": "203",
+    "code": "MATH146",
+    "name_tr": "Soyut Matematik",
+    "name_en": "Abstract Mathematics"
+  },
+  "MATH154": {
+    "bim_kod": "108205",
+    "muf_no": "519",
+    "bolum_kod": "204",
+    "code": "MATH154",
+    "name_tr": "Analiz II",
+    "name_en": "Calculus II"
+  },
+  "PHYS132": {
+    "bim_kod": "103454",
+    "muf_no": "519",
+    "bolum_kod": "205",
+    "code": "PHYS132",
+    "name_tr": "Fizik 2",
+    "name_en": "Physics II"
+  },
+  "MATH221": {
+    "bim_kod": "107979",
+    "muf_no": "519",
+    "bolum_kod": "302",
+    "code": "MATH221",
+    "name_tr": "Matematiksel Yazılımlara Giriş",
+    "name_en": "Introduction to Mathematical Software"
+  },
+  "MATH233": {
+    "bim_kod": "108202",
+    "muf_no": "519",
+    "bolum_kod": "303",
+    "code": "MATH233",
+    "name_tr": "Lineer Cebir I",
+    "name_en": "Linear Algebra I"
+  },
+  "MATH243": {
+    "bim_kod": "109860",
+    "muf_no": "519",
+    "bolum_kod": "304",
+    "code": "MATH243",
+    "name_tr": "Diferensiyel Denklemler",
+    "name_en": "Differential Equations"
+  },
+  "MATH251": {
+    "bim_kod": "106502",
+    "muf_no": "519",
+    "bolum_kod": "305",
+    "code": "MATH251",
+    "name_tr": "İleri Analiz I",
+    "name_en": "Advanced Calculus I"
+  },
+  "MATH234": {
+    "bim_kod": "109864",
+    "muf_no": "519",
+    "bolum_kod": "402",
+    "code": "MATH234",
+    "name_tr": "Lineer Cebir 2",
+    "name_en": "Linear Algebra 2"
+  },
+  "MATH252": {
+    "bim_kod": "106505",
+    "muf_no": "519",
+    "bolum_kod": "403",
+    "code": "MATH252",
+    "name_tr": "İleri Analiz II",
+    "name_en": "Advanced Calculus II"
+  },
+  "MATH282": {
+    "bim_kod": "106506",
+    "muf_no": "519",
+    "bolum_kod": "404",
+    "code": "MATH282",
+    "name_tr": "Nümerik Analiz",
+    "name_en": "Numerical Analysis"
+  },
+  "MATH315": {
+    "bim_kod": "106508",
+    "muf_no": "519",
+    "bolum_kod": "501",
+    "code": "MATH315",
+    "name_tr": "Kısmi Türevli Denklemler",
+    "name_en": "Partial Differential Equations"
+  },
+  "MATH329": {
+    "bim_kod": "108197",
+    "muf_no": "519",
+    "bolum_kod": "502",
+    "code": "MATH329",
+    "name_tr": "Cebir",
+    "name_en": "Algebra"
+  },
+  "MATH355": {
+    "bim_kod": "108195",
+    "muf_no": "519",
+    "bolum_kod": "503",
+    "code": "MATH355",
+    "name_tr": "Metrik Uzayları",
+    "name_en": "Metric Spaces"
+  },
+  "MATH327": {
+    "bim_kod": "107978",
+    "muf_no": "519",
+    "bolum_kod": "504",
+    "code": "MATH327",
+    "name_tr": "Olasılık ve İstatistiğe Giriş",
+    "name_en": "Introduction to Probability ans Statistics"
+  },
+  "MATH332": {
+    "bim_kod": "108018",
+    "muf_no": "519",
+    "bolum_kod": "601",
+    "code": "MATH332",
+    "name_tr": "Finansal Matematiğe Giriş",
+    "name_en": "Introduction to Financial Mathematics"
+  },
+  "MATH346": {
+    "bim_kod": "108193",
+    "muf_no": "519",
+    "bolum_kod": "602",
+    "code": "MATH346",
+    "name_tr": "Elementer Sayı Teorisi",
+    "name_en": "Elementary Number Theory"
+  },
+  "MATH354": {
+    "bim_kod": "108196",
+    "muf_no": "519",
+    "bolum_kod": "603",
+    "code": "MATH354",
+    "name_tr": "Kompleks Analiz",
+    "name_en": "Complex Calculus"
+  },
+  "MATH451": {
+    "bim_kod": "106518",
+    "muf_no": "519",
+    "bolum_kod": "701",
+    "code": "MATH451",
+    "name_tr": "Topoloji",
+    "name_en": "Topology"
+  },
+  "MATH475": {
+    "bim_kod": "108192",
+    "muf_no": "519",
+    "bolum_kod": "703",
+    "code": "MATH475",
+    "name_tr": "Matematik Tarihi",
+    "name_en": "History of Mathematics"
+  },
+  "MATH452": {
+    "bim_kod": "108022",
+    "muf_no": "519",
+    "bolum_kod": "801",
+    "code": "MATH452",
+    "name_tr": "Fonksiyonel Analiz",
+    "name_en": "Functional Analysis"
+  },
+  "MATH476": {
+    "bim_kod": "106525",
+    "muf_no": "519",
+    "bolum_kod": "802",
+    "code": "MATH476",
+    "name_tr": "Diferensiyel Geometri",
+    "name_en": "Differential Geometry"
+  },
+  "MATH490": {
+    "bim_kod": "108023",
+    "muf_no": "519",
+    "bolum_kod": "803",
+    "code": "MATH490",
+    "name_tr": "Mezuniyet Projesi",
+    "name_en": "Graduation Project"
+  },
+  "TINS131": {
+    "bim_kod": "105977",
+    "muf_no": "393",
+    "bolum_kod": "101",
+    "code": "TINS131",
+    "name_tr": "İngilizce Dilbilgisi I",
+    "name_en": "English Grammar in Context I"
+  },
+  "TINS133": {
+    "bim_kod": "105980",
+    "muf_no": "393",
+    "bolum_kod": "102",
+    "code": "TINS133",
+    "name_tr": "Çevirmenler için Türkçe Bilgisi",
+    "name_en": "Turkish for Translators"
+  },
+  "TINS135": {
+    "bim_kod": "105979",
+    "muf_no": "393",
+    "bolum_kod": "103",
+    "code": "TINS135",
+    "name_tr": "İngilizce Sözlü Anlatım I",
+    "name_en": "Oral Communication in English I"
+  },
+  "TINS137": {
+    "bim_kod": "105978",
+    "muf_no": "393",
+    "bolum_kod": "104",
+    "code": "TINS137",
+    "name_tr": "Çeviriye Giriş I: ENG-TUR",
+    "name_en": "Introduction to Translation I"
+  },
+  "TINS199": {
+    "bim_kod": "108005",
+    "muf_no": "393",
+    "bolum_kod": "105",
+    "code": "TINS199",
+    "name_tr": "Mütercim Tercümanlık Oryantasyonu",
+    "name_en": "Orientation to Translation and Interpreting Studies"
+  },
+  "TINS132": {
+    "bim_kod": "106142",
+    "muf_no": "393",
+    "bolum_kod": "201",
+    "code": "TINS132",
+    "name_tr": "İngilizce Dilbilgisi II",
+    "name_en": "English Grammar in Context II"
+  },
+  "TINS134": {
+    "bim_kod": "106143",
+    "muf_no": "393",
+    "bolum_kod": "202",
+    "code": "TINS134",
+    "name_tr": "Karşılaştırmalı İngilizce-Türkçe Dilbilgisi",
+    "name_en": "Comparative English-Turkish Grammar"
+  },
+  "TINS136": {
+    "bim_kod": "105981",
+    "muf_no": "393",
+    "bolum_kod": "203",
+    "code": "TINS136",
+    "name_tr": "İngilizce Sözlü Anlatım II",
+    "name_en": "Oral Communication in English II"
+  },
+  "TINS138": {
+    "bim_kod": "106144",
+    "muf_no": "393",
+    "bolum_kod": "204",
+    "code": "TINS138",
+    "name_tr": "Çeviriye Giriş II: TUR-ENG",
+    "name_en": "Introduction to Translation II"
+  },
+  "TINS231": {
+    "bim_kod": "106147",
+    "muf_no": "393",
+    "bolum_kod": "301",
+    "code": "TINS231",
+    "name_tr": "Çevirimibilime Giriş",
+    "name_en": "Introduction to Translation Studies"
+  },
+  "TINS233": {
+    "bim_kod": "106149",
+    "muf_no": "393",
+    "bolum_kod": "302",
+    "code": "TINS233",
+    "name_tr": "Dinleme ve Not Alma Teknikleri I",
+    "name_en": "Active Listening and Note-taking I"
+  },
+  "TINS235": {
+    "bim_kod": "106151",
+    "muf_no": "393",
+    "bolum_kod": "303",
+    "code": "TINS235",
+    "name_tr": "Çeviride Bilgi Teknolojileri",
+    "name_en": "Translation Technologies"
+  },
+  "TINS237": {
+    "bim_kod": "106153",
+    "muf_no": "393",
+    "bolum_kod": "304",
+    "code": "TINS237",
+    "name_tr": "Özetleyerek Çeviri I",
+    "name_en": "Précis Writing and Translation I"
+  },
+  "TINS232": {
+    "bim_kod": "106148",
+    "muf_no": "393",
+    "bolum_kod": "401",
+    "code": "TINS232",
+    "name_tr": "Çeviri Kuramları",
+    "name_en": "Theories of Translation"
+  },
+  "TINS234": {
+    "bim_kod": "106150",
+    "muf_no": "393",
+    "bolum_kod": "402",
+    "code": "TINS234",
+    "name_tr": "Dinleme ve Not Alma Teknikleri II",
+    "name_en": "Active Listening and Note-taking II"
+  },
+  "TINS236": {
+    "bim_kod": "106152",
+    "muf_no": "393",
+    "bolum_kod": "403",
+    "code": "TINS236",
+    "name_tr": "Çeviri Amaçlı Söylem Çözümlemesi",
+    "name_en": "Translation-oriented Discourse Analysis"
+  },
+  "TINS238": {
+    "bim_kod": "106154",
+    "muf_no": "393",
+    "bolum_kod": "404",
+    "code": "TINS238",
+    "name_tr": "Özetleyerek Çeviri II",
+    "name_en": "Précis Writing and Translation II"
+  },
+  "TINS331": {
+    "bim_kod": "106160",
+    "muf_no": "393",
+    "bolum_kod": "501",
+    "code": "TINS331",
+    "name_tr": "Bilim ve Teknoloji Metinleri Çevirisi",
+    "name_en": "Special Topics in Translation: Science and Technology"
+  },
+  "TINS333": {
+    "bim_kod": "106161",
+    "muf_no": "393",
+    "bolum_kod": "502",
+    "code": "TINS333",
+    "name_tr": "Sözlü Çeviri I",
+    "name_en": "Interpreting I"
+  },
+  "TINS335": {
+    "bim_kod": "106162",
+    "muf_no": "393",
+    "bolum_kod": "503",
+    "code": "TINS335",
+    "name_tr": "Hukuk Metinleri Çevirisi",
+    "name_en": "Special Topics in Translation: Law"
+  },
+  "TINS337": {
+    "bim_kod": "106163",
+    "muf_no": "393",
+    "bolum_kod": "504",
+    "code": "TINS337",
+    "name_tr": "Çeviride Güncel Konular",
+    "name_en": "Contemporary Issues in Translation"
+  },
+  "TINS381": {
+    "bim_kod": "106164",
+    "muf_no": "393",
+    "bolum_kod": "508",
+    "code": "TINS381",
+    "name_tr": "Staj I",
+    "name_en": "Summer Practice I"
+  },
+  "TINS332": {
+    "bim_kod": "106165",
+    "muf_no": "393",
+    "bolum_kod": "601",
+    "code": "TINS332",
+    "name_tr": "Avrupa Birliği Metinleri Çevirisi",
+    "name_en": "Special Topics in Translation: EU Texts"
+  },
+  "TINS334": {
+    "bim_kod": "106166",
+    "muf_no": "393",
+    "bolum_kod": "602",
+    "code": "TINS334",
+    "name_tr": "Sözlü Çeviri II",
+    "name_en": "Interpreting II"
+  },
+  "TINS336": {
+    "bim_kod": "106167",
+    "muf_no": "393",
+    "bolum_kod": "603",
+    "code": "TINS336",
+    "name_tr": "Çeviribilimde Araştırma Yöntemleri",
+    "name_en": "Research Methods in Translation Studies"
+  },
+  "TINS338": {
+    "bim_kod": "106168",
+    "muf_no": "393",
+    "bolum_kod": "604",
+    "code": "TINS338",
+    "name_tr": "Ekonomi ve Yönetim Bilimleri Çevirisi",
+    "name_en": "Special Topics in Translation: Economics and Administrative Sciences"
+  },
+  "TINS441": {
+    "bim_kod": "106195",
+    "muf_no": "393",
+    "bolum_kod": "701",
+    "code": "TINS441",
+    "name_tr": "Yazın Çevirisi",
+    "name_en": "Literary Translation"
+  },
+  "TINS443": {
+    "bim_kod": "106178",
+    "muf_no": "393",
+    "bolum_kod": "702",
+    "code": "TINS443",
+    "name_tr": "Tıp Metinleri Çevirisi",
+    "name_en": "Special Topics in Translation: Medicine"
+  },
+  "TINS445": {
+    "bim_kod": "106179",
+    "muf_no": "393",
+    "bolum_kod": "703",
+    "code": "TINS445",
+    "name_tr": "Yazılı Metinden Sözlü Çeviri",
+    "name_en": "On-sight Translation"
+  },
+  "TINS447": {
+    "bim_kod": "106196",
+    "muf_no": "393",
+    "bolum_kod": "704",
+    "code": "TINS447",
+    "name_tr": "Sosyal Bilimler Metinleri Çevirisi",
+    "name_en": "Special Topics in Translation: Social Sciences"
+  },
+  "TINS449": {
+    "bim_kod": "106197",
+    "muf_no": "393",
+    "bolum_kod": "705",
+    "code": "TINS449",
+    "name_tr": "Resmi Yazışmalar",
+    "name_en": "Formal Correspondence"
+  },
+  "TINS481": {
+    "bim_kod": "106183",
+    "muf_no": "393",
+    "bolum_kod": "707",
+    "code": "TINS481",
+    "name_tr": "Staj II",
+    "name_en": "Summer Practice II"
+  },
+  "TINS442": {
+    "bim_kod": "106198",
+    "muf_no": "393",
+    "bolum_kod": "801",
+    "code": "TINS442",
+    "name_tr": "Yayıncılık ve Düzelti",
+    "name_en": "Publishing and Editing"
+  },
+  "TINS444": {
+    "bim_kod": "106184",
+    "muf_no": "393",
+    "bolum_kod": "802",
+    "code": "TINS444",
+    "name_tr": "Uluslararası İlişkiler ve Diplomasi Çevirisi",
+    "name_en": "Special Topics in Translation: International Relations and Diplomacy"
+  },
+  "TINS446": {
+    "bim_kod": "106199",
+    "muf_no": "393",
+    "bolum_kod": "803",
+    "code": "TINS446",
+    "name_tr": "Çeviri Piyasası ve Mevzuatlar",
+    "name_en": "Professional Standards and Practices"
+  },
+  "TINS448": {
+    "bim_kod": "106200",
+    "muf_no": "393",
+    "bolum_kod": "804",
+    "code": "TINS448",
+    "name_tr": "Uygulamalı Çeviri Çalışmaları",
+    "name_en": "Applied Translation Studies"
+  },
+  "ESR103": {
+    "bim_kod": "108328",
+    "muf_no": "516",
+    "bolum_kod": "103",
+    "code": "ESR103",
+    "name_tr": "Etik İlkeler ve Sosyal Sorumluluk",
+    "name_en": "Ethical Principles and Social Responsibility"
+  },
+  "MATH111": {
+    "bim_kod": "107588",
+    "muf_no": "516",
+    "bolum_kod": "104",
+    "code": "MATH111",
+    "name_tr": "İktisat ve Sosyal Bilimler için Matematik I",
+    "name_en": "Mathematics for Economics and Social Sciences I"
+  },
+  "PSY101": {
+    "bim_kod": "102574",
+    "muf_no": "516",
+    "bolum_kod": "105",
+    "code": "PSY101",
+    "name_tr": "Psikolojiye Giriş I",
+    "name_en": "Introduction to Psychology I"
+  },
+  "PSY113": {
+    "bim_kod": "102575",
+    "muf_no": "516",
+    "bolum_kod": "106",
+    "code": "PSY113",
+    "name_tr": "Araştırma Yöntemleri I",
+    "name_en": "Research Methods I"
+  },
+  "ECON101": {
+    "bim_kod": "100555",
+    "muf_no": "516",
+    "bolum_kod": "201",
+    "code": "ECON101",
+    "name_tr": "İktisata Giriş I",
+    "name_en": "Introduction to Economics I"
+  },
+  "PHIL102": {
+    "bim_kod": "105551",
+    "muf_no": "516",
+    "bolum_kod": "203",
+    "code": "PHIL102",
+    "name_tr": "Felsefeye Giriş",
+    "name_en": "Introduction to Philosophy"
+  },
+  "PSY102": {
+    "bim_kod": "102577",
+    "muf_no": "516",
+    "bolum_kod": "204",
+    "code": "PSY102",
+    "name_tr": "Psikolojiye Giriş II",
+    "name_en": "Introduction to Psychology II"
+  },
+  "PSY114": {
+    "bim_kod": "107628",
+    "muf_no": "516",
+    "bolum_kod": "205",
+    "code": "PSY114",
+    "name_tr": "Araştırma Yöntemleri II",
+    "name_en": "Research Methods II"
+  },
+  "SOC102": {
+    "bim_kod": "102987",
+    "muf_no": "516",
+    "bolum_kod": "206",
+    "code": "SOC102",
+    "name_tr": "Sosyolojiye Giriş",
+    "name_en": "Introduction to Sociology"
+  },
+  "ENG221": {
+    "bim_kod": "105556",
+    "muf_no": "516",
+    "bolum_kod": "301",
+    "code": "ENG221",
+    "name_tr": "İleri Yazma Becerileri",
+    "name_en": "Advanced Writing Skills"
+  },
+  "PSY215": {
+    "bim_kod": "107629",
+    "muf_no": "516",
+    "bolum_kod": "303",
+    "code": "PSY215",
+    "name_tr": "Psikoloji için İstatistik I",
+    "name_en": "Statistics for Psychology I"
+  },
+  "PSY221": {
+    "bim_kod": "105552",
+    "muf_no": "516",
+    "bolum_kod": "304",
+    "code": "PSY221",
+    "name_tr": "Gelişim Psikolojisi I",
+    "name_en": "Developmental Psychology I"
+  },
+  "PSY243": {
+    "bim_kod": "109857",
+    "muf_no": "516",
+    "bolum_kod": "305",
+    "code": "PSY243",
+    "name_tr": "Klinik Psikoloji I",
+    "name_en": "Clinical Psychology I"
+  },
+  "PSY251": {
+    "bim_kod": "102581",
+    "muf_no": "516",
+    "bolum_kod": "306",
+    "code": "PSY251",
+    "name_tr": "Sosyal Psikoloji I",
+    "name_en": "Social Psychology I"
+  },
+  "ENG222": {
+    "bim_kod": "105557",
+    "muf_no": "516",
+    "bolum_kod": "401",
+    "code": "ENG222",
+    "name_tr": "Akademik Sunum Becerileri",
+    "name_en": "Academic Presentation Skills"
+  },
+  "PSY216": {
+    "bim_kod": "105553",
+    "muf_no": "516",
+    "bolum_kod": "403",
+    "code": "PSY216",
+    "name_tr": "Psikoloji için İstatistik II",
+    "name_en": "Statistics for Psychology II"
+  },
+  "PSY222": {
+    "bim_kod": "109858",
+    "muf_no": "516",
+    "bolum_kod": "404",
+    "code": "PSY222",
+    "name_tr": "Gelişim Psikolojisi II",
+    "name_en": "Developmental Psychology II"
+  },
+  "PSY252": {
+    "bim_kod": "102586",
+    "muf_no": "516",
+    "bolum_kod": "405",
+    "code": "PSY252",
+    "name_tr": "Sosyal Psikoloji II",
+    "name_en": "Social Psychology II"
+  },
+  "PSY282": {
+    "bim_kod": "107630",
+    "muf_no": "516",
+    "bolum_kod": "406",
+    "code": "PSY282",
+    "name_tr": "Deneysel Psikoloji I: Algı",
+    "name_en": "Experimental Psychology I: Perception"
+  },
+  "PSY331": {
+    "bim_kod": "105558",
+    "muf_no": "516",
+    "bolum_kod": "501",
+    "code": "PSY331",
+    "name_tr": "Psikolojide Ölçme ve Değerlendirme",
+    "name_en": "Testing and Measurement in Psychology"
+  },
+  "PSY335": {
+    "bim_kod": "105559",
+    "muf_no": "516",
+    "bolum_kod": "502",
+    "code": "PSY335",
+    "name_tr": "Kişilik Kuramları",
+    "name_en": "Theories of Personality"
+  },
+  "PSY341": {
+    "bim_kod": "105365",
+    "muf_no": "516",
+    "bolum_kod": "503",
+    "code": "PSY341",
+    "name_tr": "Endüstri ve Örgüt Psikolojisi",
+    "name_en": "Industrial and Organizational Psychology"
+  },
+  "PSY381": {
+    "bim_kod": "107631",
+    "muf_no": "516",
+    "bolum_kod": "504",
+    "code": "PSY381",
+    "name_tr": "Deneysel Psikoloji II: Öğrenme",
+    "name_en": "Experimental Psychology II: Learning"
+  },
+  "PSY342": {
+    "bim_kod": "102592",
+    "muf_no": "516",
+    "bolum_kod": "601",
+    "code": "PSY342",
+    "name_tr": "Psikopatoloji",
+    "name_en": "Psychopathology"
+  },
+  "PSY346": {
+    "bim_kod": "107632",
+    "muf_no": "516",
+    "bolum_kod": "602",
+    "code": "PSY346",
+    "name_tr": "Klinik Psikoloji II: Gözlem ve Görüşme Teknikleri",
+    "name_en": "Clinical Psychology II: Observation and Interview Techniques"
+  },
+  "PSY388": {
+    "bim_kod": "105350",
+    "muf_no": "516",
+    "bolum_kod": "603",
+    "code": "PSY388",
+    "name_tr": "Fizyolojik Psikoloji",
+    "name_en": "Physiological Psychology"
+  },
+  "PSY405": {
+    "bim_kod": "105565",
+    "muf_no": "516",
+    "bolum_kod": "701",
+    "code": "PSY405",
+    "name_tr": "Bilişsel Psikoloji",
+    "name_en": "Cognitive Psychology"
+  },
+  "PSY411": {
+    "bim_kod": "109524",
+    "muf_no": "516",
+    "bolum_kod": "702",
+    "code": "PSY411",
+    "name_tr": "Sağlık Psikolojisi",
+    "name_en": "Health Psychology"
+  },
+  "PSY407": {
+    "bim_kod": "105566",
+    "muf_no": "516",
+    "bolum_kod": "706",
+    "code": "PSY407",
+    "name_tr": "Yaz Stajı",
+    "name_en": "Summer Practice"
+  },
+  "INTT103": {
+    "bim_kod": "105647",
+    "muf_no": "367",
+    "bolum_kod": "101",
+    "code": "INTT103",
+    "name_tr": "Ekonomik İstatistikler ve Göstergeler",
+    "name_en": "Economic Statistics and Indicators"
+  },
+  "MAN121": {
+    "bim_kod": "103025",
+    "muf_no": "367",
+    "bolum_kod": "104",
+    "code": "MAN121",
+    "name_tr": "İşletmeye Giriş I",
+    "name_en": "Introduction to Business I"
+  },
+  "MATH105": {
+    "bim_kod": "107586",
+    "muf_no": "367",
+    "bolum_kod": "105",
+    "code": "MATH105",
+    "name_tr": "İşletme Matematiği I",
+    "name_en": "Business Mathematics I"
+  },
+  "ECON102": {
+    "bim_kod": "100556",
+    "muf_no": "367",
+    "bolum_kod": "201",
+    "code": "ECON102",
+    "name_tr": "İktisata Giriş II",
+    "name_en": "Introduction to Economics II"
+  },
+  "INTT106": {
+    "bim_kod": "108319",
+    "muf_no": "367",
+    "bolum_kod": "203",
+    "code": "INTT106",
+    "name_tr": "Temel Ticari Mevzuat",
+    "name_en": "Basic Commercial Regulations"
+  },
+  "MAN122": {
+    "bim_kod": "103026",
+    "muf_no": "367",
+    "bolum_kod": "204",
+    "code": "MAN122",
+    "name_tr": "İşletmeye Giriş II",
+    "name_en": "Introduction to Business II"
+  },
+  "MATH106": {
+    "bim_kod": "107587",
+    "muf_no": "367",
+    "bolum_kod": "205",
+    "code": "MATH106",
+    "name_tr": "İşletme Matematiği II",
+    "name_en": "Business Mathematics II"
+  },
+  "BAF203": {
+    "bim_kod": "105698",
+    "muf_no": "367",
+    "bolum_kod": "301",
+    "code": "BAF203",
+    "name_tr": "Bankacılık İşlemleri",
+    "name_en": "Banking Transactions"
+  },
+  "BAF209": {
+    "bim_kod": "107489",
+    "muf_no": "367",
+    "bolum_kod": "302",
+    "code": "BAF209",
+    "name_tr": "Finansa Giriş I",
+    "name_en": "Introduction to Finance I"
+  },
+  "BAF211": {
+    "bim_kod": "107491",
+    "muf_no": "367",
+    "bolum_kod": "303",
+    "code": "BAF211",
+    "name_tr": "Veri Analizine Giriş",
+    "name_en": "Introduction to Data Analysis"
+  },
+  "MAN201": {
+    "bim_kod": "101596",
+    "muf_no": "367",
+    "bolum_kod": "305",
+    "code": "MAN201",
+    "name_tr": "Muhasebe İlkeleri-I",
+    "name_en": "Principles of Accounting I"
+  },
+  "STAT201": {
+    "bim_kod": "102039",
+    "muf_no": "367",
+    "bolum_kod": "306",
+    "code": "STAT201",
+    "name_tr": "İstatistik I",
+    "name_en": "Statistics I"
+  },
+  "BAF206": {
+    "bim_kod": "105701",
+    "muf_no": "367",
+    "bolum_kod": "401",
+    "code": "BAF206",
+    "name_tr": "Finansal Bilgisayar Uygulamaları",
+    "name_en": "Computer Applications in Finance"
+  },
+  "BAF210": {
+    "bim_kod": "107490",
+    "muf_no": "367",
+    "bolum_kod": "402",
+    "code": "BAF210",
+    "name_tr": "Finansa Giriş II",
+    "name_en": "Introduction to Finance II"
+  },
+  "ECON206": {
+    "bim_kod": "103031",
+    "muf_no": "367",
+    "bolum_kod": "403",
+    "code": "ECON206",
+    "name_tr": "Makro İktisat",
+    "name_en": "Macroeconomics"
+  },
+  "MAN202": {
+    "bim_kod": "105623",
+    "muf_no": "367",
+    "bolum_kod": "405",
+    "code": "MAN202",
+    "name_tr": "Muhasebe İlkeleri-II",
+    "name_en": "Principles of Accounting II"
+  },
+  "STAT202": {
+    "bim_kod": "102041",
+    "muf_no": "367",
+    "bolum_kod": "406",
+    "code": "STAT202",
+    "name_tr": "İstatistik II",
+    "name_en": "Statistics II"
+  },
+  "BAF303": {
+    "bim_kod": "105702",
+    "muf_no": "367",
+    "bolum_kod": "501",
+    "code": "BAF303",
+    "name_tr": "Para, Banka ve Krediler",
+    "name_en": "Money, Banking and Credits"
+  },
+  "BAF305": {
+    "bim_kod": "105703",
+    "muf_no": "367",
+    "bolum_kod": "502",
+    "code": "BAF305",
+    "name_tr": "Portföy Analizi",
+    "name_en": "Portfolio Analysis"
+  },
+  "BAF307": {
+    "bim_kod": "107492",
+    "muf_no": "367",
+    "bolum_kod": "503",
+    "code": "BAF307",
+    "name_tr": "Finansal Piyasalar ve Araçlar",
+    "name_en": "Financial Markets and Instruments"
+  },
+  "BAF309": {
+    "bim_kod": "106352",
+    "muf_no": "367",
+    "bolum_kod": "504",
+    "code": "BAF309",
+    "name_tr": "Finansal Ekonometri I",
+    "name_en": "Financial Econometrics I"
+  },
+  "MAN307": {
+    "bim_kod": "105645",
+    "muf_no": "367",
+    "bolum_kod": "505",
+    "code": "MAN307",
+    "name_tr": "Pazarlama İlkeleri",
+    "name_en": "Principles of Marketing"
+  },
+  "BAF304": {
+    "bim_kod": "102633",
+    "muf_no": "367",
+    "bolum_kod": "601",
+    "code": "BAF304",
+    "name_tr": "Banka Muhasebesi (T)",
+    "name_en": "Banking Accounting"
+  },
+  "BAF306": {
+    "bim_kod": "105704",
+    "muf_no": "367",
+    "bolum_kod": "602",
+    "code": "BAF306",
+    "name_tr": "Mali Tablolar Analizi",
+    "name_en": "Financial Statement Analysis"
+  },
+  "BAF310": {
+    "bim_kod": "106353",
+    "muf_no": "367",
+    "bolum_kod": "603",
+    "code": "BAF310",
+    "name_tr": "Finansal Ekonometri II",
+    "name_en": "Financial Econometrics II"
+  },
+  "BAF312": {
+    "bim_kod": "107493",
+    "muf_no": "367",
+    "bolum_kod": "604",
+    "code": "BAF312",
+    "name_tr": "Finansal Piyasalar Laboratuvarı",
+    "name_en": "Financial Markets Laboratory"
+  },
+  "BAF415": {
+    "bim_kod": "105712",
+    "muf_no": "367",
+    "bolum_kod": "605",
+    "code": "BAF415",
+    "name_tr": "Banka Hukuku",
+    "name_en": "Banking Law (T)"
+  },
+  "BAF401": {
+    "bim_kod": "105706",
+    "muf_no": "367",
+    "bolum_kod": "701",
+    "code": "BAF401",
+    "name_tr": "Teknik Analiz",
+    "name_en": "Technical Analysis"
+  },
+  "BAF403": {
+    "bim_kod": "105707",
+    "muf_no": "367",
+    "bolum_kod": "702",
+    "code": "BAF403",
+    "name_tr": "Çalışma Sermayesi Yönetimi",
+    "name_en": "Working Capital Management"
+  },
+  "BAF405": {
+    "bim_kod": "105708",
+    "muf_no": "367",
+    "bolum_kod": "703",
+    "code": "BAF405",
+    "name_tr": "Sermaye Bütçelemesi",
+    "name_en": "Capital Budgeting"
+  },
+  "MAN445": {
+    "bim_kod": "106721",
+    "muf_no": "367",
+    "bolum_kod": "704",
+    "code": "MAN445",
+    "name_tr": "İşletmeler için Veri Analitiği",
+    "name_en": "Data Analytics for Business"
+  },
+  "BAF400": {
+    "bim_kod": "106361",
+    "muf_no": "367",
+    "bolum_kod": "705",
+    "code": "BAF400",
+    "name_tr": "Yaz Stajı",
+    "name_en": "Summer Practice"
+  },
+  "BAF402": {
+    "bim_kod": "105709",
+    "muf_no": "367",
+    "bolum_kod": "801",
+    "code": "BAF402",
+    "name_tr": "Uluslararası Finans",
+    "name_en": "International Finance"
+  },
+  "BAF432": {
+    "bim_kod": "107495",
+    "muf_no": "367",
+    "bolum_kod": "802",
+    "code": "BAF432",
+    "name_tr": "Finans Seminerleri",
+    "name_en": "Finance Seminars"
+  },
+  "HİR101": {
+    "bim_kod": "106831",
+    "muf_no": "527",
+    "bolum_kod": "101",
+    "code": "HİR101",
+    "name_tr": "Halkla İlişkiler Temel Kavramları I",
+    "name_en": "Basic Concepts of Public Relations I"
+  },
+  "HİR107": {
+    "bim_kod": "106833",
+    "muf_no": "527",
+    "bolum_kod": "103",
+    "code": "HİR107",
+    "name_tr": "Sosyal Psikoloji",
+    "name_en": "Social Psychology"
+  },
+  "HİR111": {
+    "bim_kod": "107544",
+    "muf_no": "527",
+    "bolum_kod": "104",
+    "code": "HİR111",
+    "name_tr": "Reklamcılığa Giriş",
+    "name_en": "Principles of Advertising"
+  },
+  "ING101": {
+    "bim_kod": "106784",
+    "muf_no": "527",
+    "bolum_kod": "105",
+    "code": "ING101",
+    "name_tr": "İngilizce I",
+    "name_en": "English I"
+  },
+  "HİR113": {
+    "bim_kod": "108145",
+    "muf_no": "527",
+    "bolum_kod": "106",
+    "code": "HİR113",
+    "name_tr": "Görüntünün Teknik Temelleri",
+    "name_en": "Technical Basics of Image"
+  },
+  "HİR115": {
+    "bim_kod": "109080",
+    "muf_no": "527",
+    "bolum_kod": "807",
+    "code": "HİR115",
+    "name_tr": "Yaratıcı Düşünme ve Yazma",
+    "name_en": "Creative Thinking and Writing"
+  },
+  "HİR102": {
+    "bim_kod": "106835",
+    "muf_no": "527",
+    "bolum_kod": "201",
+    "code": "HİR102",
+    "name_tr": "Pazarlama İletişimi",
+    "name_en": "Marketing Communication"
+  },
+  "HİR104": {
+    "bim_kod": "106836",
+    "muf_no": "527",
+    "bolum_kod": "202",
+    "code": "HİR104",
+    "name_tr": "Medya ve Kültür Sosyolojisi",
+    "name_en": "Sociology of Media and Culture"
+  },
+  "HİR114": {
+    "bim_kod": "108191",
+    "muf_no": "527",
+    "bolum_kod": "203",
+    "code": "HİR114",
+    "name_tr": "Reklam Tasarımı",
+    "name_en": "Advertising Design"
+  },
+  "HİR108": {
+    "bim_kod": "106838",
+    "muf_no": "527",
+    "bolum_kod": "204",
+    "code": "HİR108",
+    "name_tr": "Halkla İlişkiler Temel Kavramları II",
+    "name_en": "Basic Concepts of Public Relations II"
+  },
+  "HİR112": {
+    "bim_kod": "108146",
+    "muf_no": "527",
+    "bolum_kod": "205",
+    "code": "HİR112",
+    "name_tr": "Senaryo",
+    "name_en": "Scenario"
+  },
+  "ING102": {
+    "bim_kod": "106785",
+    "muf_no": "527",
+    "bolum_kod": "206",
+    "code": "ING102",
+    "name_tr": "İngilizce II",
+    "name_en": "English II"
+  },
+  "HİR211": {
+    "bim_kod": "108148",
+    "muf_no": "527",
+    "bolum_kod": "301",
+    "code": "HİR211",
+    "name_tr": "Sinematografi",
+    "name_en": "Cinematography"
+  },
+  "HİR207": {
+    "bim_kod": "106846",
+    "muf_no": "527",
+    "bolum_kod": "303",
+    "code": "HİR207",
+    "name_tr": "Medya Planlaması",
+    "name_en": "Media Planning"
+  },
+  "HİR209": {
+    "bim_kod": "106844",
+    "muf_no": "527",
+    "bolum_kod": "304",
+    "code": "HİR209",
+    "name_tr": "İletişim Kuramları",
+    "name_en": "Communication Theories"
+  },
+  "HİR204": {
+    "bim_kod": "109913",
+    "muf_no": "527",
+    "bolum_kod": "305",
+    "code": "HİR204",
+    "name_tr": "Halkla İlişkiler ve Reklamda Sosyal Medya Kullanımı",
+    "name_en": "Social Media Usage in Public Relations and Advertising"
+  },
+  "HİR213": {
+    "bim_kod": "109214",
+    "muf_no": "527",
+    "bolum_kod": "808",
+    "code": "HİR213",
+    "name_tr": "Reklam Yazarlığı",
+    "name_en": "Advertising Writing"
+  },
+  "HİR206": {
+    "bim_kod": "106847",
+    "muf_no": "527",
+    "bolum_kod": "401",
+    "code": "HİR206",
+    "name_tr": "Küresel Pazarlama",
+    "name_en": "Global Marketing"
+  },
+  "HİR208": {
+    "bim_kod": "106848",
+    "muf_no": "527",
+    "bolum_kod": "402",
+    "code": "HİR208",
+    "name_tr": "İletişim Hukuku ve Etik",
+    "name_en": "Communication Law and  Ethic"
+  },
+  "HİR210": {
+    "bim_kod": "106849",
+    "muf_no": "527",
+    "bolum_kod": "403",
+    "code": "HİR210",
+    "name_tr": "Tüketici Psikolojisi ve Davranışları",
+    "name_en": "Consumer psychology and Behaviour"
+  },
+  "HİR214": {
+    "bim_kod": "108190",
+    "muf_no": "527",
+    "bolum_kod": "404",
+    "code": "HİR214",
+    "name_tr": "Türkiye'nin Toplumsal Yapısı",
+    "name_en": "Social Structure of Turkey"
+  },
+  "HİR212": {
+    "bim_kod": "109914",
+    "muf_no": "527",
+    "bolum_kod": "406",
+    "code": "HİR212",
+    "name_tr": "Kurgu",
+    "name_en": "Editing"
+  },
+  "HİR303": {
+    "bim_kod": "106851",
+    "muf_no": "527",
+    "bolum_kod": "502",
+    "code": "HİR303",
+    "name_tr": "Halkla İlişkiler Politikaları",
+    "name_en": "Public Relations Policies"
+  },
+  "HİR305": {
+    "bim_kod": "106852",
+    "muf_no": "527",
+    "bolum_kod": "503",
+    "code": "HİR305",
+    "name_tr": "Stratejik Marka Çözümleri",
+    "name_en": "Strategic Brand Solutions"
+  },
+  "HİR309": {
+    "bim_kod": "109215",
+    "muf_no": "527",
+    "bolum_kod": "809",
+    "code": "HİR309",
+    "name_tr": "Siyasal İletişim",
+    "name_en": "Political Communication"
+  },
+  "HİR311": {
+    "bim_kod": "109216",
+    "muf_no": "527",
+    "bolum_kod": "810",
+    "code": "HİR311",
+    "name_tr": "Sosyal Bilimlerde Araştırma Yöntemleri",
+    "name_en": "Research Methods in Social Sciences"
+  },
+  "HİR302": {
+    "bim_kod": "106854",
+    "muf_no": "527",
+    "bolum_kod": "601",
+    "code": "HİR302",
+    "name_tr": "Kriz İletişimi",
+    "name_en": "Crisis Communication"
+  },
+  "HİR304": {
+    "bim_kod": "106855",
+    "muf_no": "527",
+    "bolum_kod": "602",
+    "code": "HİR304",
+    "name_tr": "İmaj Yönetimi",
+    "name_en": "İmage Management"
+  },
+  "HİR306": {
+    "bim_kod": "106856",
+    "muf_no": "527",
+    "bolum_kod": "603",
+    "code": "HİR306",
+    "name_tr": "Sosyal Medyada İçerik Üretimi",
+    "name_en": "Content Production in Social Media"
+  },
+  "HİR308": {
+    "bim_kod": "106857",
+    "muf_no": "527",
+    "bolum_kod": "604",
+    "code": "HİR308",
+    "name_tr": "İkna ve Sosyal Etki",
+    "name_en": "Persuasion and Social İmpact"
+  },
+  "HİR400": {
+    "bim_kod": "106858",
+    "muf_no": "527",
+    "bolum_kod": "701",
+    "code": "HİR400",
+    "name_tr": "Staj",
+    "name_en": "Internship"
+  },
+  "HİR401": {
+    "bim_kod": "106859",
+    "muf_no": "527",
+    "bolum_kod": "702",
+    "code": "HİR401",
+    "name_tr": "Halkla İlişkiler Uygulamaları",
+    "name_en": "Public Relations Applications"
+  },
+  "HİR403": {
+    "bim_kod": "106860",
+    "muf_no": "527",
+    "bolum_kod": "703",
+    "code": "HİR403",
+    "name_tr": "Mezuniyet Projesi I",
+    "name_en": "Graduation Project I"
+  },
+  "HİR402": {
+    "bim_kod": "106861",
+    "muf_no": "527",
+    "bolum_kod": "801",
+    "code": "HİR402",
+    "name_tr": "Kamu Diplomasisi",
+    "name_en": "Public Diplomacy"
+  },
+  "HİR404": {
+    "bim_kod": "106862",
+    "muf_no": "527",
+    "bolum_kod": "802",
+    "code": "HİR404",
+    "name_tr": "Mezuniyet Projesi II",
+    "name_en": "Graduation Project II"
+  },
+  "HİR406": {
+    "bim_kod": "106863",
+    "muf_no": "527",
+    "bolum_kod": "803",
+    "code": "HİR406",
+    "name_tr": "Reklamcılık Uygulamaları",
+    "name_en": "Advertising Applications"
+  },
+  "MAN101": {
+    "bim_kod": "101577",
+    "muf_no": "524",
+    "bolum_kod": "105",
+    "code": "MAN101",
+    "name_tr": "İşletmeye Giriş",
+    "name_en": "Introduction to Business"
+  },
+  "ECON104": {
+    "bim_kod": "107447",
+    "muf_no": "524",
+    "bolum_kod": "202",
+    "code": "ECON104",
+    "name_tr": "İktisadi ve Finansal Veri Analizi",
+    "name_en": "Analysis of Economic and Financial Data"
+  },
+  "ECON107": {
+    "bim_kod": "105080",
+    "muf_no": "524",
+    "bolum_kod": "102",
+    "code": "ECON107",
+    "name_tr": "Sosyal Bilimlerde Bilgisayar Uygulamaları",
+    "name_en": "Computer Applications in Social Sciences"
+  },
+  "LAW105": {
+    "bim_kod": "103048",
+    "muf_no": "524",
+    "bolum_kod": "204",
+    "code": "LAW105",
+    "name_tr": "İşletme ve Ekonomi için Hukuk",
+    "name_en": "Law for Business and Economics"
+  },
+  "MATH112": {
+    "bim_kod": "107589",
+    "muf_no": "524",
+    "bolum_kod": "205",
+    "code": "MATH112",
+    "name_tr": "İktisat ve Sosyal Bilimler için Matematik II",
+    "name_en": "Mathematics for Economics and Social Sciences II"
+  },
+  "ECON207": {
+    "bim_kod": "107449",
+    "muf_no": "524",
+    "bolum_kod": "301",
+    "code": "ECON207",
+    "name_tr": "Mikroiktisat Teorisi I",
+    "name_en": "Microeconomic Theory I"
+  },
+  "ECON209": {
+    "bim_kod": "107450",
+    "muf_no": "524",
+    "bolum_kod": "302",
+    "code": "ECON209",
+    "name_tr": "Makroekonomik Teori I",
+    "name_en": "Macroeconomic Theory I"
+  },
+  "ECON223": {
+    "bim_kod": "107448",
+    "muf_no": "524",
+    "bolum_kod": "303",
+    "code": "ECON223",
+    "name_tr": "İktisatta Kantitatif Yöntemler",
+    "name_en": "Quantitative Methods in Economics"
+  },
+  "STAT205": {
+    "bim_kod": "109927",
+    "muf_no": "524",
+    "bolum_kod": "306",
+    "code": "STAT205",
+    "name_tr": "İktisat için İstatistik I",
+    "name_en": "Statistics for Economics I"
+  },
+  "ECON208": {
+    "bim_kod": "107453",
+    "muf_no": "524",
+    "bolum_kod": "401",
+    "code": "ECON208",
+    "name_tr": "Mikroiktisat Teorisi II",
+    "name_en": "Microeconomic Theory II"
+  },
+  "ECON210": {
+    "bim_kod": "107454",
+    "muf_no": "524",
+    "bolum_kod": "402",
+    "code": "ECON210",
+    "name_tr": "Makroekonomik Teori II",
+    "name_en": "Macroeconomic Theory II"
+  },
+  "STAT206": {
+    "bim_kod": "109928",
+    "muf_no": "524",
+    "bolum_kod": "405",
+    "code": "STAT206",
+    "name_tr": "İktisat için İstatistik II",
+    "name_en": "Statistics for Economics II"
+  },
+  "ECON305": {
+    "bim_kod": "107456",
+    "muf_no": "524",
+    "bolum_kod": "501",
+    "code": "ECON305",
+    "name_tr": "Para ve Banka",
+    "name_en": "Money and Banking"
+  },
+  "ECON311": {
+    "bim_kod": "107457",
+    "muf_no": "524",
+    "bolum_kod": "502",
+    "code": "ECON311",
+    "name_tr": "Ekonometri I",
+    "name_en": "Econometrics I"
+  },
+  "ECON317": {
+    "bim_kod": "107455",
+    "muf_no": "524",
+    "bolum_kod": "503",
+    "code": "ECON317",
+    "name_tr": "Uluslararası İktisat I",
+    "name_en": "International Economics I"
+  },
+  "ECON312": {
+    "bim_kod": "107460",
+    "muf_no": "524",
+    "bolum_kod": "601",
+    "code": "ECON312",
+    "name_tr": "Ekonometri II",
+    "name_en": "Econometrics II"
+  },
+  "ECON318": {
+    "bim_kod": "107458",
+    "muf_no": "524",
+    "bolum_kod": "602",
+    "code": "ECON318",
+    "name_tr": "Uluslararası İktisat II",
+    "name_en": "International Economics II"
+  },
+  "ECON320": {
+    "bim_kod": "107459",
+    "muf_no": "524",
+    "bolum_kod": "603",
+    "code": "ECON320",
+    "name_tr": "Maliye Politikası ve Kamu Maliyesi",
+    "name_en": "Fiscal Policy and Public Finance"
+  },
+  "ECON407": {
+    "bim_kod": "107461",
+    "muf_no": "524",
+    "bolum_kod": "701",
+    "code": "ECON407",
+    "name_tr": "Türkiye Ekonomisi",
+    "name_en": "Turkish Economy"
+  },
+  "ECON412": {
+    "bim_kod": "107462",
+    "muf_no": "524",
+    "bolum_kod": "801",
+    "code": "ECON412",
+    "name_tr": "İktisat Semineri",
+    "name_en": "Seminar in Economics"
+  },
+  "MAN103": {
+    "bim_kod": "101580",
+    "muf_no": "525",
+    "bolum_kod": "105",
+    "code": "MAN103",
+    "name_tr": "Davranış Bilimlerine Giriş",
+    "name_en": "Introduction to Behavioral Sciences"
+  },
+  "MAN102": {
+    "bim_kod": "103047",
+    "muf_no": "525",
+    "bolum_kod": "204",
+    "code": "MAN102",
+    "name_tr": "Yönetime Giriş",
+    "name_en": "Introduction to Management"
+  },
+  "INF293": {
+    "bim_kod": "103377",
+    "muf_no": "525",
+    "bolum_kod": "303",
+    "code": "INF293",
+    "name_tr": "İşletme Uygulamaları için Bilgisayar Programlama",
+    "name_en": "Computer Programming for Business Applications"
+  },
+  "MAN205": {
+    "bim_kod": "107527",
+    "muf_no": "525",
+    "bolum_kod": "305",
+    "code": "MAN205",
+    "name_tr": "Yöneylem Araştırmasına Giriş",
+    "name_en": "Introduction to Operations Research"
+  },
+  "MAN211": {
+    "bim_kod": "103050",
+    "muf_no": "525",
+    "bolum_kod": "306",
+    "code": "MAN211",
+    "name_tr": "Örgütsel Davranış",
+    "name_en": "Organizational Behavior"
+  },
+  "MAN208": {
+    "bim_kod": "109483",
+    "muf_no": "525",
+    "bolum_kod": "403",
+    "code": "MAN208",
+    "name_tr": "Yöneylem Araştırması",
+    "name_en": "Operations Research"
+  },
+  "MAN212": {
+    "bim_kod": "103052",
+    "muf_no": "525",
+    "bolum_kod": "404",
+    "code": "MAN212",
+    "name_tr": "Örgüt Kuramı",
+    "name_en": "Organization Theory"
+  },
+  "MAN214": {
+    "bim_kod": "103053",
+    "muf_no": "525",
+    "bolum_kod": "405",
+    "code": "MAN214",
+    "name_tr": "İşletme İletişimi",
+    "name_en": "Business Communication"
+  },
+  "MAN216": {
+    "bim_kod": "105629",
+    "muf_no": "525",
+    "bolum_kod": "406",
+    "code": "MAN216",
+    "name_tr": "İşletmelerde Vergileme",
+    "name_en": "Taxation in Business"
+  },
+  "MAN305": {
+    "bim_kod": "101612",
+    "muf_no": "525",
+    "bolum_kod": "501",
+    "code": "MAN305",
+    "name_tr": "İşletme Finansı I",
+    "name_en": "Business Finance I"
+  },
+  "MAN317": {
+    "bim_kod": "101620",
+    "muf_no": "525",
+    "bolum_kod": "503",
+    "code": "MAN317",
+    "name_tr": "İşletme Ekonomisi",
+    "name_en": "Managerial Economics"
+  },
+  "MAN306": {
+    "bim_kod": "101613",
+    "muf_no": "525",
+    "bolum_kod": "601",
+    "code": "MAN306",
+    "name_tr": "İşletme Finansı II",
+    "name_en": "Business Finance II"
+  },
+  "MAN308": {
+    "bim_kod": "101615",
+    "muf_no": "525",
+    "bolum_kod": "602",
+    "code": "MAN308",
+    "name_tr": "İnsan Kaynakları Yönetimi",
+    "name_en": "Human Resources Management"
+  },
+  "MAN304": {
+    "bim_kod": "109482",
+    "muf_no": "525",
+    "bolum_kod": "603",
+    "code": "MAN304",
+    "name_tr": "Üretim Yönetimi",
+    "name_en": "Operations Management"
+  },
+  "MAN401": {
+    "bim_kod": "103061",
+    "muf_no": "525",
+    "bolum_kod": "701",
+    "code": "MAN401",
+    "name_tr": "Uluslararası İşletmecilik",
+    "name_en": "International Business"
+  },
+  "MAN404": {
+    "bim_kod": "105646",
+    "muf_no": "525",
+    "bolum_kod": "801",
+    "code": "MAN404",
+    "name_tr": "Stratejik Yönetim",
+    "name_en": "Strategic Management"
+  },
+  "MAN403": {
+    "bim_kod": "103055",
+    "muf_no": "525",
+    "bolum_kod": "802",
+    "code": "MAN403",
+    "name_tr": "Pazarlama Araştırması",
+    "name_en": "Marketing Research"
+  },
+  "LAW101": {
+    "bim_kod": "102984",
+    "muf_no": "526",
+    "bolum_kod": "103",
+    "code": "LAW101",
+    "name_tr": "Hukuka Giriş",
+    "name_en": "Introduction to Law"
+  },
+  "PSI101": {
+    "bim_kod": "105671",
+    "muf_no": "526",
+    "bolum_kod": "104",
+    "code": "PSI101",
+    "name_tr": "Uluslararası İlişkiler I",
+    "name_en": "International Relations I"
+  },
+  "PSI103": {
+    "bim_kod": "105672",
+    "muf_no": "526",
+    "bolum_kod": "105",
+    "code": "PSI103",
+    "name_tr": "Siyaset Bilimi I",
+    "name_en": "Political Science I"
+  },
+  "LAW102": {
+    "bim_kod": "105682",
+    "muf_no": "526",
+    "bolum_kod": "203",
+    "code": "LAW102",
+    "name_tr": "Anayasa Hukuku",
+    "name_en": "Constitutional Law"
+  },
+  "PSI102": {
+    "bim_kod": "102985",
+    "muf_no": "526",
+    "bolum_kod": "204",
+    "code": "PSI102",
+    "name_tr": "Uluslararası İlişkiler II",
+    "name_en": "International Relations II"
+  },
+  "PSI104": {
+    "bim_kod": "102986",
+    "muf_no": "526",
+    "bolum_kod": "205",
+    "code": "PSI104",
+    "name_tr": "Siyaset Bilimi II",
+    "name_en": "Political Science II"
+  },
+  "LAW201": {
+    "bim_kod": "102990",
+    "muf_no": "526",
+    "bolum_kod": "303",
+    "code": "LAW201",
+    "name_tr": "Uluslararası Hukuk I",
+    "name_en": "International Law I"
+  },
+  "PSI201": {
+    "bim_kod": "102988",
+    "muf_no": "526",
+    "bolum_kod": "304",
+    "code": "PSI201",
+    "name_tr": "Diplomasi Tarihi I",
+    "name_en": "Diplomatic History I"
+  },
+  "PSI203": {
+    "bim_kod": "102989",
+    "muf_no": "526",
+    "bolum_kod": "305",
+    "code": "PSI203",
+    "name_tr": "Türk Siyasi Tarihi I",
+    "name_en": "Turkish Politics I"
+  },
+  "PSI205": {
+    "bim_kod": "109910",
+    "muf_no": "526",
+    "bolum_kod": "306",
+    "code": "PSI205",
+    "name_tr": "Siyasi Düşünce Tarihi",
+    "name_en": "History of Political Thought"
+  },
+  "LAW202": {
+    "bim_kod": "102994",
+    "muf_no": "526",
+    "bolum_kod": "402",
+    "code": "LAW202",
+    "name_tr": "Uluslararası Hukuk II",
+    "name_en": "International Law II"
+  },
+  "PSI202": {
+    "bim_kod": "102991",
+    "muf_no": "526",
+    "bolum_kod": "403",
+    "code": "PSI202",
+    "name_tr": "Diplomasi Tarihi II",
+    "name_en": "Diplomatic History II"
+  },
+  "PSI204": {
+    "bim_kod": "102992",
+    "muf_no": "526",
+    "bolum_kod": "404",
+    "code": "PSI204",
+    "name_tr": "Türk Siyasi Tarihi II",
+    "name_en": "Turkish Politics II"
+  },
+  "PSI207": {
+    "bim_kod": "109911",
+    "muf_no": "526",
+    "bolum_kod": "405",
+    "code": "PSI207",
+    "name_tr": "Siyaset Biliminde Araştırma Teknikleri",
+    "name_en": "Research Methods in Political Science"
+  },
+  "LAW301": {
+    "bim_kod": "101571",
+    "muf_no": "526",
+    "bolum_kod": "501",
+    "code": "LAW301",
+    "name_tr": "Medeni Hukuk",
+    "name_en": "Turkish Civil Law"
+  },
+  "PSI301": {
+    "bim_kod": "101990",
+    "muf_no": "526",
+    "bolum_kod": "502",
+    "code": "PSI301",
+    "name_tr": "Türk Dış Politikası I",
+    "name_en": "Turkish Foreign Policy I"
+  },
+  "PSI303": {
+    "bim_kod": "106339",
+    "muf_no": "526",
+    "bolum_kod": "503",
+    "code": "PSI303",
+    "name_tr": "Uluslararası İlişkiler Teorisi",
+    "name_en": "International Relations Theory"
+  },
+  "PSI302": {
+    "bim_kod": "101991",
+    "muf_no": "526",
+    "bolum_kod": "601",
+    "code": "PSI302",
+    "name_tr": "Türk Dış Politikası II",
+    "name_en": "Turkish Foreign Policy II"
+  },
+  "PSI308": {
+    "bim_kod": "101994",
+    "muf_no": "526",
+    "bolum_kod": "602",
+    "code": "PSI308",
+    "name_tr": "Uluslararası Örgütler",
+    "name_en": "International Organizations"
+  },
+  "PSI310": {
+    "bim_kod": "107514",
+    "muf_no": "526",
+    "bolum_kod": "603",
+    "code": "PSI310",
+    "name_tr": "Siyasal Teori",
+    "name_en": "Political Theory"
+  },
+  "PSI401": {
+    "bim_kod": "103001",
+    "muf_no": "526",
+    "bolum_kod": "701",
+    "code": "PSI401",
+    "name_tr": "Avrupa Bütünleşmesi",
+    "name_en": "European Integration"
+  },
+  "PSI403": {
+    "bim_kod": "106340",
+    "muf_no": "526",
+    "bolum_kod": "702",
+    "code": "PSI403",
+    "name_tr": "Amerikan Siyaseti ve Dış Politikası",
+    "name_en": "American Politics and Foreign Policy"
+  },
+  "PSI405": {
+    "bim_kod": "103002",
+    "muf_no": "526",
+    "bolum_kod": "703",
+    "code": "PSI405",
+    "name_tr": "Uluslararası Siyasal Ekonomi",
+    "name_en": "International Political Economy"
+  },
+  "PSI408": {
+    "bim_kod": "103003",
+    "muf_no": "526",
+    "bolum_kod": "801",
+    "code": "PSI408",
+    "name_tr": "Ortadoğu'da Siyaset",
+    "name_en": "Politics in the Middle East"
+  },
+  "PSI412": {
+    "bim_kod": "103004",
+    "muf_no": "526",
+    "bolum_kod": "802",
+    "code": "PSI412",
+    "name_tr": "Siyaset Sosyolojisi",
+    "name_en": "Political Sociology"
+  },
+  "PSI436": {
+    "bim_kod": "107515",
+    "muf_no": "526",
+    "bolum_kod": "803",
+    "code": "PSI436",
+    "name_tr": "Karşılaştırmalı Politika",
+    "name_en": "Comparative Politics"
+  },
+  "INTT101": {
+    "bim_kod": "105967",
+    "muf_no": "256",
+    "bolum_kod": "103",
+    "code": "INTT101",
+    "name_tr": "Uluslararası Ticarete Giriş I",
+    "name_en": "Introduction to International Trade I"
+  },
+  "INTT102": {
+    "bim_kod": "105648",
+    "muf_no": "256",
+    "bolum_kod": "203",
+    "code": "INTT102",
+    "name_tr": "Uluslararası Ticarete Giriş II",
+    "name_en": "Introduction to International Trade II"
+  },
+  "LAW104": {
+    "bim_kod": "103027",
+    "muf_no": "256",
+    "bolum_kod": "204",
+    "code": "LAW104",
+    "name_tr": "İş Hukuku",
+    "name_en": "Business Law"
+  },
+  "ECON205": {
+    "bim_kod": "103030",
+    "muf_no": "256",
+    "bolum_kod": "301",
+    "code": "ECON205",
+    "name_tr": "Mikro İktisat",
+    "name_en": "Microeconomics"
+  },
+  "INTT204": {
+    "bim_kod": "103032",
+    "muf_no": "256",
+    "bolum_kod": "404",
+    "code": "INTT204",
+    "name_tr": "Finans İlkeleri",
+    "name_en": "Principles of Finance"
+  },
+  "INTT301": {
+    "bim_kod": "106826",
+    "muf_no": "256",
+    "bolum_kod": "501",
+    "code": "INTT301",
+    "name_tr": "Uluslararası Ticaret Teorisi ve Politikası",
+    "name_en": "International Trade Theory and Policy"
+  },
+  "INTT305": {
+    "bim_kod": "106816",
+    "muf_no": "256",
+    "bolum_kod": "502",
+    "code": "INTT305",
+    "name_tr": "Uluslararası Ticaret Düzenlemeleri",
+    "name_en": "International Trade Regulations (T)"
+  },
+  "INTT309": {
+    "bim_kod": "103978",
+    "muf_no": "256",
+    "bolum_kod": "503",
+    "code": "INTT309",
+    "name_tr": "Uluslararası İşletmecilikte Araştırma Yöntemleri",
+    "name_en": "International Business Research Methods"
+  },
+  "INTT304": {
+    "bim_kod": "103034",
+    "muf_no": "256",
+    "bolum_kod": "601",
+    "code": "INTT304",
+    "name_tr": "Pazarlama Yönetimi ve Stratejileri",
+    "name_en": "Marketing Management and Strategies"
+  },
+  "INTT308": {
+    "bim_kod": "101427",
+    "muf_no": "256",
+    "bolum_kod": "602",
+    "code": "INTT308",
+    "name_tr": "İhracat Teşvikleri",
+    "name_en": "Export Incentives (T)"
+  },
+  "INTT320": {
+    "bim_kod": "106817",
+    "muf_no": "256",
+    "bolum_kod": "603",
+    "code": "INTT320",
+    "name_tr": "Uluslararası Ticaret İçin Yöneylem Araştırması",
+    "name_en": "Operations Research for International Trade"
+  },
+  "INTT318": {
+    "bim_kod": "101433",
+    "muf_no": "256",
+    "bolum_kod": "604",
+    "code": "INTT318",
+    "name_tr": "Küresel İşletmecilik Çalışmaları",
+    "name_en": "International Business Studies"
+  },
+  "INTT400": {
+    "bim_kod": "106819",
+    "muf_no": "256",
+    "bolum_kod": "605",
+    "code": "INTT400",
+    "name_tr": "Yaz Stajı",
+    "name_en": "Summer Practice"
+  },
+  "INTT401": {
+    "bim_kod": "101446",
+    "muf_no": "256",
+    "bolum_kod": "701",
+    "code": "INTT401",
+    "name_tr": "Uluslararası Taşımacılık  ve Gümrük Mevzuatı Uygulamaları",
+    "name_en": "Transportation and Customs Regulations (T)"
+  },
+  "INTT403": {
+    "bim_kod": "106827",
+    "muf_no": "256",
+    "bolum_kod": "702",
+    "code": "INTT403",
+    "name_tr": "Uluslararası Pazarlama",
+    "name_en": "International Marketing"
+  },
+  "INTT405": {
+    "bim_kod": "101452",
+    "muf_no": "256",
+    "bolum_kod": "703",
+    "code": "INTT405",
+    "name_tr": "Uluslararası Yatırım",
+    "name_en": "International Investment"
+  },
+  "INTT412": {
+    "bim_kod": "105665",
+    "muf_no": "256",
+    "bolum_kod": "704",
+    "code": "INTT412",
+    "name_tr": "Uluslararası Ticaret Lojistiği",
+    "name_en": "International Trade Logistics"
+  },
+  "INTT404": {
+    "bim_kod": "106828",
+    "muf_no": "256",
+    "bolum_kod": "801",
+    "code": "INTT404",
+    "name_tr": "Dış Ticaret Finansmanı",
+    "name_en": "Foreign Trade Financing"
+  },
+  "INTT430": {
+    "bim_kod": "106818",
+    "muf_no": "256",
+    "bolum_kod": "802",
+    "code": "INTT430",
+    "name_tr": "Kültürlerarası Yönetim ve Müzakere",
+    "name_en": "Intercultural Management and Negotiation"
+  },
+  "INTT416": {
+    "bim_kod": "106829",
+    "muf_no": "256",
+    "bolum_kod": "803",
+    "code": "INTT416",
+    "name_tr": "Avrupa Birliği ve Türkiye",
+    "name_en": "European Union and Turkey"
+  },
+  "INTT105": {
+    "bim_kod": "109247",
+    "muf_no": "528",
+    "bolum_kod": "102",
+    "code": "INTT105",
+    "name_tr": "Türkiye`nin Dış Ticaret Yapısı",
+    "name_en": "Türkiye`s Foreign Trade Structure"
+  },
+  "INTT104": {
+    "bim_kod": "108142",
+    "muf_no": "528",
+    "bolum_kod": "202",
+    "code": "INTT104",
+    "name_tr": "Uluslararası Ticaret için Bilgisayar Uygulamaları",
+    "name_en": "Computer Applications in International Trade"
+  },
+  "INTT313": {
+    "bim_kod": "109277",
+    "muf_no": "528",
+    "bolum_kod": "502",
+    "code": "INTT313",
+    "name_tr": "Uluslararası Ticaret için Yöneylem Araştırması",
+    "name_en": "Operations Research for International Trade"
+  },
+  "INTT323": {
+    "bim_kod": "108343",
+    "muf_no": "528",
+    "bolum_kod": "503",
+    "code": "INTT323",
+    "name_tr": "Uluslararası Ticaret Teorisi ve Politikası I",
+    "name_en": "International Trade Theory and Policy I"
+  },
+  "INTT324": {
+    "bim_kod": "108344",
+    "muf_no": "528",
+    "bolum_kod": "602",
+    "code": "INTT324",
+    "name_tr": "Uluslararası Ticaret Teorisi ve Politikası II",
+    "name_en": "International Trade Theory and Policy II"
+  },
+  "INTT342": {
+    "bim_kod": "109261",
+    "muf_no": "528",
+    "bolum_kod": "603",
+    "code": "INTT342",
+    "name_tr": "Uluslararası Ticaret Lojistiği",
+    "name_en": "International Trade Logistics"
+  },
+  "INTT427": {
+    "bim_kod": "109262",
+    "muf_no": "528",
+    "bolum_kod": "702",
+    "code": "INTT427",
+    "name_tr": "Taşımacılık Yönetimi",
+    "name_en": "Transportation Management"
+  },
+  "INTT441": {
+    "bim_kod": "109276",
+    "muf_no": "528",
+    "bolum_kod": "703",
+    "code": "INTT441",
+    "name_tr": "Uluslararası Finans",
+    "name_en": "International Finance"
+  },
+  "INTT443": {
+    "bim_kod": "109263",
+    "muf_no": "528",
+    "bolum_kod": "704",
+    "code": "INTT443",
+    "name_tr": "Gümrük Düzenlemeleri",
+    "name_en": "Customs Regulations"
+  },
+  "INTT440": {
+    "bim_kod": "109264",
+    "muf_no": "528",
+    "bolum_kod": "803",
+    "code": "INTT440",
+    "name_tr": "Ticaret Uygulamaları ve İhracat Planlama",
+    "name_en": "Trade Applications and Export Planning"
+  },
+  "CENG154": {
+    "bim_kod": "109464",
+    "muf_no": "529",
+    "bolum_kod": "102",
+    "code": "CENG154",
+    "name_tr": "Bilgisayar Programlama I",
+    "name_en": "Computer Programming I"
+  },
+  "MIS101": {
+    "bim_kod": "108943",
+    "muf_no": "529",
+    "bolum_kod": "107",
+    "code": "MIS101",
+    "name_tr": "Yönetim Bilişim Sistemlerine Giriş",
+    "name_en": "Introduction to Management Information Systems"
+  },
+  "MIS102": {
+    "bim_kod": "108460",
+    "muf_no": "529",
+    "bolum_kod": "202",
+    "code": "MIS102",
+    "name_tr": "İşletme ve Yönetim Prensipleri",
+    "name_en": "Principles of Business and Management"
+  },
+  "CENG155": {
+    "bim_kod": "109475",
+    "muf_no": "529",
+    "bolum_kod": "204",
+    "code": "CENG155",
+    "name_tr": "Bilgisayar Programlama II",
+    "name_en": "Computer Programming II"
+  },
+  "MAN209": {
+    "bim_kod": "108942",
+    "muf_no": "529",
+    "bolum_kod": "301",
+    "code": "MAN209",
+    "name_tr": "YBS için Muhasebe",
+    "name_en": "Accounting for MIS"
+  },
+  "MIS207": {
+    "bim_kod": "109273",
+    "muf_no": "529",
+    "bolum_kod": "304",
+    "code": "MIS207",
+    "name_tr": "Veri Bilimi için Programlama",
+    "name_en": "Programming for Data Science"
+  },
+  "MIS202": {
+    "bim_kod": "109235",
+    "muf_no": "529",
+    "bolum_kod": "401",
+    "code": "MIS202",
+    "name_tr": "Bilgi ve Yönetim Ekonomisi",
+    "name_en": "Economics of Information and Management"
+  },
+  "MIS204": {
+    "bim_kod": "108456",
+    "muf_no": "529",
+    "bolum_kod": "402",
+    "code": "MIS204",
+    "name_tr": "Bilgisayar Ağları",
+    "name_en": "Computer Networks"
+  },
+  "MIS208": {
+    "bim_kod": "109268",
+    "muf_no": "529",
+    "bolum_kod": "403",
+    "code": "MIS208",
+    "name_tr": "Veri Analizine Giriş",
+    "name_en": "Introduction to Data Analysis"
+  },
+  "MIS315": {
+    "bim_kod": "109269",
+    "muf_no": "529",
+    "bolum_kod": "501",
+    "code": "MIS315",
+    "name_tr": "Veri Analitiği I",
+    "name_en": "Data Analytics I"
+  },
+  "MIS305": {
+    "bim_kod": "108467",
+    "muf_no": "529",
+    "bolum_kod": "503",
+    "code": "MIS305",
+    "name_tr": "Veri Analizi: Modelleme",
+    "name_en": "Data Analysis: Modelling"
+  },
+  "MIS307": {
+    "bim_kod": "108469",
+    "muf_no": "529",
+    "bolum_kod": "504",
+    "code": "MIS307",
+    "name_tr": "Karar Analizi I",
+    "name_en": "Decision Analysis I"
+  },
+  "MIS314": {
+    "bim_kod": "109270",
+    "muf_no": "529",
+    "bolum_kod": "601",
+    "code": "MIS314",
+    "name_tr": "Veri Analitiği II",
+    "name_en": "Data Analytics II"
+  },
+  "MIS306": {
+    "bim_kod": "109411",
+    "muf_no": "529",
+    "bolum_kod": "602",
+    "code": "MIS306",
+    "name_tr": "Veri Analizi: Tahmin",
+    "name_en": "Data Analysis: Forecasting"
+  },
+  "CENG382": {
+    "bim_kod": "105856",
+    "muf_no": "529",
+    "bolum_kod": "603",
+    "code": "CENG382",
+    "name_tr": "Web Programlama",
+    "name_en": "Web Development"
+  },
+  "MIS400": {
+    "bim_kod": "108952",
+    "muf_no": "529",
+    "bolum_kod": "605",
+    "code": "MIS400",
+    "name_tr": "Yaz Stajı",
+    "name_en": "Summer Practice"
+  },
+  "MIS415": {
+    "bim_kod": "109267",
+    "muf_no": "529",
+    "bolum_kod": "701",
+    "code": "MIS415",
+    "name_tr": "Kurumsal Uygulamalar",
+    "name_en": "Enterprise Applications"
+  },
+  "MAN406": {
+    "bim_kod": "103062",
+    "muf_no": "529",
+    "bolum_kod": "702",
+    "code": "MAN406",
+    "name_tr": "Proje Yönetimi",
+    "name_en": "Project Management"
+  },
+  "MIS403": {
+    "bim_kod": "109412",
+    "muf_no": "529",
+    "bolum_kod": "703",
+    "code": "MIS403",
+    "name_tr": "İşletme ve Ekonomi için Makine Öğrenimi",
+    "name_en": "Machine Learning for Business and Economics"
+  },
+  "MIS402": {
+    "bim_kod": "108473",
+    "muf_no": "529",
+    "bolum_kod": "801",
+    "code": "MIS402",
+    "name_tr": "Karar Analizi II",
+    "name_en": "Decision Analysis II"
+  },
+  "MIS408": {
+    "bim_kod": "108474",
+    "muf_no": "529",
+    "bolum_kod": "802",
+    "code": "MIS408",
+    "name_tr": "Mezuniyet projesi",
+    "name_en": "Graduation Project"
+  },
+  "HUK141": {
+    "bim_kod": "102642",
+    "muf_no": "506",
+    "bolum_kod": "101",
+    "code": "HUK141",
+    "name_tr": "Medeni Hukuk I",
+    "name_en": "Civil Law I"
+  },
+  "HUK143": {
+    "bim_kod": "102644",
+    "muf_no": "506",
+    "bolum_kod": "102",
+    "code": "HUK143",
+    "name_tr": "Anayasa Hukuku I",
+    "name_en": "Constitutional Law I"
+  },
+  "HUK145": {
+    "bim_kod": "102646",
+    "muf_no": "506",
+    "bolum_kod": "103",
+    "code": "HUK145",
+    "name_tr": "Hukuk Başlangıcı I",
+    "name_en": "Introduction to Law I"
+  },
+  "HUK147": {
+    "bim_kod": "102648",
+    "muf_no": "506",
+    "bolum_kod": "104",
+    "code": "HUK147",
+    "name_tr": "Devlet Teorileri I",
+    "name_en": "Theory of State I"
+  },
+  "HUK155": {
+    "bim_kod": "109784",
+    "muf_no": "506",
+    "bolum_kod": "105",
+    "code": "HUK155",
+    "name_tr": "İktisat",
+    "name_en": "Economics"
+  },
+  "ENG109": {
+    "bim_kod": "102640",
+    "muf_no": "506",
+    "bolum_kod": "107",
+    "code": "ENG109",
+    "name_tr": "Yabancı Dil I",
+    "name_en": "English I"
+  },
+  "HUK142": {
+    "bim_kod": "102643",
+    "muf_no": "506",
+    "bolum_kod": "201",
+    "code": "HUK142",
+    "name_tr": "Medeni Hukuk II",
+    "name_en": "Civil Law II"
+  },
+  "HUK144": {
+    "bim_kod": "109785",
+    "muf_no": "506",
+    "bolum_kod": "202",
+    "code": "HUK144",
+    "name_tr": "Anayasa Hukuku II",
+    "name_en": "Constitutional Law II"
+  },
+  "HUK146": {
+    "bim_kod": "109786",
+    "muf_no": "506",
+    "bolum_kod": "203",
+    "code": "HUK146",
+    "name_tr": "Hukuk Başlangıcı II",
+    "name_en": "Introduction to Law II"
+  },
+  "HUK148": {
+    "bim_kod": "102649",
+    "muf_no": "506",
+    "bolum_kod": "204",
+    "code": "HUK148",
+    "name_tr": "Devlet Teorileri II",
+    "name_en": "Theory of State II"
+  },
+  "HUK157": {
+    "bim_kod": "109787",
+    "muf_no": "506",
+    "bolum_kod": "205",
+    "code": "HUK157",
+    "name_tr": "Roma Hukuku",
+    "name_en": "Roman Law"
+  },
+  "ENG110": {
+    "bim_kod": "102641",
+    "muf_no": "506",
+    "bolum_kod": "207",
+    "code": "ENG110",
+    "name_tr": "Yabancı Dil II",
+    "name_en": "English II"
+  },
+  "HUK221": {
+    "bim_kod": "109794",
+    "muf_no": "506",
+    "bolum_kod": "301",
+    "code": "HUK221",
+    "name_tr": "Türk Hukuk Tarihi",
+    "name_en": "Turkish Legal History"
+  },
+  "HUK271": {
+    "bim_kod": "109795",
+    "muf_no": "506",
+    "bolum_kod": "302",
+    "code": "HUK271",
+    "name_tr": "Ceza Hukuku I (G.H.)",
+    "name_en": "Criminal Law I (General Provisions)"
+  },
+  "HUK273": {
+    "bim_kod": "109796",
+    "muf_no": "506",
+    "bolum_kod": "303",
+    "code": "HUK273",
+    "name_tr": "İdare Hukuku I",
+    "name_en": "Administrative Law I"
+  },
+  "HUK275": {
+    "bim_kod": "109797",
+    "muf_no": "506",
+    "bolum_kod": "304",
+    "code": "HUK275",
+    "name_tr": "Borçlar Hukuku I (G.H.)",
+    "name_en": "Law of Obligations I (General Provisions)"
+  },
+  "HUK277": {
+    "bim_kod": "102662",
+    "muf_no": "506",
+    "bolum_kod": "305",
+    "code": "HUK277",
+    "name_tr": "Milletlerarası Hukuk I",
+    "name_en": "International Law I"
+  },
+  "HUK279": {
+    "bim_kod": "102664",
+    "muf_no": "506",
+    "bolum_kod": "306",
+    "code": "HUK279",
+    "name_tr": "Maliye (Mali Hukuk) I",
+    "name_en": "Finance (Financial Law) I"
+  },
+  "HUK272": {
+    "bim_kod": "102657",
+    "muf_no": "506",
+    "bolum_kod": "401",
+    "code": "HUK272",
+    "name_tr": "Ceza Hukuku II (G.H.)",
+    "name_en": "Criminal Law II (General Provisions)"
+  },
+  "HUK274": {
+    "bim_kod": "102659",
+    "muf_no": "506",
+    "bolum_kod": "402",
+    "code": "HUK274",
+    "name_tr": "İdare Hukuku II",
+    "name_en": "Administrative Law II"
+  },
+  "HUK276": {
+    "bim_kod": "102661",
+    "muf_no": "506",
+    "bolum_kod": "403",
+    "code": "HUK276",
+    "name_tr": "Borçlar Hukuku II (G.H.)",
+    "name_en": "Law of Obligations II (General Provisions)"
+  },
+  "HUK278": {
+    "bim_kod": "102663",
+    "muf_no": "506",
+    "bolum_kod": "404",
+    "code": "HUK278",
+    "name_tr": "Milletlerarası Hukuk II",
+    "name_en": "International Law II"
+  },
+  "HUK280": {
+    "bim_kod": "102665",
+    "muf_no": "506",
+    "bolum_kod": "405",
+    "code": "HUK280",
+    "name_tr": "Maliye (Mali Hukuk) II",
+    "name_en": "Finance (Financial Law) II"
+  },
+  "HUK341": {
+    "bim_kod": "102677",
+    "muf_no": "506",
+    "bolum_kod": "501",
+    "code": "HUK341",
+    "name_tr": "İdari Yargı Hukuku I",
+    "name_en": "Administrative Procedure Law I"
+  },
+  "HUK343": {
+    "bim_kod": "109803",
+    "muf_no": "506",
+    "bolum_kod": "502",
+    "code": "HUK343",
+    "name_tr": "Eşya Hukuku I",
+    "name_en": "Property Law I"
+  },
+  "HUK345": {
+    "bim_kod": "109804",
+    "muf_no": "506",
+    "bolum_kod": "503",
+    "code": "HUK345",
+    "name_tr": "Borçlar Hukuku I (Ö.H.)",
+    "name_en": "Law of Obligations I (Special Provisions)"
+  },
+  "HUK347": {
+    "bim_kod": "109805",
+    "muf_no": "506",
+    "bolum_kod": "504",
+    "code": "HUK347",
+    "name_tr": "Medeni Usul Hukuku I",
+    "name_en": "Law of Civil Procedure I"
+  },
+  "HUK349": {
+    "bim_kod": "102685",
+    "muf_no": "506",
+    "bolum_kod": "505",
+    "code": "HUK349",
+    "name_tr": "Ticaret Hukuku I",
+    "name_en": "Commercial Law I"
+  },
+  "HUK351": {
+    "bim_kod": "102687",
+    "muf_no": "506",
+    "bolum_kod": "506",
+    "code": "HUK351",
+    "name_tr": "Ceza Hukuku I (Ö.H.)",
+    "name_en": "Criminal Law I (Special Provisions)"
+  },
+  "HUK353": {
+    "bim_kod": "102689",
+    "muf_no": "506",
+    "bolum_kod": "507",
+    "code": "HUK353",
+    "name_tr": "Vergi Hukuku I",
+    "name_en": "Tax Law I"
+  },
+  "HUK302": {
+    "bim_kod": "105486",
+    "muf_no": "506",
+    "bolum_kod": "508",
+    "code": "HUK302",
+    "name_tr": "Hukuk Felsefesi",
+    "name_en": "Philosophy of Law"
+  },
+  "HUK342": {
+    "bim_kod": "102678",
+    "muf_no": "506",
+    "bolum_kod": "601",
+    "code": "HUK342",
+    "name_tr": "İdari Yargı Hukuku II",
+    "name_en": "Administrative Procedure Law II"
+  },
+  "HUK344": {
+    "bim_kod": "109810",
+    "muf_no": "506",
+    "bolum_kod": "602",
+    "code": "HUK344",
+    "name_tr": "Eşya Hukuku II",
+    "name_en": "Property Law II"
+  },
+  "HUK346": {
+    "bim_kod": "109811",
+    "muf_no": "506",
+    "bolum_kod": "603",
+    "code": "HUK346",
+    "name_tr": "Borçlar Hukuku II (Ö.H.)",
+    "name_en": "Law of Obligations II (Special Provisions)"
+  },
+  "HUK348": {
+    "bim_kod": "109812",
+    "muf_no": "506",
+    "bolum_kod": "604",
+    "code": "HUK348",
+    "name_tr": "Medeni Usul Hukuku II",
+    "name_en": "Law of Civil Procedure II"
+  },
+  "HUK350": {
+    "bim_kod": "102686",
+    "muf_no": "506",
+    "bolum_kod": "605",
+    "code": "HUK350",
+    "name_tr": "Ticaret Hukuku II",
+    "name_en": "Commercial Law II"
+  },
+  "HUK352": {
+    "bim_kod": "102688",
+    "muf_no": "506",
+    "bolum_kod": "606",
+    "code": "HUK352",
+    "name_tr": "Ceza Hukuku II (Ö.H.)",
+    "name_en": "Criminal Law II (Special Provisions)"
+  },
+  "HUK354": {
+    "bim_kod": "102690",
+    "muf_no": "506",
+    "bolum_kod": "607",
+    "code": "HUK354",
+    "name_tr": "Vergi Hukuku II",
+    "name_en": "Tax Law II"
+  },
+  "HUK368": {
+    "bim_kod": "109813",
+    "muf_no": "506",
+    "bolum_kod": "608",
+    "code": "HUK368",
+    "name_tr": "Hukuk Sosyolojisi",
+    "name_en": "Sociology of Law"
+  },
+  "HUK403": {
+    "bim_kod": "102709",
+    "muf_no": "506",
+    "bolum_kod": "701",
+    "code": "HUK403",
+    "name_tr": "Devletler Özel Hukuku I",
+    "name_en": "International Private Law I"
+  },
+  "HUK405": {
+    "bim_kod": "109818",
+    "muf_no": "506",
+    "bolum_kod": "702",
+    "code": "HUK405",
+    "name_tr": "Ticaret Hukuku III",
+    "name_en": "Commercial Law III"
+  },
+  "HUK407": {
+    "bim_kod": "102713",
+    "muf_no": "506",
+    "bolum_kod": "703",
+    "code": "HUK407",
+    "name_tr": "Miras Hukuku I",
+    "name_en": "Law of Succession I"
+  },
+  "HUK409": {
+    "bim_kod": "109819",
+    "muf_no": "506",
+    "bolum_kod": "704",
+    "code": "HUK409",
+    "name_tr": "İcra-İflas Hukuku I",
+    "name_en": "Law of Bankruptcy and Enforcement I"
+  },
+  "HUK411": {
+    "bim_kod": "109820",
+    "muf_no": "506",
+    "bolum_kod": "705",
+    "code": "HUK411",
+    "name_tr": "Ceza Usul Hukuku I",
+    "name_en": "Law of Criminal Procedure I"
+  },
+  "HUK437": {
+    "bim_kod": "102722",
+    "muf_no": "506",
+    "bolum_kod": "706",
+    "code": "HUK437",
+    "name_tr": "İnsan Hakları ve Uı.Korun. I",
+    "name_en": "Human Rights and International Protection I"
+  },
+  "HUK457": {
+    "bim_kod": "109821",
+    "muf_no": "506",
+    "bolum_kod": "707",
+    "code": "HUK457",
+    "name_tr": "Tahkim Hukuku",
+    "name_en": "Arbitration Law"
+  },
+  "HUK465": {
+    "bim_kod": "109822",
+    "muf_no": "506",
+    "bolum_kod": "708",
+    "code": "HUK465",
+    "name_tr": "İş Hukuku I",
+    "name_en": "Labour Law I"
+  },
+  "HUK404": {
+    "bim_kod": "102710",
+    "muf_no": "506",
+    "bolum_kod": "801",
+    "code": "HUK404",
+    "name_tr": "Devletler Özel Hukuku II",
+    "name_en": "International Private Law II"
+  },
+  "HUK406": {
+    "bim_kod": "102712",
+    "muf_no": "506",
+    "bolum_kod": "802",
+    "code": "HUK406",
+    "name_tr": "Ticaret Hukuku IV",
+    "name_en": "Commercial IV"
+  },
+  "HUK408": {
+    "bim_kod": "102714",
+    "muf_no": "506",
+    "bolum_kod": "803",
+    "code": "HUK408",
+    "name_tr": "Miras Hukuku II",
+    "name_en": "Law of Succession II"
+  },
+  "HUK410": {
+    "bim_kod": "102716",
+    "muf_no": "506",
+    "bolum_kod": "804",
+    "code": "HUK410",
+    "name_tr": "İcra-İflas Hukuku II",
+    "name_en": "Law of Bankruptcy and Enforcement II"
+  },
+  "HUK412": {
+    "bim_kod": "102718",
+    "muf_no": "506",
+    "bolum_kod": "805",
+    "code": "HUK412",
+    "name_tr": "Ceza Usul Hukuku II",
+    "name_en": "Law of Criminal Procedure II"
+  },
+  "HUK438": {
+    "bim_kod": "102723",
+    "muf_no": "506",
+    "bolum_kod": "806",
+    "code": "HUK438",
+    "name_tr": "İnsan Hakları ve Uı.Korun. II",
+    "name_en": "Human Rights and International Protection II"
+  },
+  "HUK466": {
+    "bim_kod": "109823",
+    "muf_no": "506",
+    "bolum_kod": "807",
+    "code": "HUK466",
+    "name_tr": "İş Hukuku II",
+    "name_en": "Labour Law II"
+  },
+  "CENG105": {
+    "bim_kod": "106475",
+    "muf_no": "510",
+    "bolum_kod": "102",
+    "code": "CENG105",
+    "name_tr": "Bilgisayar Mühendisliği Oryantasyon",
+    "name_en": "Computer Engineering Orientation"
+  },
+  "CENG124": {
+    "bim_kod": "105860",
+    "muf_no": "510",
+    "bolum_kod": "202",
+    "code": "CENG124",
+    "name_tr": "Ayrık Yapılar",
+    "name_en": "Discrete Structures"
+  },
+  "CENG235": {
+    "bim_kod": "109867",
+    "muf_no": "510",
+    "bolum_kod": "301",
+    "code": "CENG235",
+    "name_tr": "Olasılık ve İstatistiğe Giriş",
+    "name_en": "Introduction to Probability and Statistics"
+  },
+  "EE213": {
+    "bim_kod": "107607",
+    "muf_no": "510",
+    "bolum_kod": "303",
+    "code": "EE213",
+    "name_tr": "Sayısal Tasarım",
+    "name_en": "Digital Design"
+  },
+  "EE205": {
+    "bim_kod": "105280",
+    "muf_no": "510",
+    "bolum_kod": "304",
+    "code": "EE205",
+    "name_tr": "Elektriksel Devre Analizi I",
+    "name_en": "Electrical Circuit Analysis I"
+  },
+  "CENG218": {
+    "bim_kod": "107869",
+    "muf_no": "510",
+    "bolum_kod": "401",
+    "code": "CENG218",
+    "name_tr": "Veri Yapıları",
+    "name_en": "Data Structures"
+  },
+  "CENG222": {
+    "bim_kod": "109909",
+    "muf_no": "510",
+    "bolum_kod": "402",
+    "code": "CENG222",
+    "name_tr": "Bilgisayar Organizasyonu",
+    "name_en": "Computer Organization"
+  },
+  "CENG236": {
+    "bim_kod": "107871",
+    "muf_no": "510",
+    "bolum_kod": "403",
+    "code": "CENG236",
+    "name_tr": "Sayısal Analiz",
+    "name_en": "Numerical Analysis"
+  },
+  "CENG329": {
+    "bim_kod": "100112",
+    "muf_no": "510",
+    "bolum_kod": "501",
+    "code": "CENG329",
+    "name_tr": "Mikroişlemciler",
+    "name_en": "Microprocessors"
+  },
+  "CENG466": {
+    "bim_kod": "107884",
+    "muf_no": "510",
+    "bolum_kod": "503",
+    "code": "CENG466",
+    "name_tr": "Yapay Zeka",
+    "name_en": "Artificial Intelligence"
+  },
+  "CENG200": {
+    "bim_kod": "100058",
+    "muf_no": "510",
+    "bolum_kod": "504",
+    "code": "CENG200",
+    "name_tr": "Yaz Stajı I",
+    "name_en": "Summer Training I"
+  },
+  "CENG356": {
+    "bim_kod": "108946",
+    "muf_no": "510",
+    "bolum_kod": "602",
+    "code": "CENG356",
+    "name_tr": "Veri Tabanı Yönetimi",
+    "name_en": "Database Management Systems"
+  },
+  "CENG396": {
+    "bim_kod": "107879",
+    "muf_no": "510",
+    "bolum_kod": "604",
+    "code": "CENG396",
+    "name_tr": "Yazılım Mühendisliği",
+    "name_en": "Software Engineering"
+  },
+  "CENG407": {
+    "bim_kod": "105857",
+    "muf_no": "510",
+    "bolum_kod": "701",
+    "code": "CENG407",
+    "name_tr": "Yenilikçi Sistem Tasarlama ve Geliştirme I",
+    "name_en": "Innovative System Design and Development I"
+  },
+  "CENG491": {
+    "bim_kod": "100198",
+    "muf_no": "510",
+    "bolum_kod": "702",
+    "code": "CENG491",
+    "name_tr": "Biçimsel Diller ve Otomata Teori",
+    "name_en": "Formal Languages and Automata"
+  },
+  "CENG300": {
+    "bim_kod": "102238",
+    "muf_no": "510",
+    "bolum_kod": "704",
+    "code": "CENG300",
+    "name_tr": "Yaz Stajı II",
+    "name_en": "Summer Training II"
+  },
+  "CENG403": {
+    "bim_kod": "108948",
+    "muf_no": "510",
+    "bolum_kod": "705",
+    "code": "CENG403",
+    "name_tr": "Mühendislikte Sosyal Konular",
+    "name_en": "Social Issues in Engineering"
+  },
+  "CENG408": {
+    "bim_kod": "103957",
+    "muf_no": "510",
+    "bolum_kod": "801",
+    "code": "CENG408",
+    "name_tr": "Yenilikçi Sistem Tasarlama ve Geliştirme II",
+    "name_en": "Innovative System Design and Development II"
+  },
+  "MAN432": {
+    "bim_kod": "106348",
+    "muf_no": "510",
+    "bolum_kod": "802",
+    "code": "MAN432",
+    "name_tr": "Mühendisler İçin Yönetim",
+    "name_en": "Management for Engineers"
+  },
+  "CENG442": {
+    "bim_kod": "107881",
+    "muf_no": "510",
+    "bolum_kod": "803",
+    "code": "CENG442",
+    "name_tr": "Programlama Dilleri",
+    "name_en": "Programming Languages"
+  },
+  "EE101": {
+    "bim_kod": "105864",
+    "muf_no": "518",
+    "bolum_kod": "101",
+    "code": "EE101",
+    "name_tr": "Mühendislik Oryantasyonu",
+    "name_en": "Engineering Orientation"
+  },
+  "EE103": {
+    "bim_kod": "107608",
+    "muf_no": "518",
+    "bolum_kod": "102",
+    "code": "EE103",
+    "name_tr": "Elektrik - Elektronik Mühendisliği için Hesaplama Araçları",
+    "name_en": "Computational Tools for Electrical - Electronics Engineering"
+  },
+  "EE104": {
+    "bim_kod": "107609",
+    "muf_no": "518",
+    "bolum_kod": "201",
+    "code": "EE104",
+    "name_tr": "Elektronik Mühendisliğine Giriş",
+    "name_en": "Introduction to Electronics Engineering"
+  },
+  "EE154": {
+    "bim_kod": "107610",
+    "muf_no": "518",
+    "bolum_kod": "202",
+    "code": "EE154",
+    "name_tr": "Elektrik - Elektronik Mühendisliği için Bilgisayar Programlama",
+    "name_en": "Computer Programming for Electrical - Electronics Engineering"
+  },
+  "EE203": {
+    "bim_kod": "107603",
+    "muf_no": "518",
+    "bolum_kod": "301",
+    "code": "EE203",
+    "name_tr": "Olasılık ve Rasgele Değişkenler",
+    "name_en": "Probability and Random Variables"
+  },
+  "EE209": {
+    "bim_kod": "109908",
+    "muf_no": "518",
+    "bolum_kod": "303",
+    "code": "EE209",
+    "name_tr": "Elektromanyetik Teorisi",
+    "name_en": "Electromagnetic Theory"
+  },
+  "EE202": {
+    "bim_kod": "107602",
+    "muf_no": "518",
+    "bolum_kod": "401",
+    "code": "EE202",
+    "name_tr": "Mühendisler İçin Sayısal Metodlar",
+    "name_en": "Numerical Methods forEngineers"
+  },
+  "EE204": {
+    "bim_kod": "109907",
+    "muf_no": "518",
+    "bolum_kod": "402",
+    "code": "EE204",
+    "name_tr": "Sinyaller ve Sistemler",
+    "name_en": "Signals and Systems"
+  },
+  "EE206": {
+    "bim_kod": "105284",
+    "muf_no": "518",
+    "bolum_kod": "403",
+    "code": "EE206",
+    "name_tr": "Elektriksel Devre Analizi II",
+    "name_en": "Electrical Circuit Analysis II"
+  },
+  "EE208": {
+    "bim_kod": "105286",
+    "muf_no": "518",
+    "bolum_kod": "404",
+    "code": "EE208",
+    "name_tr": "Elektronik I",
+    "name_en": "Electronics I"
+  },
+  "EE212": {
+    "bim_kod": "107606",
+    "muf_no": "518",
+    "bolum_kod": "405",
+    "code": "EE212",
+    "name_tr": "Elektromanyetik Dalga Teorisi",
+    "name_en": "Electromagnetic Wave Theory"
+  },
+  "EE301": {
+    "bim_kod": "108096",
+    "muf_no": "518",
+    "bolum_kod": "501",
+    "code": "EE301",
+    "name_tr": "Kontrol Sistemleri",
+    "name_en": "Control Systems"
+  },
+  "EE309": {
+    "bim_kod": "106092",
+    "muf_no": "518",
+    "bolum_kod": "502",
+    "code": "EE309",
+    "name_tr": "Elektronik II",
+    "name_en": "Electronics II"
+  },
+  "EE315": {
+    "bim_kod": "107599",
+    "muf_no": "518",
+    "bolum_kod": "503",
+    "code": "EE315",
+    "name_tr": "Mikroişlemciler",
+    "name_en": "Microprocessors"
+  },
+  "EE321": {
+    "bim_kod": "107600",
+    "muf_no": "518",
+    "bolum_kod": "504",
+    "code": "EE321",
+    "name_tr": "Elektromekanik Enerji Dönüşümü",
+    "name_en": "Electromechanical Energy Conversion"
+  },
+  "EE200": {
+    "bim_kod": "105293",
+    "muf_no": "518",
+    "bolum_kod": "506",
+    "code": "EE200",
+    "name_tr": "Yaz Stajı I",
+    "name_en": "Summer Training I"
+  },
+  "EE304": {
+    "bim_kod": "105319",
+    "muf_no": "518",
+    "bolum_kod": "601",
+    "code": "EE304",
+    "name_tr": "Haberleşme Esasları",
+    "name_en": "Telecommunications Essentials"
+  },
+  "EE326": {
+    "bim_kod": "107601",
+    "muf_no": "518",
+    "bolum_kod": "602",
+    "code": "EE326",
+    "name_tr": "Güç Elektroniği",
+    "name_en": "Power Electronics"
+  },
+  "EE407": {
+    "bim_kod": "105301",
+    "muf_no": "518",
+    "bolum_kod": "701",
+    "code": "EE407",
+    "name_tr": "Yenilikçi Mühendislik Analizi ve Tasarımı",
+    "name_en": "Innovative Engineering Analysis and Design"
+  },
+  "EE300": {
+    "bim_kod": "105303",
+    "muf_no": "518",
+    "bolum_kod": "703",
+    "code": "EE300",
+    "name_tr": "Yaz Stajı II",
+    "name_en": "Summer Training II"
+  },
+  "EE408": {
+    "bim_kod": "106472",
+    "muf_no": "518",
+    "bolum_kod": "801",
+    "code": "EE408",
+    "name_tr": "Yenilikçi Mühendislik Tasarımı ve Uygulaması",
+    "name_en": "Innovative Engineering Design and Implementation"
+  },
+  "ECE109": {
+    "bim_kod": "106393",
+    "muf_no": "273",
+    "bolum_kod": "101",
+    "code": "ECE109",
+    "name_tr": "Elektronik ve Haberleşme Mühendisliği için Hesaplama Araçları + Lab.",
+    "name_en": "Computational Tools for Electronic and Communication Engineering + Lab."
+  },
+  "ECE107": {
+    "bim_kod": "106399",
+    "muf_no": "273",
+    "bolum_kod": "102",
+    "code": "ECE107",
+    "name_tr": "Mühendislik Oryantasyonu",
+    "name_en": "Engineering Orientation"
+  },
+  "ECE108": {
+    "bim_kod": "105223",
+    "muf_no": "273",
+    "bolum_kod": "201",
+    "code": "ECE108",
+    "name_tr": "Mühendislik Oryantasyonu II",
+    "name_en": "Engineering Orientation II"
+  },
+  "ECE223": {
+    "bim_kod": "102254",
+    "muf_no": "273",
+    "bolum_kod": "301",
+    "code": "ECE223",
+    "name_tr": "Sayısal Tasarım I + Lab.",
+    "name_en": "Digital Design I + Lab."
+  },
+  "ECE233": {
+    "bim_kod": "102251",
+    "muf_no": "273",
+    "bolum_kod": "302",
+    "code": "ECE233",
+    "name_tr": "Elektriksel Devre Analizi + Lab.",
+    "name_en": "Electrical Circuits Analysis + Lab."
+  },
+  "ECE265": {
+    "bim_kod": "105867",
+    "muf_no": "273",
+    "bolum_kod": "303",
+    "code": "ECE265",
+    "name_tr": "Elektronik ve Haberleşme Mühendisliğinde Analitik Teknikler + Lab.",
+    "name_en": "Analytic Techniques in Electronic and Communication Engineering + Lab."
+  },
+  "ECE271": {
+    "bim_kod": "105866",
+    "muf_no": "273",
+    "bolum_kod": "304",
+    "code": "ECE271",
+    "name_tr": "Haberleşme Şebekelerine Giriş",
+    "name_en": "Introduction to Telecommunication Networks"
+  },
+  "MATH253": {
+    "bim_kod": "108198",
+    "muf_no": "273",
+    "bolum_kod": "305",
+    "code": "MATH253",
+    "name_tr": "Vektörel Analiz ve Doğrusal Cebir",
+    "name_en": "Vector Calculus and Linear Algebra"
+  },
+  "ECE218": {
+    "bim_kod": "106394",
+    "muf_no": "273",
+    "bolum_kod": "401",
+    "code": "ECE218",
+    "name_tr": "Sinyal ve Sistemlerin Temelleri + Lab.",
+    "name_en": "Principles of Signals and Systems + Lab."
+  },
+  "ECE232": {
+    "bim_kod": "106395",
+    "muf_no": "273",
+    "bolum_kod": "402",
+    "code": "ECE232",
+    "name_tr": "İleri Elektriksel Devre Analizi + Lab.",
+    "name_en": "Advanced Electrical Circuit Analysis + Lab."
+  },
+  "ECE240": {
+    "bim_kod": "107864",
+    "muf_no": "273",
+    "bolum_kod": "403",
+    "code": "ECE240",
+    "name_tr": "Elektromekanik Enerji Dönüşümü",
+    "name_en": "Electromechanical Energy Conversion"
+  },
+  "ECE246": {
+    "bim_kod": "106397",
+    "muf_no": "273",
+    "bolum_kod": "404",
+    "code": "ECE246",
+    "name_tr": "Temel Elektronik + Lab.",
+    "name_en": "Fundamentals of Electronics + Lab."
+  },
+  "ECE256": {
+    "bim_kod": "107865",
+    "muf_no": "273",
+    "bolum_kod": "405",
+    "code": "ECE256",
+    "name_tr": "Elektromanyetik Teori",
+    "name_en": "Electromagnetic Theory"
+  },
+  "ECE307": {
+    "bim_kod": "102259",
+    "muf_no": "273",
+    "bolum_kod": "501",
+    "code": "ECE307",
+    "name_tr": "Olasılık Teoremi",
+    "name_en": "Probability and Random Processes"
+  },
+  "ECE311": {
+    "bim_kod": "100396",
+    "muf_no": "273",
+    "bolum_kod": "502",
+    "code": "ECE311",
+    "name_tr": "Alanlar ve Dalgalar",
+    "name_en": "Fields and Waves"
+  },
+  "ECE329": {
+    "bim_kod": "100410",
+    "muf_no": "273",
+    "bolum_kod": "503",
+    "code": "ECE329",
+    "name_tr": "Dijital Elektronik Tasarım II + Lab.",
+    "name_en": "Digital Design II + Lab."
+  },
+  "ECE347": {
+    "bim_kod": "102890",
+    "muf_no": "273",
+    "bolum_kod": "504",
+    "code": "ECE347",
+    "name_tr": "Elektronik + Lab.",
+    "name_en": "Electronics + Lab."
+  },
+  "ECE373": {
+    "bim_kod": "100421",
+    "muf_no": "273",
+    "bolum_kod": "505",
+    "code": "ECE373",
+    "name_tr": "İletişim Temelleri + Lab.",
+    "name_en": "Fundamentals of Communication + Lab."
+  },
+  "ECE298": {
+    "bim_kod": "102258",
+    "muf_no": "273",
+    "bolum_kod": "506",
+    "code": "ECE298",
+    "name_tr": "Yaz Stajı I",
+    "name_en": "Summer Training I"
+  },
+  "ECE310": {
+    "bim_kod": "103445",
+    "muf_no": "273",
+    "bolum_kod": "601",
+    "code": "ECE310",
+    "name_tr": "Sayısal Sinyal İşleme + Lab.",
+    "name_en": "Digital Signal Processing + Lab."
+  },
+  "ECE336": {
+    "bim_kod": "107866",
+    "muf_no": "273",
+    "bolum_kod": "602",
+    "code": "ECE336",
+    "name_tr": "Mikroişlemciler I + Lab.",
+    "name_en": "Microprocessors I + Lab."
+  },
+  "ECE358": {
+    "bim_kod": "102954",
+    "muf_no": "273",
+    "bolum_kod": "603",
+    "code": "ECE358",
+    "name_tr": "Mikrodalga Mühendisliği",
+    "name_en": "Microwave Engineering + Lab."
+  },
+  "ECE376": {
+    "bim_kod": "100423",
+    "muf_no": "273",
+    "bolum_kod": "604",
+    "code": "ECE376",
+    "name_tr": "Sayısal Haberleşme + Lab.",
+    "name_en": "Digital Communications + Lab."
+  },
+  "ECE388": {
+    "bim_kod": "102893",
+    "muf_no": "273",
+    "bolum_kod": "605",
+    "code": "ECE388",
+    "name_tr": "Otomatik Kontrol + Lab.",
+    "name_en": "Automatic Control + Lab."
+  },
+  "ECE443": {
+    "bim_kod": "105870",
+    "muf_no": "273",
+    "bolum_kod": "701",
+    "code": "ECE443",
+    "name_tr": "Uygulamalı Elektronik + Lab.",
+    "name_en": "Applied Electronics + Lab."
+  },
+  "ECE459": {
+    "bim_kod": "102263",
+    "muf_no": "273",
+    "bolum_kod": "702",
+    "code": "ECE459",
+    "name_tr": "Antenler ve Yayılım",
+    "name_en": "Antennas and Propagation + Lab."
+  },
+  "ECE491": {
+    "bim_kod": "107862",
+    "muf_no": "273",
+    "bolum_kod": "703",
+    "code": "ECE491",
+    "name_tr": "Yenilikçi Mühendislik Analizi ve Tasarımı",
+    "name_en": "Innovative Engineering Analysis and Design"
+  },
+  "ECE398": {
+    "bim_kod": "102260",
+    "muf_no": "273",
+    "bolum_kod": "706",
+    "code": "ECE398",
+    "name_tr": "Yaz Stajı II",
+    "name_en": "Summer Training II"
+  },
+  "ECE474": {
+    "bim_kod": "105873",
+    "muf_no": "273",
+    "bolum_kod": "801",
+    "code": "ECE474",
+    "name_tr": "Optik Haberleşme Sistemleri + Lab.",
+    "name_en": "Optical Communication Systems + Lab."
+  },
+  "ECE492": {
+    "bim_kod": "107863",
+    "muf_no": "273",
+    "bolum_kod": "802",
+    "code": "ECE492",
+    "name_tr": "Yenilikçi Mühendislik Tasarımı ve Uygulaması",
+    "name_en": "Innovative Engineering Design and Implementation"
+  },
+  "ECON213": {
+    "bim_kod": "100570",
+    "muf_no": "511",
+    "bolum_kod": "101",
+    "code": "ECON213",
+    "name_tr": "Ekonomi İlkeleri",
+    "name_en": "Principles of Economics"
+  },
+  "IE117": {
+    "bim_kod": "109206",
+    "muf_no": "511",
+    "bolum_kod": "104",
+    "code": "IE117",
+    "name_tr": "Endüstri Mühendisliğinde Hesaplamalı Programlama Araçları",
+    "name_en": "Computational Programming Tools in Industrial Engineering"
+  },
+  "IE101": {
+    "bim_kod": "102955",
+    "muf_no": "511",
+    "bolum_kod": "203",
+    "code": "IE101",
+    "name_tr": "Endüstri Mühendisliğine Giriş",
+    "name_en": "Industrial Engineering Orientation"
+  },
+  "ME113": {
+    "bim_kod": "107929",
+    "muf_no": "511",
+    "bolum_kod": "205",
+    "code": "ME113",
+    "name_tr": "Bilgisayar Destekli Teknik Resim I",
+    "name_en": "Computer Aided Engineering Drawing I"
+  },
+  "IE227": {
+    "bim_kod": "109905",
+    "muf_no": "511",
+    "bolum_kod": "301",
+    "code": "IE227",
+    "name_tr": "Olasılığa Giriş",
+    "name_en": "Introduction to Probability"
+  },
+  "IE241": {
+    "bim_kod": "105827",
+    "muf_no": "511",
+    "bolum_kod": "302",
+    "code": "IE241",
+    "name_tr": "Mühendislikte Maliyet Analizi",
+    "name_en": "Cost Analysis in Engineering"
+  },
+  "ME210": {
+    "bim_kod": "107931",
+    "muf_no": "511",
+    "bolum_kod": "304",
+    "code": "ME210",
+    "name_tr": "İmal Usülleri",
+    "name_en": "Manufacturing Processes"
+  },
+  "CHEM103": {
+    "bim_kod": "105211",
+    "muf_no": "511",
+    "bolum_kod": "306",
+    "code": "CHEM103",
+    "name_tr": "Kimya I",
+    "name_en": "Chemistry I"
+  },
+  "IE202": {
+    "bim_kod": "105828",
+    "muf_no": "511",
+    "bolum_kod": "401",
+    "code": "IE202",
+    "name_tr": "İş Etüdü ve Ergonomi",
+    "name_en": "Work Study and Ergonomics"
+  },
+  "IE218": {
+    "bim_kod": "109906",
+    "muf_no": "511",
+    "bolum_kod": "402",
+    "code": "IE218",
+    "name_tr": "Endüstri Mühendisliğinde Bilgisayar Uygulamaları",
+    "name_en": "Computer Applications in Industrial Engineering"
+  },
+  "IE228": {
+    "bim_kod": "109208",
+    "muf_no": "511",
+    "bolum_kod": "403",
+    "code": "IE228",
+    "name_tr": "Mühendislik İstatistiği",
+    "name_en": "Engineering Statistics"
+  },
+  "IE232": {
+    "bim_kod": "101036",
+    "muf_no": "511",
+    "bolum_kod": "404",
+    "code": "IE232",
+    "name_tr": "Yöneylem Araştırması I - Modelleme",
+    "name_en": "Operations Research I - Modelling"
+  },
+  "IE333": {
+    "bim_kod": "108960",
+    "muf_no": "511",
+    "bolum_kod": "502",
+    "code": "IE333",
+    "name_tr": "Yöneylem Araştırması II - Gerekirci Problemler",
+    "name_en": "Operations Research II - Deterministic Problems"
+  },
+  "IE334": {
+    "bim_kod": "101064",
+    "muf_no": "511",
+    "bolum_kod": "503",
+    "code": "IE334",
+    "name_tr": "Yöneylem Araştırması III - Stokastik Problemler",
+    "name_en": "Operations Research III - Stochastic Problems"
+  },
+  "IE341": {
+    "bim_kod": "108961",
+    "muf_no": "511",
+    "bolum_kod": "504",
+    "code": "IE341",
+    "name_tr": "Mühendislik Ekonomisi",
+    "name_en": "Engineering Economic Analysis"
+  },
+  "IE365": {
+    "bim_kod": "109212",
+    "muf_no": "511",
+    "bolum_kod": "505",
+    "code": "IE365",
+    "name_tr": "İmalat ve Hizmet Sistemleri Planlanması I",
+    "name_en": "Manufacturing and Service Systems Planning I"
+  },
+  "IE200": {
+    "bim_kod": "108966",
+    "muf_no": "511",
+    "bolum_kod": "506",
+    "code": "IE200",
+    "name_tr": "Staj I",
+    "name_en": "Practical Training I"
+  },
+  "IE327": {
+    "bim_kod": "106405",
+    "muf_no": "511",
+    "bolum_kod": "603",
+    "code": "IE327",
+    "name_tr": "Sistem Benzetimi",
+    "name_en": "System Simulation"
+  },
+  "IE364": {
+    "bim_kod": "109211",
+    "muf_no": "511",
+    "bolum_kod": "604",
+    "code": "IE364",
+    "name_tr": "Üretim Bilgi Sistemleri",
+    "name_en": "Production Information Systems"
+  },
+  "IE407": {
+    "bim_kod": "102227",
+    "muf_no": "511",
+    "bolum_kod": "701",
+    "code": "IE407",
+    "name_tr": "Sistem Analizi",
+    "name_en": "Systems' Analysis"
+  },
+  "IE499": {
+    "bim_kod": "106406",
+    "muf_no": "511",
+    "bolum_kod": "702",
+    "code": "IE499",
+    "name_tr": "Endüstri Mühendisliği Uygulamaları Seminerleri",
+    "name_en": "Seminar in IE Practise"
+  },
+  "IE300": {
+    "bim_kod": "108959",
+    "muf_no": "511",
+    "bolum_kod": "704",
+    "code": "IE300",
+    "name_tr": "Staj II",
+    "name_en": "Practical Training II"
+  },
+  "IE408": {
+    "bim_kod": "109334",
+    "muf_no": "511",
+    "bolum_kod": "801",
+    "code": "IE408",
+    "name_tr": "Sistem Tasarımı ve Uygulaması",
+    "name_en": "Systems' Design and Implementation"
+  },
+  "IE464": {
+    "bim_kod": "102248",
+    "muf_no": "511",
+    "bolum_kod": "802",
+    "code": "IE464",
+    "name_tr": "Mühendisler için Hukuk",
+    "name_en": "Law for Engineers"
+  },
+  "IE446": {
+    "bim_kod": "109335",
+    "muf_no": "511",
+    "bolum_kod": "804",
+    "code": "IE446",
+    "name_tr": "Proje Mühendisliği Yönetimi",
+    "name_en": "Project Engineering Management"
+  },
+  "CE115": {
+    "bim_kod": "105221",
+    "muf_no": "509",
+    "bolum_kod": "101",
+    "code": "CE115",
+    "name_tr": "İnşaat Mühendisleri için Bilgisayar Destekli Çizim",
+    "name_en": "Computer Aided Drawing for Civil Engineers"
+  },
+  "CE104": {
+    "bim_kod": "109884",
+    "muf_no": "509",
+    "bolum_kod": "201",
+    "code": "CE104",
+    "name_tr": "Mühendislik Jeolojisi",
+    "name_en": "Engineering Geology"
+  },
+  "CE106": {
+    "bim_kod": "109886",
+    "muf_no": "509",
+    "bolum_kod": "202",
+    "code": "CE106",
+    "name_tr": "İnşaat Mühendisliğine Giriş ve Sürdürülebilirlik",
+    "name_en": "Introduction to Civil Engineering and Sustainability"
+  },
+  "CENG198": {
+    "bim_kod": "100055",
+    "muf_no": "509",
+    "bolum_kod": "203",
+    "code": "CENG198",
+    "name_tr": "Bilgisayar Programlamaya Giriş",
+    "name_en": "Introduction to Computer Programming"
+  },
+  "CE241": {
+    "bim_kod": "109478",
+    "muf_no": "509",
+    "bolum_kod": "301",
+    "code": "CE241",
+    "name_tr": "İnşaat Mühendisliği için Malzeme Bilimi",
+    "name_en": "Materials Science for Civil Engineering"
+  },
+  "CE221": {
+    "bim_kod": "109903",
+    "muf_no": "509",
+    "bolum_kod": "302",
+    "code": "CE221",
+    "name_tr": "Mühendislik Mekaniği: Statik",
+    "name_en": "Engineering Mechanics: Statics"
+  },
+  "IE345": {
+    "bim_kod": "102310",
+    "muf_no": "509",
+    "bolum_kod": "303",
+    "code": "IE345",
+    "name_tr": "Mühendislik Ekonomisi",
+    "name_en": "Engineering Economy"
+  },
+  "CE255": {
+    "bim_kod": "109477",
+    "muf_no": "509",
+    "bolum_kod": "305",
+    "code": "CE255",
+    "name_tr": "Ölçme Bilgisi",
+    "name_en": "Surveying"
+  },
+  "CE222": {
+    "bim_kod": "103908",
+    "muf_no": "509",
+    "bolum_kod": "401",
+    "code": "CE222",
+    "name_tr": "Mühendislik Mekaniği:Dinamik",
+    "name_en": "Engineering Mechanics: Dynamics"
+  },
+  "CE224": {
+    "bim_kod": "105890",
+    "muf_no": "509",
+    "bolum_kod": "402",
+    "code": "CE224",
+    "name_tr": "Cisimlerin Mekaniği",
+    "name_en": "Mechanics of Materials"
+  },
+  "CE242": {
+    "bim_kod": "105891",
+    "muf_no": "509",
+    "bolum_kod": "403",
+    "code": "CE242",
+    "name_tr": "Yapı Malzemeleri",
+    "name_en": "Materials of Construction"
+  },
+  "CE270": {
+    "bim_kod": "105892",
+    "muf_no": "509",
+    "bolum_kod": "404",
+    "code": "CE270",
+    "name_tr": "Akışkanlar Mekaniği",
+    "name_en": "Fluid Mechanics"
+  },
+  "CE230": {
+    "bim_kod": "109904",
+    "muf_no": "509",
+    "bolum_kod": "405",
+    "code": "CE230",
+    "name_tr": "Olasılık ve İstatistiğe Giriş",
+    "name_en": "Introduction to Probability and Statistics"
+  },
+  "CE301": {
+    "bim_kod": "109881",
+    "muf_no": "509",
+    "bolum_kod": "501",
+    "code": "CE301",
+    "name_tr": "İnşaat Mühendisleri İçin Sayısal Yöntemler",
+    "name_en": "Numerical Methods for Civil Engineers"
+  },
+  "CE361": {
+    "bim_kod": "105893",
+    "muf_no": "509",
+    "bolum_kod": "503",
+    "code": "CE361",
+    "name_tr": "Geoteknik Mühendisliği",
+    "name_en": "Geotechnical Engineering"
+  },
+  "CE371": {
+    "bim_kod": "103913",
+    "muf_no": "509",
+    "bolum_kod": "504",
+    "code": "CE371",
+    "name_tr": "Hidrolik",
+    "name_en": "Hydraulics"
+  },
+  "CE381": {
+    "bim_kod": "102876",
+    "muf_no": "509",
+    "bolum_kod": "505",
+    "code": "CE381",
+    "name_tr": "Yapı Statiği",
+    "name_en": "Structural Analysis"
+  },
+  "CE200": {
+    "bim_kod": "102879",
+    "muf_no": "509",
+    "bolum_kod": "507",
+    "code": "CE200",
+    "name_tr": "Yaz Stajı I",
+    "name_en": "Summer Practice I"
+  },
+  "CE352": {
+    "bim_kod": "103909",
+    "muf_no": "509",
+    "bolum_kod": "601",
+    "code": "CE352",
+    "name_tr": "Ulaşım Mühendisliği",
+    "name_en": "Transportation Engineering"
+  },
+  "CE362": {
+    "bim_kod": "105894",
+    "muf_no": "509",
+    "bolum_kod": "602",
+    "code": "CE362",
+    "name_tr": "Temel Mühendisliği",
+    "name_en": "Foundation Engineering"
+  },
+  "CE372": {
+    "bim_kod": "102880",
+    "muf_no": "509",
+    "bolum_kod": "603",
+    "code": "CE372",
+    "name_tr": "Su Kaynakları Mühendisliği",
+    "name_en": "Water Resources Engineering"
+  },
+  "CE382": {
+    "bim_kod": "109882",
+    "muf_no": "509",
+    "bolum_kod": "604",
+    "code": "CE382",
+    "name_tr": "Betonarme Yapılar",
+    "name_en": "Reinforced Concrete Structures"
+  },
+  "CE415": {
+    "bim_kod": "109883",
+    "muf_no": "509",
+    "bolum_kod": "701",
+    "code": "CE415",
+    "name_tr": "İnşaat Mühendisliği Tasarımı I",
+    "name_en": "Civil Engineering Design I"
+  },
+  "CE481": {
+    "bim_kod": "102885",
+    "muf_no": "509",
+    "bolum_kod": "702",
+    "code": "CE481",
+    "name_tr": "Çelik Yapılar",
+    "name_en": "Steel Structures"
+  },
+  "CE417": {
+    "bim_kod": "109879",
+    "muf_no": "509",
+    "bolum_kod": "703",
+    "code": "CE417",
+    "name_tr": "İş Sağlığı ve Güvenliği",
+    "name_en": "Occupational Health and Safety"
+  },
+  "CE300": {
+    "bim_kod": "102886",
+    "muf_no": "509",
+    "bolum_kod": "704",
+    "code": "CE300",
+    "name_tr": "Yaz Stajı II",
+    "name_en": "Summer Practice II"
+  },
+  "CE416": {
+    "bim_kod": "108013",
+    "muf_no": "509",
+    "bolum_kod": "801",
+    "code": "CE416",
+    "name_tr": "İnşaat Mühendisliği Tasarımı II",
+    "name_en": "Civil Engineering Design II"
+  },
+  "ME198": {
+    "bim_kod": "107909",
+    "muf_no": "508",
+    "bolum_kod": "102",
+    "code": "ME198",
+    "name_tr": "Makine Mühendisleri için Hesaplama Araçları",
+    "name_en": "Computational Tools for Mechanical Engineers"
+  },
+  "ME102": {
+    "bim_kod": "107916",
+    "muf_no": "508",
+    "bolum_kod": "201",
+    "code": "ME102",
+    "name_tr": "Makine Mühendisliğine Giriş",
+    "name_en": "Mechanical Engineering Orientation"
+  },
+  "ME114": {
+    "bim_kod": "107930",
+    "muf_no": "508",
+    "bolum_kod": "202",
+    "code": "ME114",
+    "name_tr": "Bilgisayar Destekli Teknik Resim II",
+    "name_en": "Computer Aided Engineering Drawing II"
+  },
+  "ME203": {
+    "bim_kod": "109897",
+    "muf_no": "508",
+    "bolum_kod": "301",
+    "code": "ME203",
+    "name_tr": "Statik",
+    "name_en": "Statics"
+  },
+  "ME211": {
+    "bim_kod": "109876",
+    "muf_no": "508",
+    "bolum_kod": "302",
+    "code": "ME211",
+    "name_tr": "Termodinamik I",
+    "name_en": "Thermodynamics I"
+  },
+  "ME225": {
+    "bim_kod": "109849",
+    "muf_no": "508",
+    "bolum_kod": "303",
+    "code": "ME225",
+    "name_tr": "Malzeme Bilimine Giriş",
+    "name_en": "Introduction to Materials Science"
+  },
+  "ME205": {
+    "bim_kod": "109522",
+    "muf_no": "508",
+    "bolum_kod": "305",
+    "code": "ME205",
+    "name_tr": "Makine Mühendisleri İçin Elektronik ve Yapay Zekaya Giriş",
+    "name_en": "Introduction to Electronics And Artificial Intelligence (AI) for Mechanical Engineers"
+  },
+  "ME202": {
+    "bim_kod": "107924",
+    "muf_no": "508",
+    "bolum_kod": "401",
+    "code": "ME202",
+    "name_tr": "Mukavemet",
+    "name_en": "Strength of Materials"
+  },
+  "ME206": {
+    "bim_kod": "109878",
+    "muf_no": "508",
+    "bolum_kod": "402",
+    "code": "ME206",
+    "name_tr": "Dinamik",
+    "name_en": "Dynamics"
+  },
+  "ME212": {
+    "bim_kod": "109898",
+    "muf_no": "508",
+    "bolum_kod": "404",
+    "code": "ME212",
+    "name_tr": "Termodinamik II",
+    "name_en": "Thermodynamics II"
+  },
+  "ME301": {
+    "bim_kod": "107947",
+    "muf_no": "508",
+    "bolum_kod": "501",
+    "code": "ME301",
+    "name_tr": "Makine Teorisi I",
+    "name_en": "Theory of Machines I"
+  },
+  "ME303": {
+    "bim_kod": "107910",
+    "muf_no": "508",
+    "bolum_kod": "502",
+    "code": "ME303",
+    "name_tr": "Akışkanlar Mekaniği I",
+    "name_en": "Fluid Mechanics I"
+  },
+  "ME307": {
+    "bim_kod": "107926",
+    "muf_no": "508",
+    "bolum_kod": "503",
+    "code": "ME307",
+    "name_tr": "Makine Elemanları I",
+    "name_en": "Machine Elements I"
+  },
+  "ME313": {
+    "bim_kod": "107919",
+    "muf_no": "508",
+    "bolum_kod": "504",
+    "code": "ME313",
+    "name_tr": "Isı Transferi",
+    "name_en": "Heat Transfer"
+  },
+  "ME331": {
+    "bim_kod": "107927",
+    "muf_no": "508",
+    "bolum_kod": "505",
+    "code": "ME331",
+    "name_tr": "Makine Mühendisleri için Sayısal Yöntemler",
+    "name_en": "Numerical Methods for Mechanical Engineers"
+  },
+  "ME200": {
+    "bim_kod": "107953",
+    "muf_no": "508",
+    "bolum_kod": "506",
+    "code": "ME200",
+    "name_tr": "Yaz Stajı I",
+    "name_en": "Summer Training I"
+  },
+  "ME386": {
+    "bim_kod": "108986",
+    "muf_no": "508",
+    "bolum_kod": "601",
+    "code": "ME386",
+    "name_tr": "Kontrol Sistemlerine Giriş",
+    "name_en": "Introduction to Automatic Control"
+  },
+  "ME302": {
+    "bim_kod": "107948",
+    "muf_no": "508",
+    "bolum_kod": "602",
+    "code": "ME302",
+    "name_tr": "Makine Teorisi II",
+    "name_en": "Theory of Machines II"
+  },
+  "ME304": {
+    "bim_kod": "107911",
+    "muf_no": "508",
+    "bolum_kod": "603",
+    "code": "ME304",
+    "name_tr": "Akışkanlar Mekaniği II",
+    "name_en": "Fluid Mechanics II"
+  },
+  "ME308": {
+    "bim_kod": "107937",
+    "muf_no": "508",
+    "bolum_kod": "604",
+    "code": "ME308",
+    "name_tr": "Makine Elemanları II",
+    "name_en": "Machine Elements II"
+  },
+  "ME312": {
+    "bim_kod": "107938",
+    "muf_no": "508",
+    "bolum_kod": "605",
+    "code": "ME312",
+    "name_tr": "Deney ve Ölçüm",
+    "name_en": "Experimentation and Measurement"
+  },
+  "ME407": {
+    "bim_kod": "107940",
+    "muf_no": "508",
+    "bolum_kod": "703",
+    "code": "ME407",
+    "name_tr": "Yenilikçi Mühendislik Analizi ve Tasarımı",
+    "name_en": "Innovative Engineering Analysis And Design"
+  },
+  "ME413": {
+    "bim_kod": "107939",
+    "muf_no": "508",
+    "bolum_kod": "704",
+    "code": "ME413",
+    "name_tr": "Makine Mühendisliği Laboratuvarı I",
+    "name_en": "Mechanical Engineering Laboratory I"
+  },
+  "ME300": {
+    "bim_kod": "107954",
+    "muf_no": "508",
+    "bolum_kod": "707",
+    "code": "ME300",
+    "name_tr": "Yaz Stajı II",
+    "name_en": "Summer Training II"
+  },
+  "ME408": {
+    "bim_kod": "109896",
+    "muf_no": "508",
+    "bolum_kod": "802",
+    "code": "ME408",
+    "name_tr": "Yenilikçi Mühendislik Tasarımı ve Uygulaması",
+    "name_en": "Innovative Engineering Design and Implementation"
+  },
+  "ME414": {
+    "bim_kod": "107922",
+    "muf_no": "508",
+    "bolum_kod": "803",
+    "code": "ME414",
+    "name_tr": "Makine Mühendisliği Laboratuvarı II",
+    "name_en": "Mechanical Engineering Laboratory II"
+  },
+  "ESR101": {
+    "bim_kod": "100894",
+    "muf_no": "266",
+    "bolum_kod": "103",
+    "code": "ESR101",
+    "name_tr": "Etik ve Sosyal Sorumluluk",
+    "name_en": "Ethics and Social Responsibility"
+  },
+  "CHEM104": {
+    "bim_kod": "105212",
+    "muf_no": "266",
+    "bolum_kod": "202",
+    "code": "CHEM104",
+    "name_tr": "Kimya II",
+    "name_en": "Chemistry II"
+  },
+  "MSE102": {
+    "bim_kod": "102900",
+    "muf_no": "266",
+    "bolum_kod": "205",
+    "code": "MSE102",
+    "name_tr": "Malzeme Bilimi ve Muhendisligi Oryantasyonu",
+    "name_en": "Materials Science Engineering Orientation"
+  },
+  "IE230": {
+    "bim_kod": "108349",
+    "muf_no": "266",
+    "bolum_kod": "303",
+    "code": "IE230",
+    "name_tr": "Olasılığa Giriş ve İstatistik",
+    "name_en": "Introduction to Probability and Statistics"
+  },
+  "MSE225": {
+    "bim_kod": "102347",
+    "muf_no": "266",
+    "bolum_kod": "306",
+    "code": "MSE225",
+    "name_tr": "Malzeme Bilimine Giriş",
+    "name_en": "Introduction to Materials Science"
+  },
+  "ECE281": {
+    "bim_kod": "102905",
+    "muf_no": "266",
+    "bolum_kod": "401",
+    "code": "ECE281",
+    "name_tr": "Elektrik Devreleri ve Instrumantasyon",
+    "name_en": "Electrical Circuits and Instrumentation + Lab."
+  },
+  "MSE226": {
+    "bim_kod": "102919",
+    "muf_no": "266",
+    "bolum_kod": "404",
+    "code": "MSE226",
+    "name_tr": "Mühendislik Malzemeleri",
+    "name_en": "Engineering Materials"
+  },
+  "MSE204": {
+    "bim_kod": "102320",
+    "muf_no": "266",
+    "bolum_kod": "405",
+    "code": "MSE204",
+    "name_tr": "Termodinamik ve Faz Dengeleri",
+    "name_en": "Thermodynamics and Phase Equilibria"
+  },
+  "MSE206": {
+    "bim_kod": "102904",
+    "muf_no": "266",
+    "bolum_kod": "406",
+    "code": "MSE206",
+    "name_tr": "Malzeme Karakterizasyonu I",
+    "name_en": "Materials Characterization I"
+  },
+  "ME215": {
+    "bim_kod": "106407",
+    "muf_no": "266",
+    "bolum_kod": "502",
+    "code": "ME215",
+    "name_tr": "Isıl Sistemlerin Temelleri",
+    "name_en": "Fundamentals of Thermal Systems"
+  },
+  "MSE307": {
+    "bim_kod": "105214",
+    "muf_no": "266",
+    "bolum_kod": "503",
+    "code": "MSE307",
+    "name_tr": "Malzeme Karakterizasyonu II",
+    "name_en": "Materials Characterization II"
+  },
+  "MSE309": {
+    "bim_kod": "105821",
+    "muf_no": "266",
+    "bolum_kod": "504",
+    "code": "MSE309",
+    "name_tr": "Faz Diyagramları",
+    "name_en": "Phase Diagrams"
+  },
+  "MSE200": {
+    "bim_kod": "102906",
+    "muf_no": "266",
+    "bolum_kod": "506",
+    "code": "MSE200",
+    "name_tr": "Yaz Stajı I",
+    "name_en": "Summer Training I"
+  },
+  "MSE302": {
+    "bim_kod": "105822",
+    "muf_no": "266",
+    "bolum_kod": "601",
+    "code": "MSE302",
+    "name_tr": "Malzeme Surecleri II",
+    "name_en": "Materials Processing II"
+  },
+  "MSE310": {
+    "bim_kod": "105823",
+    "muf_no": "266",
+    "bolum_kod": "602",
+    "code": "MSE310",
+    "name_tr": "Kinetik ve İç yapı Oluşumu",
+    "name_en": "Kinetics and Microstructural Evolution"
+  },
+  "MSE318": {
+    "bim_kod": "102910",
+    "muf_no": "266",
+    "bolum_kod": "603",
+    "code": "MSE318",
+    "name_tr": "Seramik Malzemeler",
+    "name_en": "Ceramic Materials"
+  },
+  "MSE320": {
+    "bim_kod": "105824",
+    "muf_no": "266",
+    "bolum_kod": "604",
+    "code": "MSE320",
+    "name_tr": "Malzemelerin Mekanik Davranışı",
+    "name_en": "Mechanical Behavior of Materials"
+  },
+  "MSE324": {
+    "bim_kod": "105825",
+    "muf_no": "266",
+    "bolum_kod": "605",
+    "code": "MSE324",
+    "name_tr": "Döküm ve Katılaşma",
+    "name_en": "Casting and Solidification"
+  },
+  "MSE401": {
+    "bim_kod": "102913",
+    "muf_no": "266",
+    "bolum_kod": "701",
+    "code": "MSE401",
+    "name_tr": "Malzeme Mühendisliğinde Dizayn",
+    "name_en": "Design in Materials Engineering"
+  },
+  "MSE405": {
+    "bim_kod": "105215",
+    "muf_no": "266",
+    "bolum_kod": "702",
+    "code": "MSE405",
+    "name_tr": "Polimer Bilimi ve Teknolojisine Giriş",
+    "name_en": "Introduction Polymer Science and Technology"
+  },
+  "MSE407": {
+    "bim_kod": "103958",
+    "muf_no": "266",
+    "bolum_kod": "703",
+    "code": "MSE407",
+    "name_tr": "Yenilikçi Mühendislik Analizi ve Tasarımı",
+    "name_en": "Innovative Engineering Analysis and Design"
+  },
+  "MSE409": {
+    "bim_kod": "105218",
+    "muf_no": "266",
+    "bolum_kod": "704",
+    "code": "MSE409",
+    "name_tr": "Faz Dönüşümleri",
+    "name_en": "Phase Transformations"
+  },
+  "MSE300": {
+    "bim_kod": "102912",
+    "muf_no": "266",
+    "bolum_kod": "707",
+    "code": "MSE300",
+    "name_tr": "Yaz Stajı II",
+    "name_en": "Summer Training II"
+  },
+  "MSE402": {
+    "bim_kod": "102916",
+    "muf_no": "266",
+    "bolum_kod": "801",
+    "code": "MSE402",
+    "name_tr": "İleri Malzemeler ve Kompozitler",
+    "name_en": "Advanced Materials and Composites"
+  },
+  "MSE406": {
+    "bim_kod": "105217",
+    "muf_no": "266",
+    "bolum_kod": "802",
+    "code": "MSE406",
+    "name_tr": "Nanoyapıların Bilim ve Teknolojisi",
+    "name_en": "Science and Technology of Nanostructures"
+  },
+  "MSE408": {
+    "bim_kod": "103959",
+    "muf_no": "266",
+    "bolum_kod": "803",
+    "code": "MSE408",
+    "name_tr": "Yenilikçi Mühendislik Tasarımı ve Uygulaması",
+    "name_en": "Innovative Engineering Design and Implementation"
+  },
+  "MSE432": {
+    "bim_kod": "103972",
+    "muf_no": "266",
+    "bolum_kod": "804",
+    "code": "MSE432",
+    "name_tr": "Malzemelerin Korozyonu ve Bozulması",
+    "name_en": "Corrosion and Degradation of Materials"
+  },
+  "MECE101": {
+    "bim_kod": "109339",
+    "muf_no": "513",
+    "bolum_kod": "105",
+    "code": "MECE101",
+    "name_tr": "Mekatronik Mühendisliği için Sayısal Hesaplama Araçları",
+    "name_en": "Computational Tools for Mechatronics Engineering"
+  },
+  "MECE113": {
+    "bim_kod": "109340",
+    "muf_no": "513",
+    "bolum_kod": "106",
+    "code": "MECE113",
+    "name_tr": "Bilgisayar Destekli Çizim I",
+    "name_en": "Computer Aided Engineering Drawing I"
+  },
+  "MECE114": {
+    "bim_kod": "109341",
+    "muf_no": "513",
+    "bolum_kod": "201",
+    "code": "MECE114",
+    "name_tr": "Bilgisayar Destekli Çizim II",
+    "name_en": "Computer Aided Engineering Drawing II"
+  },
+  "MECE104": {
+    "bim_kod": "109342",
+    "muf_no": "513",
+    "bolum_kod": "206",
+    "code": "MECE104",
+    "name_tr": "Mekatronik Mühendisliğinin Temelleri",
+    "name_en": "Fundamentals of Mechatronics Engineering"
+  },
+  "MECE203": {
+    "bim_kod": "109343",
+    "muf_no": "513",
+    "bolum_kod": "301",
+    "code": "MECE203",
+    "name_tr": "Statik",
+    "name_en": "Statics"
+  },
+  "MECE210": {
+    "bim_kod": "106646",
+    "muf_no": "513",
+    "bolum_kod": "302",
+    "code": "MECE210",
+    "name_tr": "İmal Usülleri",
+    "name_en": "Manufacturing Processes"
+  },
+  "MECE235": {
+    "bim_kod": "109306",
+    "muf_no": "513",
+    "bolum_kod": "303",
+    "code": "MECE235",
+    "name_tr": "Devre Teorisi I",
+    "name_en": "Circuit Theory I"
+  },
+  "MECE223": {
+    "bim_kod": "109899",
+    "muf_no": "513",
+    "bolum_kod": "304",
+    "code": "MECE223",
+    "name_tr": "Sayısal Tasarım",
+    "name_en": "Digital Design"
+  },
+  "MECE206": {
+    "bim_kod": "106648",
+    "muf_no": "513",
+    "bolum_kod": "401",
+    "code": "MECE206",
+    "name_tr": "Dinamik",
+    "name_en": "Dynamics"
+  },
+  "MECE202": {
+    "bim_kod": "106647",
+    "muf_no": "513",
+    "bolum_kod": "402",
+    "code": "MECE202",
+    "name_tr": "Mukavemet",
+    "name_en": "Strength of Materials"
+  },
+  "MECE234": {
+    "bim_kod": "109900",
+    "muf_no": "513",
+    "bolum_kod": "403",
+    "code": "MECE234",
+    "name_tr": "Devre Teorisi II",
+    "name_en": "Circuit Theory II"
+  },
+  "MECE218": {
+    "bim_kod": "109346",
+    "muf_no": "513",
+    "bolum_kod": "405",
+    "code": "MECE218",
+    "name_tr": "Sinyal ve Sistemlerin Temelleri",
+    "name_en": "Principles of Signals and Systems"
+  },
+  "MECE212": {
+    "bim_kod": "109308",
+    "muf_no": "513",
+    "bolum_kod": "406",
+    "code": "MECE212",
+    "name_tr": "Olasılık ve Rastgele Süreçler",
+    "name_en": "Probability and Random Processes"
+  },
+  "MECE307": {
+    "bim_kod": "106650",
+    "muf_no": "513",
+    "bolum_kod": "501",
+    "code": "MECE307",
+    "name_tr": "Makine Elemanları I",
+    "name_en": "Machine Elements I"
+  },
+  "MECE349": {
+    "bim_kod": "109309",
+    "muf_no": "513",
+    "bolum_kod": "502",
+    "code": "MECE349",
+    "name_tr": "Analog Elektronik",
+    "name_en": "Analog Electronics"
+  },
+  "MECE301": {
+    "bim_kod": "106649",
+    "muf_no": "513",
+    "bolum_kod": "503",
+    "code": "MECE301",
+    "name_tr": "Makine Teorisi I",
+    "name_en": "Theory of Machines I"
+  },
+  "MECE200": {
+    "bim_kod": "102892",
+    "muf_no": "513",
+    "bolum_kod": "504",
+    "code": "MECE200",
+    "name_tr": "Yaz Stajı I",
+    "name_en": "Summer Training I"
+  },
+  "MECE386": {
+    "bim_kod": "109310",
+    "muf_no": "513",
+    "bolum_kod": "505",
+    "code": "MECE386",
+    "name_tr": "Kontrol Teorisi",
+    "name_en": "Control Theory"
+  },
+  "MECE308": {
+    "bim_kod": "106466",
+    "muf_no": "513",
+    "bolum_kod": "601",
+    "code": "MECE308",
+    "name_tr": "Mekatronik Sistem Tasarımı I",
+    "name_en": "Mechatronics System Design I"
+  },
+  "MECE302": {
+    "bim_kod": "109347",
+    "muf_no": "513",
+    "bolum_kod": "602",
+    "code": "MECE302",
+    "name_tr": "Algılayıcılar ve Ölçme",
+    "name_en": "Sensors and Measurement"
+  },
+  "MECE336": {
+    "bim_kod": "109348",
+    "muf_no": "513",
+    "bolum_kod": "603",
+    "code": "MECE336",
+    "name_tr": "Mikroişlemciler I",
+    "name_en": "Microprocessors"
+  },
+  "MECE340": {
+    "bim_kod": "109311",
+    "muf_no": "513",
+    "bolum_kod": "604",
+    "code": "MECE340",
+    "name_tr": "Elektromekanik Enerji Dönüşümü",
+    "name_en": "Electromechanical Energy Conversion"
+  },
+  "MECE304": {
+    "bim_kod": "109312",
+    "muf_no": "513",
+    "bolum_kod": "605",
+    "code": "MECE304",
+    "name_tr": "Mekatronik Mühendisliği için Yapay Zeka",
+    "name_en": "Artificial Intelligence for Mechatronics Engineering"
+  },
+  "MECE306": {
+    "bim_kod": "109313",
+    "muf_no": "513",
+    "bolum_kod": "606",
+    "code": "MECE306",
+    "name_tr": "Mekatronik Mühendisliği için Bilgisayar Programlama",
+    "name_en": "Computer Programming for Mechatronics Engineering"
+  },
+  "MECE309": {
+    "bim_kod": "106465",
+    "muf_no": "513",
+    "bolum_kod": "702",
+    "code": "MECE309",
+    "name_tr": "Mekatronik Sistem Tasarımı II",
+    "name_en": "Mechatronics System Design II"
+  },
+  "MECE401": {
+    "bim_kod": "102311",
+    "muf_no": "513",
+    "bolum_kod": "703",
+    "code": "MECE401",
+    "name_tr": "Robotiğe Giriş",
+    "name_en": "Introduction to Robotics"
+  },
+  "MECE407": {
+    "bim_kod": "104975",
+    "muf_no": "513",
+    "bolum_kod": "704",
+    "code": "MECE407",
+    "name_tr": "Yenilikçi Mühendislik Analizi ve Tasarımı",
+    "name_en": "Innovative Engineering Analysis and Design"
+  },
+  "MECE300": {
+    "bim_kod": "102897",
+    "muf_no": "513",
+    "bolum_kod": "706",
+    "code": "MECE300",
+    "name_tr": "Yaz Stajı II",
+    "name_en": "Summer Training II"
+  },
+  "MECE403": {
+    "bim_kod": "109314",
+    "muf_no": "513",
+    "bolum_kod": "802",
+    "code": "MECE403",
+    "name_tr": "Otonom Sistemler Tasarımı",
+    "name_en": "Autonomous Systems Design"
+  },
+  "MECE408": {
+    "bim_kod": "104976",
+    "muf_no": "513",
+    "bolum_kod": "804",
+    "code": "MECE408",
+    "name_tr": "Yenilikçi Mühendislik Tasarımı ve uygulaması",
+    "name_en": "Innovative Engineering Design and Implementation"
+  },
+  "SENG101": {
+    "bim_kod": "107982",
+    "muf_no": "520",
+    "bolum_kod": "107",
+    "code": "SENG101",
+    "name_tr": "Bilgisayar Programlama I",
+    "name_en": "Computer Programming I"
+  },
+  "SENG102": {
+    "bim_kod": "108111",
+    "muf_no": "520",
+    "bolum_kod": "205",
+    "code": "SENG102",
+    "name_tr": "Bilgisayar Programlama II",
+    "name_en": "Computer Programming II"
+  },
+  "SENG106": {
+    "bim_kod": "108415",
+    "muf_no": "520",
+    "bolum_kod": "206",
+    "code": "SENG106",
+    "name_tr": "Bilgi İşlemsel Düşünme",
+    "name_en": "Computational Thinking"
+  },
+  "SENG203": {
+    "bim_kod": "109303",
+    "muf_no": "520",
+    "bolum_kod": "302",
+    "code": "SENG203",
+    "name_tr": "Ayrık Yapılar",
+    "name_en": "Discrete Structures"
+  },
+  "SENG206": {
+    "bim_kod": "108172",
+    "muf_no": "520",
+    "bolum_kod": "303",
+    "code": "SENG206",
+    "name_tr": "Yazılım Tasarımı",
+    "name_en": "Software Design"
+  },
+  "SENG271": {
+    "bim_kod": "109901",
+    "muf_no": "520",
+    "bolum_kod": "304",
+    "code": "SENG271",
+    "name_tr": "Yazılım Projesi I",
+    "name_en": "Software Project I"
+  },
+  "SENG205": {
+    "bim_kod": "108176",
+    "muf_no": "520",
+    "bolum_kod": "404",
+    "code": "SENG205",
+    "name_tr": "Yazılım Gereksinim Analizi",
+    "name_en": "Software Requirement Analysis"
+  },
+  "SENG272": {
+    "bim_kod": "109902",
+    "muf_no": "520",
+    "bolum_kod": "406",
+    "code": "SENG272",
+    "name_tr": "Yazılım Projesi II",
+    "name_en": "Software Project II"
+  },
+  "SENG301": {
+    "bim_kod": "108181",
+    "muf_no": "520",
+    "bolum_kod": "501",
+    "code": "SENG301",
+    "name_tr": "Yazılım Proje Yönetimi",
+    "name_en": "Software Project Management"
+  },
+  "SENG303": {
+    "bim_kod": "108179",
+    "muf_no": "520",
+    "bolum_kod": "502",
+    "code": "SENG303",
+    "name_tr": "Kalite Güvencesi için Yazılım Testi",
+    "name_en": "Software Testing for Quality Assurance"
+  },
+  "SENG315": {
+    "bim_kod": "108178",
+    "muf_no": "520",
+    "bolum_kod": "503",
+    "code": "SENG315",
+    "name_tr": "Koşut Programlama",
+    "name_en": "Concurrent Programming"
+  },
+  "SENG383": {
+    "bim_kod": "108180",
+    "muf_no": "520",
+    "bolum_kod": "504",
+    "code": "SENG383",
+    "name_tr": "Yazılım Projesi III",
+    "name_en": "Software Project III"
+  },
+  "SENG200": {
+    "bim_kod": "108288",
+    "muf_no": "520",
+    "bolum_kod": "506",
+    "code": "SENG200",
+    "name_tr": "Yaz Stajı I",
+    "name_en": "Summer Training I"
+  },
+  "SENG306": {
+    "bim_kod": "108184",
+    "muf_no": "520",
+    "bolum_kod": "601",
+    "code": "SENG306",
+    "name_tr": "Veritabanı Modelleme ve Tasarımı",
+    "name_en": "Database Modelling and Design"
+  },
+  "SENG326": {
+    "bim_kod": "108185",
+    "muf_no": "520",
+    "bolum_kod": "602",
+    "code": "SENG326",
+    "name_tr": "Yazılım Mimarisi",
+    "name_en": "Software Architecture"
+  },
+  "SENG384": {
+    "bim_kod": "108175",
+    "muf_no": "520",
+    "bolum_kod": "603",
+    "code": "SENG384",
+    "name_tr": "Yazılım Projesi IV",
+    "name_en": "Software Project IV"
+  },
+  "SENG352": {
+    "bim_kod": "109304",
+    "muf_no": "520",
+    "bolum_kod": "604",
+    "code": "SENG352",
+    "name_tr": "Veri Analizi",
+    "name_en": "Data Analysis"
+  },
+  "SENG491": {
+    "bim_kod": "108182",
+    "muf_no": "520",
+    "bolum_kod": "705",
+    "code": "SENG491",
+    "name_tr": "Mezuniyet Projesi I",
+    "name_en": "Graduation Project I"
+  },
+  "SENG300": {
+    "bim_kod": "108289",
+    "muf_no": "520",
+    "bolum_kod": "706",
+    "code": "SENG300",
+    "name_tr": "Yaz Stajı II",
+    "name_en": "Summer Training II"
+  },
+  "SENG492": {
+    "bim_kod": "108187",
+    "muf_no": "520",
+    "bolum_kod": "806",
+    "code": "SENG492",
+    "name_tr": "Mezuniyet Projesi II",
+    "name_en": "Graduation Project II"
+  },
+  "INAR101": {
+    "bim_kod": "109503",
+    "muf_no": "512",
+    "bolum_kod": "103",
+    "code": "INAR101",
+    "name_tr": "Temel Tasarım",
+    "name_en": "Basic Design"
+  },
+  "INAR141": {
+    "bim_kod": "107010",
+    "muf_no": "512",
+    "bolum_kod": "104",
+    "code": "INAR141",
+    "name_tr": "Görsel Anlatım Teknikleri",
+    "name_en": "Visual Expressions"
+  },
+  "INAR165": {
+    "bim_kod": "107011",
+    "muf_no": "512",
+    "bolum_kod": "105",
+    "code": "INAR165",
+    "name_tr": "İç Mimarlığa Giriş",
+    "name_en": "Introduction to Interior Architecture"
+  },
+  "INAR185": {
+    "bim_kod": "107009",
+    "muf_no": "512",
+    "bolum_kod": "106",
+    "code": "INAR185",
+    "name_tr": "Çizim Standartları",
+    "name_en": "Drawing Standards"
+  },
+  "INAR171": {
+    "bim_kod": "109485",
+    "muf_no": "512",
+    "bolum_kod": "107",
+    "code": "INAR171",
+    "name_tr": "Bilimsel Araştırma Yöntemleri ve Yapay Zeka",
+    "name_en": "Scientific Research Methods and Artificial Intelligence"
+  },
+  "INAR102": {
+    "bim_kod": "109504",
+    "muf_no": "512",
+    "bolum_kod": "203",
+    "code": "INAR102",
+    "name_tr": "İç Mekan Tasarımına Giriş",
+    "name_en": "Introduction to Interior Design"
+  },
+  "INAR122": {
+    "bim_kod": "109506",
+    "muf_no": "512",
+    "bolum_kod": "204",
+    "code": "INAR122",
+    "name_tr": "Ergonomi",
+    "name_en": "Ergonomics"
+  },
+  "INAR162": {
+    "bim_kod": "109488",
+    "muf_no": "512",
+    "bolum_kod": "205",
+    "code": "INAR162",
+    "name_tr": "Sanat ve Mimarlık Tarihi",
+    "name_en": "History of Art and Architecture"
+  },
+  "INAR186": {
+    "bim_kod": "109487",
+    "muf_no": "512",
+    "bolum_kod": "206",
+    "code": "INAR186",
+    "name_tr": "İçmimarlar için Teknik Çizim",
+    "name_en": "Technical Drawing for Interior Architects"
+  },
+  "INAR192": {
+    "bim_kod": "109507",
+    "muf_no": "512",
+    "bolum_kod": "207",
+    "code": "INAR192",
+    "name_tr": "Yapısal ve Mekânsal İlkeler",
+    "name_en": "Structural and Spatial Principles"
+  },
+  "INAR201": {
+    "bim_kod": "107017",
+    "muf_no": "512",
+    "bolum_kod": "301",
+    "code": "INAR201",
+    "name_tr": "İç Mekan Tasarım Stüdyosu I",
+    "name_en": "Interior Design Studio I"
+  },
+  "INAR219": {
+    "bim_kod": "107018",
+    "muf_no": "512",
+    "bolum_kod": "302",
+    "code": "INAR219",
+    "name_tr": "Bilgisayar Uygulamaları I",
+    "name_en": "Computer Applications I"
+  },
+  "INAR291": {
+    "bim_kod": "109486",
+    "muf_no": "512",
+    "bolum_kod": "303",
+    "code": "INAR291",
+    "name_tr": "Malzeme ve Tasarım Teknolojileri",
+    "name_en": "Material and Design Technologies"
+  },
+  "INAR285": {
+    "bim_kod": "109887",
+    "muf_no": "512",
+    "bolum_kod": "304",
+    "code": "INAR285",
+    "name_tr": "Yapımın Temelleri",
+    "name_en": "Basics of Construction"
+  },
+  "INAR261": {
+    "bim_kod": "109489",
+    "muf_no": "512",
+    "bolum_kod": "305",
+    "code": "INAR261",
+    "name_tr": "Sanat ve Mimarlık Kültürü",
+    "name_en": "Art and Archiculture"
+  },
+  "INAR202": {
+    "bim_kod": "107022",
+    "muf_no": "512",
+    "bolum_kod": "401",
+    "code": "INAR202",
+    "name_tr": "İç Mekan Tasarım Stüdyosu II",
+    "name_en": "Interior Design Studio II"
+  },
+  "INAR220": {
+    "bim_kod": "107023",
+    "muf_no": "512",
+    "bolum_kod": "402",
+    "code": "INAR220",
+    "name_tr": "Bilgisayar Uygulamaları II",
+    "name_en": "Computer Applications II"
+  },
+  "INAR292": {
+    "bim_kod": "109490",
+    "muf_no": "512",
+    "bolum_kod": "403",
+    "code": "INAR292",
+    "name_tr": "Işık ve Renk",
+    "name_en": "Light and Color"
+  },
+  "INAR286": {
+    "bim_kod": "109888",
+    "muf_no": "512",
+    "bolum_kod": "404",
+    "code": "INAR286",
+    "name_tr": "İç Mekanlar için Yapım",
+    "name_en": "Construction for Interiors"
+  },
+  "INAR262": {
+    "bim_kod": "109499",
+    "muf_no": "512",
+    "bolum_kod": "405",
+    "code": "INAR262",
+    "name_tr": "Mobilya ve İçmimarlık Kültürü",
+    "name_en": "Furniture and Interior Archiculture"
+  },
+  "INAR301": {
+    "bim_kod": "107027",
+    "muf_no": "512",
+    "bolum_kod": "501",
+    "code": "INAR301",
+    "name_tr": "İç Mekan Tasarım Stüdyosu III",
+    "name_en": "Interior Design Studio III"
+  },
+  "INAR337": {
+    "bim_kod": "109500",
+    "muf_no": "512",
+    "bolum_kod": "502",
+    "code": "INAR337",
+    "name_tr": "Modüler Sistemler ve Detay Tasarımı",
+    "name_en": "Modular Systems and Detail Design"
+  },
+  "INAR393": {
+    "bim_kod": "109491",
+    "muf_no": "512",
+    "bolum_kod": "503",
+    "code": "INAR393",
+    "name_tr": "Isıl Konfor ve Enerji Verimliliği",
+    "name_en": "Thermal Comfort and Energy Efficiency"
+  },
+  "INAR395": {
+    "bim_kod": "109493",
+    "muf_no": "512",
+    "bolum_kod": "504",
+    "code": "INAR395",
+    "name_tr": "Çevresel Psikoloji",
+    "name_en": "Environmental Psychology"
+  },
+  "INAR399": {
+    "bim_kod": "109495",
+    "muf_no": "512",
+    "bolum_kod": "505",
+    "code": "INAR399",
+    "name_tr": "Yaz Stajı I (Şantiye)",
+    "name_en": "Summer Internship I (Construction)"
+  },
+  "INAR302": {
+    "bim_kod": "107031",
+    "muf_no": "512",
+    "bolum_kod": "601",
+    "code": "INAR302",
+    "name_tr": "İç Mekan Tasarım Stüdyosu IV",
+    "name_en": "Interior Design Studio IV"
+  },
+  "INAR338": {
+    "bim_kod": "109501",
+    "muf_no": "512",
+    "bolum_kod": "602",
+    "code": "INAR338",
+    "name_tr": "Ürün Tasarımı ve Detaylandırma",
+    "name_en": "Product  Design  and Detailing"
+  },
+  "INAR394": {
+    "bim_kod": "109492",
+    "muf_no": "512",
+    "bolum_kod": "603",
+    "code": "INAR394",
+    "name_tr": "Sürdürülebilir Tasarım Prensipleri",
+    "name_en": "Principles of Sustainable Design"
+  },
+  "INAR396": {
+    "bim_kod": "109494",
+    "muf_no": "512",
+    "bolum_kod": "604",
+    "code": "INAR396",
+    "name_tr": "Mimari Akustik",
+    "name_en": "Architectural Acoustics"
+  },
+  "INAR401": {
+    "bim_kod": "107035",
+    "muf_no": "512",
+    "bolum_kod": "701",
+    "code": "INAR401",
+    "name_tr": "İç Mekan Tasarım Stüdyosu V",
+    "name_en": "Interior Design Studio V"
+  },
+  "INAR491": {
+    "bim_kod": "109497",
+    "muf_no": "512",
+    "bolum_kod": "702",
+    "code": "INAR491",
+    "name_tr": "Yapı Hizmetleri  ve Yangından Korunma",
+    "name_en": "Building Services and Fire Safety"
+  },
+  "INAR499": {
+    "bim_kod": "109496",
+    "muf_no": "512",
+    "bolum_kod": "703",
+    "code": "INAR499",
+    "name_tr": "Yaz Stajı II (Ofis)",
+    "name_en": "Summer Internship II (Office)"
+  },
+  "ARCH441": {
+    "bim_kod": "108165",
+    "muf_no": "512",
+    "bolum_kod": "704",
+    "code": "ARCH441",
+    "name_tr": "İş Sağlığı ve Güvenliği I",
+    "name_en": "Occupational Health and Safety I"
+  },
+  "INAR402": {
+    "bim_kod": "109502",
+    "muf_no": "512",
+    "bolum_kod": "801",
+    "code": "INAR402",
+    "name_tr": "İç Mekan Tasarım Stüdyosu VI",
+    "name_en": "Interior Design Studio VI"
+  },
+  "ARCH442": {
+    "bim_kod": "108166",
+    "muf_no": "512",
+    "bolum_kod": "802",
+    "code": "ARCH442",
+    "name_tr": "İş Sağlığı ve Güvenliği II",
+    "name_en": "Occupational Health and Safety II"
+  },
+  "INAR492": {
+    "bim_kod": "109498",
+    "muf_no": "512",
+    "bolum_kod": "803",
+    "code": "INAR492",
+    "name_tr": "Mesleki Uygulama ve Etik",
+    "name_en": "Professional Practice and Ethics"
+  },
+  "ARCH101": {
+    "bim_kod": "106729",
+    "muf_no": "514",
+    "bolum_kod": "101",
+    "code": "ARCH101",
+    "name_tr": "Temel Tasarım",
+    "name_en": "Basic Design"
+  },
+  "ARCH103": {
+    "bim_kod": "106732",
+    "muf_no": "514",
+    "bolum_kod": "102",
+    "code": "ARCH103",
+    "name_tr": "Serbest El Çizim",
+    "name_en": "Free-Hand Drawing"
+  },
+  "ARCH121": {
+    "bim_kod": "108218",
+    "muf_no": "514",
+    "bolum_kod": "103",
+    "code": "ARCH121",
+    "name_tr": "Mimarlığa Giriş",
+    "name_en": "Introduction to Architecture"
+  },
+  "ARCH131": {
+    "bim_kod": "108223",
+    "muf_no": "514",
+    "bolum_kod": "104",
+    "code": "ARCH131",
+    "name_tr": "Teknik Çizim",
+    "name_en": "Technical Drawing"
+  },
+  "ARCH102": {
+    "bim_kod": "109552",
+    "muf_no": "514",
+    "bolum_kod": "201",
+    "code": "ARCH102",
+    "name_tr": "Mimari Tasarıma Giriş",
+    "name_en": "Introduction to Architectural Design"
+  },
+  "ARCH104": {
+    "bim_kod": "108230",
+    "muf_no": "514",
+    "bolum_kod": "202",
+    "code": "ARCH104",
+    "name_tr": "Mimarlık Tarihi I",
+    "name_en": "Architectural History I"
+  },
+  "ARCH122": {
+    "bim_kod": "108231",
+    "muf_no": "514",
+    "bolum_kod": "203",
+    "code": "ARCH122",
+    "name_tr": "Mühendislik Mekaniğine Giriş",
+    "name_en": "Introduction to Engineering Mechanics"
+  },
+  "ARCH132": {
+    "bim_kod": "109553",
+    "muf_no": "514",
+    "bolum_kod": "204",
+    "code": "ARCH132",
+    "name_tr": "Mimari Çizim",
+    "name_en": "Architectural Drawing"
+  },
+  "ARCH201": {
+    "bim_kod": "109554",
+    "muf_no": "514",
+    "bolum_kod": "301",
+    "code": "ARCH201",
+    "name_tr": "Mimari Tasarım Stüdyosu I",
+    "name_en": "Architectural Design Studio I"
+  },
+  "ARCH203": {
+    "bim_kod": "109555",
+    "muf_no": "514",
+    "bolum_kod": "302",
+    "code": "ARCH203",
+    "name_tr": "Bilgisayar Destekli Tasarım I",
+    "name_en": "Computer Aided Design I"
+  },
+  "ARCH205": {
+    "bim_kod": "108226",
+    "muf_no": "514",
+    "bolum_kod": "303",
+    "code": "ARCH205",
+    "name_tr": "Mimarlıkta Yapı Malzemeleri",
+    "name_en": "Materials of Architectural Construction"
+  },
+  "ARCH225": {
+    "bim_kod": "108224",
+    "muf_no": "514",
+    "bolum_kod": "304",
+    "code": "ARCH225",
+    "name_tr": "Mimarlık Tarihi II",
+    "name_en": "Architectural History II"
+  },
+  "ARCH233": {
+    "bim_kod": "109874",
+    "muf_no": "514",
+    "bolum_kod": "305",
+    "code": "ARCH233",
+    "name_tr": "Yapı Sistemleri I",
+    "name_en": "Construction Systems I"
+  },
+  "ARCH237": {
+    "bim_kod": "108225",
+    "muf_no": "514",
+    "bolum_kod": "306",
+    "code": "ARCH237",
+    "name_tr": "Yapısal Sistemlerin Davranışı ve Analizi",
+    "name_en": "Behavior and Analysis of Structures"
+  },
+  "ARCH207": {
+    "bim_kod": "108219",
+    "muf_no": "514",
+    "bolum_kod": "307",
+    "code": "ARCH207",
+    "name_tr": "Mimari Tasarimi Yonlendiren Etmenler",
+    "name_en": "Factors Guiding Architectural Design"
+  },
+  "ARCH202": {
+    "bim_kod": "109557",
+    "muf_no": "514",
+    "bolum_kod": "401",
+    "code": "ARCH202",
+    "name_tr": "Mimari Tasarım Stüdyosu II",
+    "name_en": "Architectural Design Studio II"
+  },
+  "ARCH204": {
+    "bim_kod": "108389",
+    "muf_no": "514",
+    "bolum_kod": "402",
+    "code": "ARCH204",
+    "name_tr": "Mimarlık Tarihi III",
+    "name_en": "Architectural History III"
+  },
+  "ARCH214": {
+    "bim_kod": "109559",
+    "muf_no": "514",
+    "bolum_kod": "403",
+    "code": "ARCH214",
+    "name_tr": "Bilgisayar Destekli Tasarım II",
+    "name_en": "Innovative Digital Applications II"
+  },
+  "ARCH234": {
+    "bim_kod": "109875",
+    "muf_no": "514",
+    "bolum_kod": "404",
+    "code": "ARCH234",
+    "name_tr": "Yapı Sistemleri II",
+    "name_en": "Construction Systems II"
+  },
+  "ARCH238": {
+    "bim_kod": "108390",
+    "muf_no": "514",
+    "bolum_kod": "405",
+    "code": "ARCH238",
+    "name_tr": "Yenilikçi Strüktürel Çözümler",
+    "name_en": "Innovative Structural Applications"
+  },
+  "ARCH216": {
+    "bim_kod": "108220",
+    "muf_no": "514",
+    "bolum_kod": "406",
+    "code": "ARCH216",
+    "name_tr": "Yapı Fiziği I",
+    "name_en": "Building Science I"
+  },
+  "ARCH100": {
+    "bim_kod": "106750",
+    "muf_no": "514",
+    "bolum_kod": "407",
+    "code": "ARCH100",
+    "name_tr": "Yaz Stajı: Şantiye I",
+    "name_en": "Summer Practice: Building Site I"
+  },
+  "ARCH301": {
+    "bim_kod": "109560",
+    "muf_no": "514",
+    "bolum_kod": "501",
+    "code": "ARCH301",
+    "name_tr": "Mimari Tasarım Stüdyosu III",
+    "name_en": "Architectural Design Studio III"
+  },
+  "ARCH305": {
+    "bim_kod": "109561",
+    "muf_no": "514",
+    "bolum_kod": "502",
+    "code": "ARCH305",
+    "name_tr": "Yapı sistemleri III",
+    "name_en": "Construction Systems III"
+  },
+  "ARCH311": {
+    "bim_kod": "108228",
+    "muf_no": "514",
+    "bolum_kod": "503",
+    "code": "ARCH311",
+    "name_tr": "Mimarlık Tarihi IV",
+    "name_en": "Architectural History IV"
+  },
+  "ARCH319": {
+    "bim_kod": "108221",
+    "muf_no": "514",
+    "bolum_kod": "504",
+    "code": "ARCH319",
+    "name_tr": "Yapı Fiziği II",
+    "name_en": "Building Science II"
+  },
+  "ARCH315": {
+    "bim_kod": "106761",
+    "muf_no": "514",
+    "bolum_kod": "505",
+    "code": "ARCH315",
+    "name_tr": "Kültür Mirası Bilinci ve Koruma",
+    "name_en": "Heritage Conscioueness and Conservation"
+  },
+  "ARCH302": {
+    "bim_kod": "109563",
+    "muf_no": "514",
+    "bolum_kod": "601",
+    "code": "ARCH302",
+    "name_tr": "Mimari Tasarım Stüdyosu IV",
+    "name_en": "Architectural Design Studio IV"
+  },
+  "ARCH320": {
+    "bim_kod": "109566",
+    "muf_no": "514",
+    "bolum_kod": "602",
+    "code": "ARCH320",
+    "name_tr": "Şehir Planlama İlkeleri ve Kentsel Tasarım",
+    "name_en": "Principles of City Planning and Urban Design"
+  },
+  "ARCH314": {
+    "bim_kod": "106763",
+    "muf_no": "514",
+    "bolum_kod": "603",
+    "code": "ARCH314",
+    "name_tr": "Çağdaş Mimarlık Kuramları",
+    "name_en": "Contemporary Architectural Theories"
+  },
+  "ARCH316": {
+    "bim_kod": "106755",
+    "muf_no": "514",
+    "bolum_kod": "604",
+    "code": "ARCH316",
+    "name_tr": "Kültür Mirasının Belgelenmesi",
+    "name_en": "Heritage Documentation"
+  },
+  "ARCH200": {
+    "bim_kod": "106756",
+    "muf_no": "514",
+    "bolum_kod": "605",
+    "code": "ARCH200",
+    "name_tr": "Yaz Stajı: Şantiye II",
+    "name_en": "Summer Practice: Building Site II"
+  },
+  "ARCH401": {
+    "bim_kod": "106757",
+    "muf_no": "514",
+    "bolum_kod": "701",
+    "code": "ARCH401",
+    "name_tr": "Mimari Tasarım Stüdyosu V",
+    "name_en": "Architectural Design Studio V"
+  },
+  "ARCH407": {
+    "bim_kod": "106764",
+    "muf_no": "514",
+    "bolum_kod": "702",
+    "code": "ARCH407",
+    "name_tr": "Mesleki Uygulama ve Etik",
+    "name_en": "Professional Practice and Ethics"
+  },
+  "ARCH402": {
+    "bim_kod": "106758",
+    "muf_no": "514",
+    "bolum_kod": "801",
+    "code": "ARCH402",
+    "name_tr": "Mimari Tasarım Stüdyosu VI",
+    "name_en": "Architectural Design Studio VI"
+  },
+  "ARCH300": {
+    "bim_kod": "106759",
+    "muf_no": "514",
+    "bolum_kod": "803",
+    "code": "ARCH300",
+    "name_tr": "Yaz Stajı: Mimarlık Ofisi",
+    "name_en": "Summer Practice: Architectural Office"
+  },
+  "CRP101": {
+    "bim_kod": "107057",
+    "muf_no": "517",
+    "bolum_kod": "101",
+    "code": "CRP101",
+    "name_tr": "Temel Tasarım Stüdyosu",
+    "name_en": "Basic Design Studio"
+  },
+  "CRP111": {
+    "bim_kod": "103154",
+    "muf_no": "517",
+    "bolum_kod": "102",
+    "code": "CRP111",
+    "name_tr": "Kent Planlamaya Giriş",
+    "name_en": "Introduction to City Planning"
+  },
+  "CRP117": {
+    "bim_kod": "107058",
+    "muf_no": "517",
+    "bolum_kod": "103",
+    "code": "CRP117",
+    "name_tr": "Teknik Çizim",
+    "name_en": "Technical Drawing"
+  },
+  "MATH113": {
+    "bim_kod": "106483",
+    "muf_no": "517",
+    "bolum_kod": "106",
+    "code": "MATH113",
+    "name_tr": "Şehir Plancılar için Matematik",
+    "name_en": "Mathematics for City Planners"
+  },
+  "CRP102": {
+    "bim_kod": "107060",
+    "muf_no": "517",
+    "bolum_kod": "201",
+    "code": "CRP102",
+    "name_tr": "Planlama Stüdyolarına Giriş",
+    "name_en": "Introduction to Planning Studios"
+  },
+  "CRP122": {
+    "bim_kod": "103158",
+    "muf_no": "517",
+    "bolum_kod": "202",
+    "code": "CRP122",
+    "name_tr": "Bilgi Teknolojilerine Giriş",
+    "name_en": "Introduction to Information Technologies"
+  },
+  "STAT102": {
+    "bim_kod": "108292",
+    "muf_no": "517",
+    "bolum_kod": "203",
+    "code": "STAT102",
+    "name_tr": "Plancılar İçin İstatistik",
+    "name_en": "Statistics for Planners"
+  },
+  "CRP130": {
+    "bim_kod": "109354",
+    "muf_no": "517",
+    "bolum_kod": "204",
+    "code": "CRP130",
+    "name_tr": "Görsel İletişimin Temelleri",
+    "name_en": "The Fundamentals of Visual Communication"
+  },
+  "CRP201": {
+    "bim_kod": "107062",
+    "muf_no": "517",
+    "bolum_kod": "301",
+    "code": "CRP201",
+    "name_tr": "Planlama Stüdyosu I",
+    "name_en": "Planning Studio I"
+  },
+  "CRP219": {
+    "bim_kod": "105744",
+    "muf_no": "517",
+    "bolum_kod": "302",
+    "code": "CRP219",
+    "name_tr": "Kentsel Altyapı ve Ulaşım",
+    "name_en": "Urban Infrastructure  and Transport Planning"
+  },
+  "CRP223": {
+    "bim_kod": "109871",
+    "muf_no": "517",
+    "bolum_kod": "304",
+    "code": "CRP223",
+    "name_tr": "Plancılar için CBS e Giriş",
+    "name_en": "Introduction GIS for Planners"
+  },
+  "CRP225": {
+    "bim_kod": "107068",
+    "muf_no": "517",
+    "bolum_kod": "305",
+    "code": "CRP225",
+    "name_tr": "Planlama'da Araştırma",
+    "name_en": "Research in Planning"
+  },
+  "CRP227": {
+    "bim_kod": "107063",
+    "muf_no": "517",
+    "bolum_kod": "306",
+    "code": "CRP227",
+    "name_tr": "Kentsel Tasarıma Giriş",
+    "name_en": "Introduction to Urban Design"
+  },
+  "CRP202": {
+    "bim_kod": "107066",
+    "muf_no": "517",
+    "bolum_kod": "401",
+    "code": "CRP202",
+    "name_tr": "Planlama Stüdyosu II",
+    "name_en": "Planning Studio II"
+  },
+  "CRP232": {
+    "bim_kod": "109355",
+    "muf_no": "517",
+    "bolum_kod": "402",
+    "code": "CRP232",
+    "name_tr": "Kentsel Ekonomi ve Coğrafya",
+    "name_en": "Urban Economics and Geography"
+  },
+  "CRP228": {
+    "bim_kod": "107064",
+    "muf_no": "517",
+    "bolum_kod": "403",
+    "code": "CRP228",
+    "name_tr": "Kent Tarihi I",
+    "name_en": "City in History I"
+  },
+  "CRP230": {
+    "bim_kod": "109870",
+    "muf_no": "517",
+    "bolum_kod": "404",
+    "code": "CRP230",
+    "name_tr": "Kentsel Sosyoloji",
+    "name_en": "Urban Sociology"
+  },
+  "CRP301": {
+    "bim_kod": "107070",
+    "muf_no": "517",
+    "bolum_kod": "501",
+    "code": "CRP301",
+    "name_tr": "Planlama Stüdyosu III",
+    "name_en": "Planning Studio III"
+  },
+  "CRP311": {
+    "bim_kod": "109356",
+    "muf_no": "517",
+    "bolum_kod": "502",
+    "code": "CRP311",
+    "name_tr": "Institutional and Legislational Framework in PIanning",
+    "name_en": "Institutional and Legislational Framework in PIanning"
+  },
+  "CRP317": {
+    "bim_kod": "109357",
+    "muf_no": "517",
+    "bolum_kod": "503",
+    "code": "CRP317",
+    "name_tr": "Urban Regeneration Processes",
+    "name_en": "Urban Regeneration Processes"
+  },
+  "CRP300": {
+    "bim_kod": "109358",
+    "muf_no": "517",
+    "bolum_kod": "504",
+    "code": "CRP300",
+    "name_tr": "Yaz Stajı I",
+    "name_en": "Summer Practice I"
+  },
+  "CRP302": {
+    "bim_kod": "109362",
+    "muf_no": "517",
+    "bolum_kod": "601",
+    "code": "CRP302",
+    "name_tr": "Planlama Stüdyosu IV",
+    "name_en": "Planning Studio IV"
+  },
+  "CRP330": {
+    "bim_kod": "107075",
+    "muf_no": "517",
+    "bolum_kod": "602",
+    "code": "CRP330",
+    "name_tr": "Planlama Teorisi",
+    "name_en": "Planning Theory"
+  },
+  "CRP332": {
+    "bim_kod": "109363",
+    "muf_no": "517",
+    "bolum_kod": "603",
+    "code": "CRP332",
+    "name_tr": "Disaster Planning",
+    "name_en": "Disaster Planning"
+  },
+  "CRP401": {
+    "bim_kod": "107077",
+    "muf_no": "517",
+    "bolum_kod": "701",
+    "code": "CRP401",
+    "name_tr": "Planlama Stüdyosu V",
+    "name_en": "Planning Studio V"
+  },
+  "CRP400": {
+    "bim_kod": "109361",
+    "muf_no": "517",
+    "bolum_kod": "703",
+    "code": "CRP400",
+    "name_tr": "Yaz Stajı II",
+    "name_en": "Summer Practice II"
+  },
+  "CRP402": {
+    "bim_kod": "108326",
+    "muf_no": "517",
+    "bolum_kod": "801",
+    "code": "CRP402",
+    "name_tr": "Planlama Stüdyosu VI",
+    "name_en": "Planning Studio VI"
+  },
+  "CRP422": {
+    "bim_kod": "107082",
+    "muf_no": "517",
+    "bolum_kod": "803",
+    "code": "CRP422",
+    "name_tr": "Planlamada Mesleki Uygulama ve Etik",
+    "name_en": "Professional Practice and Ethics in Planning"
+  }
+}

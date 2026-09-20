@@ -1,0 +1,937 @@
+{
+  "ARCH102": {
+    "type": "AND",
+    "courses": [
+      "ARCH101"
+    ],
+    "description": "Bu dersi alabilmek için ARCH101 dersini başarmış olmanız gerekir."
+  },
+  "ARCH132": {
+    "type": "AND",
+    "courses": [
+      "ARCH131"
+    ],
+    "description": "Bu dersi alabilmek için ARCH131 dersini başarmış olmanız gerekir."
+  },
+  "ARCH201": {
+    "type": "AND",
+    "courses": [
+      "ARCH102"
+    ],
+    "description": "Bu dersi alabilmek için ARCH102 dersini başarmış olmanız gerekir."
+  },
+  "ARCH202": {
+    "type": "AND",
+    "courses": [
+      "ARCH201"
+    ],
+    "description": "Bu dersi alabilmek için ARCH201 dersini başarmış olmanız gerekir."
+  },
+  "ARCH233": {
+    "type": "AND",
+    "courses": [
+      "ARCH131",
+      "ARCH132"
+    ],
+    "description": "Bu dersi alabilmek için ARCH131, ARCH132 derslerini başarmış olmanız gerekir."
+  },
+  "ARCH234": {
+    "type": "AND",
+    "courses": [
+      "ARCH131",
+      "ARCH132",
+      "ARCH233"
+    ],
+    "description": "Bu dersi alabilmek için ARCH131, ARCH132, ARCH233 derslerini başarmış olmanız gerekir."
+  },
+  "ARCH301": {
+    "type": "AND",
+    "courses": [
+      "ARCH202"
+    ],
+    "description": "Bu dersi alabilmek için ARCH202 dersini başarmış olmanız gerekir."
+  },
+  "ARCH302": {
+    "type": "AND",
+    "courses": [
+      "ARCH301"
+    ],
+    "description": "Bu dersi alabilmek için ARCH301 dersini başarmış olmanız gerekir."
+  },
+  "ARCH305": {
+    "type": "AND",
+    "courses": [
+      "ARCH234"
+    ],
+    "description": "Bu dersi alabilmek için ARCH234 dersini başarmış olmanız gerekir."
+  },
+  "ARCH401": {
+    "type": "AND",
+    "courses": [
+      "ARCH302"
+    ],
+    "description": "Bu dersi alabilmek için ARCH302 dersini başarmış olmanız gerekir."
+  },
+  "ARCH402": {
+    "type": "AND",
+    "courses": [
+      "ARCH401"
+    ],
+    "description": "Bu dersi alabilmek için ARCH401 dersini başarmış olmanız gerekir."
+  },
+  "CE222": {
+    "type": "AND",
+    "courses": [
+      "CE221"
+    ],
+    "description": "Bu dersi alabilmek için CE221 dersini başarmış olmanız gerekir."
+  },
+  "CE224": {
+    "type": "AND",
+    "courses": [
+      "CE221"
+    ],
+    "description": "Bu dersi alabilmek için CE221 dersini başarmış olmanız gerekir."
+  },
+  "CE241": {
+    "type": "AND",
+    "courses": [
+      "PHYS131"
+    ],
+    "description": "Bu dersi alabilmek için PHYS131 dersini başarmış olmanız gerekir."
+  },
+  "CE270": {
+    "type": "AND",
+    "courses": [
+      "PHYS131",
+      "MATH157"
+    ],
+    "description": "Bu dersi alabilmek için PHYS131, MATH157 derslerini başarmış olmanız gerekir."
+  },
+  "CE362": {
+    "type": "AND",
+    "courses": [
+      "CE361"
+    ],
+    "description": "Bu dersi alabilmek için CE361 dersini başarmış olmanız gerekir."
+  },
+  "CE371": {
+    "type": "AND",
+    "courses": [
+      "CE270"
+    ],
+    "description": "Bu dersi alabilmek için CE270 dersini başarmış olmanız gerekir."
+  },
+  "CE372": {
+    "type": "AND",
+    "courses": [
+      "CE270"
+    ],
+    "description": "Bu dersi alabilmek için CE270 dersini başarmış olmanız gerekir."
+  },
+  "CE381": {
+    "type": "AND",
+    "courses": [
+      "CE224"
+    ],
+    "description": "Bu dersi alabilmek için CE224 dersini başarmış olmanız gerekir."
+  },
+  "CE382": {
+    "type": "AND",
+    "courses": [
+      "CE381"
+    ],
+    "description": "Bu dersi alabilmek için CE381 dersini başarmış olmanız gerekir."
+  },
+  "CE416": {
+    "type": "AND",
+    "courses": [
+      "CE415"
+    ],
+    "description": "Bu dersi alabilmek için CE415 dersini başarmış olmanız gerekir."
+  },
+  "CE481": {
+    "type": "AND",
+    "courses": [
+      "CE224"
+    ],
+    "description": "Bu dersi alabilmek için CE224 dersini başarmış olmanız gerekir."
+  },
+  "CENG114": {
+    "type": "AND",
+    "courses": [
+      "CENG111"
+    ],
+    "description": "Bu dersi alabilmek için CENG111 dersini başarmış olmanız gerekir."
+  },
+  "CENG155": {
+    "type": "AND",
+    "courses": [
+      "CENG154"
+    ],
+    "description": "Bu dersi alabilmek için CENG154 dersini başarmış olmanız gerekir."
+  },
+  "CENG236": {
+    "type": "AND",
+    "courses": [
+      "CENG114",
+      "MATH158"
+    ],
+    "description": "Bu dersi alabilmek için CENG114, MATH158 derslerini başarmış olmanız gerekir."
+  },
+  "CENG241": {
+    "type": "AND",
+    "courses": [
+      "CENG114"
+    ],
+    "description": "Bu dersi alabilmek için CENG114 dersini başarmış olmanız gerekir."
+  },
+  "CENG328": {
+    "type": "AND",
+    "courses": [
+      "CENG114"
+    ],
+    "description": "Bu dersi alabilmek için CENG114 dersini başarmış olmanız gerekir."
+  },
+  "CENG329": {
+    "type": "AND",
+    "courses": [
+      "EE213"
+    ],
+    "description": "Bu dersi alabilmek için EE213 dersini başarmış olmanız gerekir."
+  },
+  "CENG356": {
+    "type": "AND",
+    "courses": [
+      "CENG218"
+    ],
+    "description": "Bu dersi alabilmek için CENG218 dersini başarmış olmanız gerekir."
+  },
+  "CENG382": {
+    "type": "AND",
+    "courses": [
+      "CENG218"
+    ],
+    "description": "Bu dersi alabilmek için CENG218 dersini başarmış olmanız gerekir."
+  },
+  "CENG393": {
+    "type": "AND",
+    "courses": [
+      "CENG114"
+    ],
+    "description": "Bu dersi alabilmek için CENG114 dersini başarmış olmanız gerekir."
+  },
+  "CENG396": {
+    "type": "AND",
+    "courses": [
+      "CENG218"
+    ],
+    "description": "Bu dersi alabilmek için CENG218 dersini başarmış olmanız gerekir."
+  },
+  "CENG407": {
+    "type": "AND",
+    "courses": [
+      "CENG396"
+    ],
+    "description": "Bu dersi alabilmek için CENG396 dersini başarmış olmanız gerekir."
+  },
+  "CENG408": {
+    "type": "AND",
+    "courses": [
+      "CENG407"
+    ],
+    "description": "Bu dersi alabilmek için CENG407 dersini başarmış olmanız gerekir."
+  },
+  "CENG442": {
+    "type": "AND",
+    "courses": [
+      "CENG218"
+    ],
+    "description": "Bu dersi alabilmek için CENG218 dersini başarmış olmanız gerekir."
+  },
+  "CENG466": {
+    "type": "AND",
+    "courses": [
+      "CENG218"
+    ],
+    "description": "Bu dersi alabilmek için CENG218 dersini başarmış olmanız gerekir."
+  },
+  "CENG491": {
+    "type": "AND",
+    "courses": [
+      "CENG124"
+    ],
+    "description": "Bu dersi alabilmek için CENG124 dersini başarmış olmanız gerekir."
+  },
+  "CENG497": {
+    "type": "AND",
+    "courses": [
+      "CENG218",
+      "MATH205"
+    ],
+    "description": "Bu dersi alabilmek için CENG218, MATH205 derslerini başarmış olmanız gerekir."
+  },
+  "CHEM104": {
+    "type": "AND",
+    "courses": [
+      "CHEM103"
+    ],
+    "description": "Bu dersi alabilmek için CHEM103 dersini başarmış olmanız gerekir."
+  },
+  "CRP102": {
+    "type": "AND",
+    "courses": [
+      "CRP101"
+    ],
+    "description": "Bu dersi alabilmek için CRP101 dersini başarmış olmanız gerekir."
+  },
+  "CRP201": {
+    "type": "AND",
+    "courses": [
+      "CRP102"
+    ],
+    "description": "Bu dersi alabilmek için CRP102 dersini başarmış olmanız gerekir."
+  },
+  "CRP202": {
+    "type": "AND",
+    "courses": [
+      "CRP201"
+    ],
+    "description": "Bu dersi alabilmek için CRP201 dersini başarmış olmanız gerekir."
+  },
+  "CRP301": {
+    "type": "AND",
+    "courses": [
+      "CRP202"
+    ],
+    "description": "Bu dersi alabilmek için CRP202 dersini başarmış olmanız gerekir."
+  },
+  "CRP302": {
+    "type": "AND",
+    "courses": [
+      "CRP301"
+    ],
+    "description": "Bu dersi alabilmek için CRP301 dersini başarmış olmanız gerekir."
+  },
+  "ECON311": {
+    "type": "AND",
+    "courses": [
+      "STAT206"
+    ],
+    "description": "Bu dersi alabilmek için STAT206 dersini başarmış olmanız gerekir."
+  },
+  "ECON312": {
+    "type": "AND",
+    "courses": [
+      "ECON311"
+    ],
+    "description": "Bu dersi alabilmek için ECON311 dersini başarmış olmanız gerekir."
+  },
+  "EE206": {
+    "type": "AND",
+    "courses": [
+      "EE205"
+    ],
+    "description": "Bu dersi alabilmek için EE205 dersini başarmış olmanız gerekir."
+  },
+  "ELL124": {
+    "type": "AND",
+    "courses": [
+      "ELL123"
+    ],
+    "description": "Bu dersi alabilmek için ELL123 dersini başarmış olmanız gerekir."
+  },
+  "ELL225": {
+    "type": "AND",
+    "courses": [
+      "ELL124"
+    ],
+    "description": "Bu dersi alabilmek için ELL124 dersini başarmış olmanız gerekir."
+  },
+  "IE228": {
+    "type": "AND",
+    "courses": [
+      "IE227"
+    ],
+    "description": "Bu dersi alabilmek için IE227 dersini başarmış olmanız gerekir."
+  },
+  "IE230": {
+    "type": "AND",
+    "courses": [
+      "MATH158"
+    ],
+    "description": "Bu dersi alabilmek için MATH158 dersini başarmış olmanız gerekir."
+  },
+  "IE232": {
+    "type": "AND",
+    "courses": [
+      "IE101"
+    ],
+    "description": "Bu dersi alabilmek için IE101 dersini başarmış olmanız gerekir."
+  },
+  "IE327": {
+    "type": "AND",
+    "courses": [
+      "IE228"
+    ],
+    "description": "Bu dersi alabilmek için IE228 dersini başarmış olmanız gerekir."
+  },
+  "IE333": {
+    "type": "AND",
+    "courses": [
+      "MATH205",
+      "IE232"
+    ],
+    "description": "Bu dersi alabilmek için MATH205, IE232 derslerini başarmış olmanız gerekir."
+  },
+  "IE334": {
+    "type": "AND",
+    "courses": [
+      "IE227",
+      "IE232"
+    ],
+    "description": "Bu dersi alabilmek için IE227, IE232 derslerini başarmış olmanız gerekir."
+  },
+  "IE364": {
+    "type": "AND",
+    "courses": [
+      "IE365"
+    ],
+    "description": "Bu dersi alabilmek için IE365 dersini başarmış olmanız gerekir."
+  },
+  "IE365": {
+    "type": "AND",
+    "courses": [
+      "IE232"
+    ],
+    "description": "Bu dersi alabilmek için IE232 dersini başarmış olmanız gerekir."
+  },
+  "IE407": {
+    "type": "AND",
+    "courses": [
+      "IE499"
+    ],
+    "description": "Bu dersi alabilmek için IE499 dersini başarmış olmanız gerekir."
+  },
+  "IE408": {
+    "type": "AND",
+    "courses": [
+      "IE407"
+    ],
+    "description": "Bu dersi alabilmek için IE407 dersini başarmış olmanız gerekir."
+  },
+  "IE499": {
+    "type": "AND",
+    "courses": [
+      "IE407"
+    ],
+    "description": "Bu dersi alabilmek için IE407 dersini başarmış olmanız gerekir."
+  },
+  "INAR102": {
+    "type": "AND",
+    "courses": [
+      "INAR101"
+    ],
+    "description": "Bu dersi alabilmek için INAR101 dersini başarmış olmanız gerekir."
+  },
+  "INAR186": {
+    "type": "AND",
+    "courses": [
+      "INAR185"
+    ],
+    "description": "Bu dersi alabilmek için INAR185 dersini başarmış olmanız gerekir."
+  },
+  "INAR201": {
+    "type": "AND",
+    "courses": [
+      "INAR102",
+      "INAR186"
+    ],
+    "description": "Bu dersi alabilmek için INAR102, INAR186 derslerini başarmış olmanız gerekir."
+  },
+  "INAR202": {
+    "type": "AND",
+    "courses": [
+      "INAR201"
+    ],
+    "description": "Bu dersi alabilmek için INAR201 dersini başarmış olmanız gerekir."
+  },
+  "INAR285": {
+    "type": "AND",
+    "courses": [
+      "INAR186"
+    ],
+    "description": "Bu dersi alabilmek için INAR186 dersini başarmış olmanız gerekir."
+  },
+  "INAR286": {
+    "type": "AND",
+    "courses": [
+      "INAR285"
+    ],
+    "description": "Bu dersi alabilmek için INAR285 dersini başarmış olmanız gerekir."
+  },
+  "INAR301": {
+    "type": "AND",
+    "courses": [
+      "INAR202"
+    ],
+    "description": "Bu dersi alabilmek için INAR202 dersini başarmış olmanız gerekir."
+  },
+  "INAR302": {
+    "type": "AND",
+    "courses": [
+      "INAR301"
+    ],
+    "description": "Bu dersi alabilmek için INAR301 dersini başarmış olmanız gerekir."
+  },
+  "INAR401": {
+    "type": "AND",
+    "courses": [
+      "INAR302"
+    ],
+    "description": "Bu dersi alabilmek için INAR302 dersini başarmış olmanız gerekir."
+  },
+  "INAR402": {
+    "type": "AND",
+    "courses": [
+      "INAR401"
+    ],
+    "description": "Bu dersi alabilmek için INAR401 dersini başarmış olmanız gerekir."
+  },
+  "MATH106": {
+    "type": "AND",
+    "courses": [
+      "MATH105"
+    ],
+    "description": "Bu dersi alabilmek için MATH105 dersini başarmış olmanız gerekir."
+  },
+  "MATH112": {
+    "type": "AND",
+    "courses": [
+      "MATH111"
+    ],
+    "description": "Bu dersi alabilmek için MATH111 dersini başarmış olmanız gerekir."
+  },
+  "MATH154": {
+    "type": "OR",
+    "courses": [
+      "MATH153",
+      "MATH151"
+    ],
+    "description": "Bu dersi alabilmek için MATH153 veya MATH151 derslerinden birini başarmış olmanız gerekir."
+  },
+  "MATH158": {
+    "type": "OR",
+    "courses": [
+      "MATH157",
+      "MATH155"
+    ],
+    "description": "Bu dersi alabilmek için MATH157 veya MATH155 derslerinden birini başarmış olmanız gerekir."
+  },
+  "MATH234": {
+    "type": "AND",
+    "courses": [
+      "MATH233"
+    ],
+    "description": "Bu dersi alabilmek için MATH233 dersini başarmış olmanız gerekir."
+  },
+  "MATH243": {
+    "type": "AND",
+    "courses": [
+      "MATH154"
+    ],
+    "description": "Bu dersi alabilmek için MATH154 dersini başarmış olmanız gerekir."
+  },
+  "MATH251": {
+    "type": "AND",
+    "courses": [
+      "MATH154"
+    ],
+    "description": "Bu dersi alabilmek için MATH154 dersini başarmış olmanız gerekir."
+  },
+  "MATH252": {
+    "type": "AND",
+    "courses": [
+      "MATH154",
+      "MATH251"
+    ],
+    "description": "Bu dersi alabilmek için MATH154, MATH251 derslerini başarmış olmanız gerekir."
+  },
+  "MATH253": {
+    "type": "OR",
+    "courses": [
+      "MATH158",
+      "MATH156"
+    ],
+    "description": "Bu dersi alabilmek için MATH158 veya MATH156 derslerinden birini başarmış olmanız gerekir."
+  },
+  "MATH254": {
+    "type": "AND",
+    "courses": [
+      "MATH157"
+    ],
+    "description": "Bu dersi alabilmek için MATH157 dersini başarmış olmanız gerekir."
+  },
+  "MATH315": {
+    "type": "AND",
+    "courses": [
+      "MATH243",
+      "MATH254"
+    ],
+    "description": "Bu dersi alabilmek için MATH243, MATH254 derslerini başarmış olmanız gerekir."
+  },
+  "MATH329": {
+    "type": "AND",
+    "courses": [
+      "MATH146"
+    ],
+    "description": "Bu dersi alabilmek için MATH146 dersini başarmış olmanız gerekir."
+  },
+  "MATH355": {
+    "type": "AND",
+    "courses": [
+      "MATH251"
+    ],
+    "description": "Bu dersi alabilmek için MATH251 dersini başarmış olmanız gerekir."
+  },
+  "MATH476": {
+    "type": "AND",
+    "courses": [
+      "MATH251",
+      "MATH233"
+    ],
+    "description": "Bu dersi alabilmek için MATH251, MATH233 derslerini başarmış olmanız gerekir."
+  },
+  "ME114": {
+    "type": "AND",
+    "courses": [
+      "ME113"
+    ],
+    "description": "Bu dersi alabilmek için ME113 dersini başarmış olmanız gerekir."
+  },
+  "ME200": {
+    "type": "AND",
+    "courses": [
+      "ME210"
+    ],
+    "description": "Bu dersi alabilmek için ME210 dersini başarmış olmanız gerekir."
+  },
+  "ME202": {
+    "type": "AND",
+    "courses": [
+      "ME203"
+    ],
+    "description": "Bu dersi alabilmek için ME203 dersini başarmış olmanız gerekir."
+  },
+  "ME210": {
+    "type": "AND",
+    "courses": [
+      "ME114"
+    ],
+    "description": "Bu dersi alabilmek için ME114 dersini başarmış olmanız gerekir."
+  },
+  "ME300": {
+    "type": "AND",
+    "courses": [
+      "ME200"
+    ],
+    "description": "Bu dersi alabilmek için ME200 dersini başarmış olmanız gerekir."
+  },
+  "ME301": {
+    "type": "AND",
+    "courses": [
+      "ME206"
+    ],
+    "description": "Bu dersi alabilmek için ME206 dersini başarmış olmanız gerekir."
+  },
+  "ME302": {
+    "type": "AND",
+    "courses": [
+      "ME301"
+    ],
+    "description": "Bu dersi alabilmek için ME301 dersini başarmış olmanız gerekir."
+  },
+  "ME304": {
+    "type": "AND",
+    "courses": [
+      "ME303"
+    ],
+    "description": "Bu dersi alabilmek için ME303 dersini başarmış olmanız gerekir."
+  },
+  "ME307": {
+    "type": "AND",
+    "courses": [
+      "ME202"
+    ],
+    "description": "Bu dersi alabilmek için ME202 dersini başarmış olmanız gerekir."
+  },
+  "ME308": {
+    "type": "AND",
+    "courses": [
+      "ME307"
+    ],
+    "description": "Bu dersi alabilmek için ME307 dersini başarmış olmanız gerekir."
+  },
+  "ME312": {
+    "type": "AND",
+    "courses": [
+      "ECE281"
+    ],
+    "description": "Bu dersi alabilmek için ECE281 dersini başarmış olmanız gerekir."
+  },
+  "ME313": {
+    "type": "AND",
+    "courses": [
+      "ME211"
+    ],
+    "description": "Bu dersi alabilmek için ME211 dersini başarmış olmanız gerekir."
+  },
+  "ME331": {
+    "type": "AND",
+    "courses": [
+      "MATH258"
+    ],
+    "description": "Bu dersi alabilmek için MATH258 dersini başarmış olmanız gerekir."
+  },
+  "ME386": {
+    "type": "AND",
+    "courses": [
+      "MATH254"
+    ],
+    "description": "Bu dersi alabilmek için MATH254 dersini başarmış olmanız gerekir."
+  },
+  "ME407": {
+    "type": "AND",
+    "courses": [
+      "ME301",
+      "ME307",
+      "ME402",
+      "ME304",
+      "ME313",
+      "ME463"
+    ],
+    "description": "Bu dersi alabilmek için ME301, ME307, ME402, ME304, ME313, ME463 derslerini başarmış olmanız gerekir."
+  },
+  "ME413": {
+    "type": "AND",
+    "courses": [
+      "ME312",
+      "ME202"
+    ],
+    "description": "Bu dersi alabilmek için ME312, ME202 derslerini başarmış olmanız gerekir."
+  },
+  "ME414": {
+    "type": "AND",
+    "courses": [
+      "ME303",
+      "ME312",
+      "ME313"
+    ],
+    "description": "Bu dersi alabilmek için ME303, ME312, ME313 derslerini başarmış olmanız gerekir."
+  },
+  "MECE114": {
+    "type": "AND",
+    "courses": [
+      "MECE113"
+    ],
+    "description": "Bu dersi alabilmek için MECE113 dersini başarmış olmanız gerekir."
+  },
+  "MECE200": {
+    "type": "AND",
+    "courses": [
+      "MECE114"
+    ],
+    "description": "Bu dersi alabilmek için MECE114 dersini başarmış olmanız gerekir."
+  },
+  "MECE202": {
+    "type": "AND",
+    "courses": [
+      "MECE203"
+    ],
+    "description": "Bu dersi alabilmek için MECE203 dersini başarmış olmanız gerekir."
+  },
+  "MECE206": {
+    "type": "AND",
+    "courses": [
+      "MECE203"
+    ],
+    "description": "Bu dersi alabilmek için MECE203 dersini başarmış olmanız gerekir."
+  },
+  "MECE300": {
+    "type": "AND",
+    "courses": [
+      "MECE200"
+    ],
+    "description": "Bu dersi alabilmek için MECE200 dersini başarmış olmanız gerekir."
+  },
+  "MECE301": {
+    "type": "AND",
+    "courses": [
+      "MECE206"
+    ],
+    "description": "Bu dersi alabilmek için MECE206 dersini başarmış olmanız gerekir."
+  },
+  "MECE306": {
+    "type": "AND",
+    "courses": [
+      "CENG162",
+      "MECE223"
+    ],
+    "description": "Bu dersi alabilmek için CENG162, MECE223 derslerini başarmış olmanız gerekir."
+  },
+  "MECE307": {
+    "type": "AND",
+    "courses": [
+      "MECE202"
+    ],
+    "description": "Bu dersi alabilmek için MECE202 dersini başarmış olmanız gerekir."
+  },
+  "MECE308": {
+    "type": "AND",
+    "courses": [
+      "MECE307"
+    ],
+    "description": "Bu dersi alabilmek için MECE307 dersini başarmış olmanız gerekir."
+  },
+  "MECE309": {
+    "type": "AND",
+    "courses": [
+      "MECE218",
+      "MECE302"
+    ],
+    "description": "Bu dersi alabilmek için MECE218, MECE302 derslerini başarmış olmanız gerekir."
+  },
+  "MECE336": {
+    "type": "AND",
+    "courses": [
+      "MECE223"
+    ],
+    "description": "Bu dersi alabilmek için MECE223 dersini başarmış olmanız gerekir."
+  },
+  "MECE340": {
+    "type": "AND",
+    "courses": [
+      "MECE234"
+    ],
+    "description": "Bu dersi alabilmek için MECE234 dersini başarmış olmanız gerekir."
+  },
+  "MECE349": {
+    "type": "AND",
+    "courses": [
+      "MECE234"
+    ],
+    "description": "Bu dersi alabilmek için MECE234 dersini başarmış olmanız gerekir."
+  },
+  "MECE386": {
+    "type": "AND",
+    "courses": [
+      "MECE218",
+      "MATH253",
+      "MATH254"
+    ],
+    "description": "Bu dersi alabilmek için MECE218, MATH253, MATH254 derslerini başarmış olmanız gerekir."
+  },
+  "MECE403": {
+    "type": "AND",
+    "courses": [
+      "MECE386",
+      "MECE302"
+    ],
+    "description": "Bu dersi alabilmek için MECE386, MECE302 derslerini başarmış olmanız gerekir."
+  },
+  "MECE407": {
+    "type": "AND",
+    "courses": [
+      "MECE223",
+      "MECE233",
+      "MECE307",
+      "MECE386",
+      "CENG161"
+    ],
+    "description": "Bu dersi alabilmek için MECE223, MECE233, MECE307, MECE386, CENG161 derslerini başarmış olmanız gerekir."
+  },
+  "MECE408": {
+    "type": "AND",
+    "courses": [
+      "MECE407"
+    ],
+    "description": "Bu dersi alabilmek için MECE407 dersini başarmış olmanız gerekir."
+  },
+  "MIS305": {
+    "type": "AND",
+    "courses": [
+      "STAT206"
+    ],
+    "description": "Bu dersi alabilmek için STAT206 dersini başarmış olmanız gerekir."
+  },
+  "MSE225": {
+    "type": "AND",
+    "courses": [
+      "PHYS131"
+    ],
+    "description": "Bu dersi alabilmek için PHYS131 dersini başarmış olmanız gerekir."
+  },
+  "MSE226": {
+    "type": "AND",
+    "courses": [
+      "MSE225"
+    ],
+    "description": "Bu dersi alabilmek için MSE225 dersini başarmış olmanız gerekir."
+  },
+  "PSY114": {
+    "type": "AND",
+    "courses": [
+      "PSY113"
+    ],
+    "description": "Bu dersi alabilmek için PSY113 dersini başarmış olmanız gerekir."
+  },
+  "PSY216": {
+    "type": "AND",
+    "courses": [
+      "PSY215"
+    ],
+    "description": "Bu dersi alabilmek için PSY215 dersini başarmış olmanız gerekir."
+  },
+  "PSY346": {
+    "type": "AND",
+    "courses": [
+      "PSY243"
+    ],
+    "description": "Bu dersi alabilmek için PSY243 dersini başarmış olmanız gerekir."
+  },
+  "SENG300": {
+    "type": "AND",
+    "courses": [
+      "SENG200"
+    ],
+    "description": "Bu dersi alabilmek için SENG200 dersini başarmış olmanız gerekir."
+  },
+  "SENG352": {
+    "type": "AND",
+    "courses": [
+      "MATH223"
+    ],
+    "description": "Bu dersi alabilmek için MATH223 dersini başarmış olmanız gerekir."
+  },
+  "TINS202": {
+    "type": "AND",
+    "courses": [
+      "TINS201"
+    ],
+    "description": "Bu dersi alabilmek için TINS201 dersini başarmış olmanız gerekir."
+  },
+  "TINS302": {
+    "type": "AND",
+    "courses": [
+      "TINS301"
+    ],
+    "description": "Bu dersi alabilmek için TINS301 dersini başarmış olmanız gerekir."
+  },
+  "TINS408": {
+    "type": "AND",
+    "courses": [
+      "TINS407"
+    ],
+    "description": "Bu dersi alabilmek için TINS407 dersini başarmış olmanız gerekir."
+  }
+}
