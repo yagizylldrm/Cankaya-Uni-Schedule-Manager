@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply transition-colors duration-200;
+  }
+  button:disabled { @apply opacity-50 cursor-not-allowed; }
+  button:focus-visible, select:focus-visible, input:focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-blue-500;
+  }
+}
+
+@layer components {
+  .primary-action { @apply rounded-xl px-4 py-3 bg-cankaya-blue text-white dark:bg-cankaya-gold dark:text-slate-900 font-semibold text-sm; }
+}
+
+/* Make compact course labels and controls readable on touch screens. */
+@media (max-width: 767px) {
+  main .text-\[10px\], main .text-\[11px\] { font-size: 0.8125rem; }
+  main button, header button { min-height: 44px; }
+  main input[type='text'], main select { font-size: 16px; }
+}
+
+@media print {
+  @page { size: landscape; margin: 10mm; }
+  header, aside, [data-onboarding], [data-view-controls], [data-agenda], dialog { display: none !important; }
+  body * { visibility: hidden; }
+  [data-schedule-panel], [data-weekly-grid] { display: block !important; }
+  [data-weekly-grid], [data-weekly-grid] * { visibility: visible; }
+  [data-weekly-grid] { position: absolute; left: 0; top: 0; width: 100%; border: 0; }
+  [data-grid-scroll] { overflow: visible !important; }
+  [data-weekly-grid] table { min-width: 0; }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 dark:bg-slate-700 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400 dark:bg-slate-600;
+}

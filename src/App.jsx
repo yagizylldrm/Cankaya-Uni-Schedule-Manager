@@ -12,20 +12,34 @@ import { Search, ShoppingBag, Calendar } from 'lucide-react';
 
 function AppContent() {
   const gridRef = useRef(null);
-  const { basket } = useSchedule();
+  const { basket, generateSchedule, isGenerating, selectedCombination, customBlockModalData, transcriptModalOpen } = useSchedule();
   const basketCount = Object.keys(basket).length;
 
   // Tab state for left sidebar: 'search' | 'basket'
   const [leftTab, setLeftTab] = useState('search');
 
   // Tab state for mobile screens: 'left' | 'grid'
-  const [mobileTab, setMobileTab] = useState('grid');
+  const [mobileTab, setMobileTab] = useState(() => basketCount ? 'grid' : 'left');
+  const showSearch = () => { setMobileTab('left'); setLeftTab('search'); };
+  const showBasket = () => { setMobileTab('left'); setLeftTab('basket'); };
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-100/70 dark:bg-dark-bg text-slate-800 dark:text-dark-text transition-colors">
       
       {/* Top Navigation Bar */}
-      <Navbar timetableRef={gridRef} />
+      <Navbar timetableRef={gridRef} onShowSchedule={() => setMobileTab('grid')} />
+
+      {!selectedCombination && <div className="max-w-7xl mx-auto w-full px-4 pt-4" data-onboarding>
+        <div className="rounded-2xl bg-white dark:bg-dark-surface border border-slate-200 dark:border-dark-border p-4">
+          <h2 className="font-bold text-base">Ders programını üç adımda oluştur</h2>
+          <p className="text-sm text-slate-600 dark:text-dark-subtext mt-1">Bölümünü seç, derslerini ekle ve sana uygun şubeleri bul.</p>
+          <ol className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
+            <li><button className="w-full rounded-xl bg-slate-100 dark:bg-dark-card p-3 text-left" onClick={() => { showSearch(); setTimeout(() => document.getElementById('primary-department')?.focus(), 0); }}>1. Bölümünü seç</button></li>
+            <li><button className="w-full rounded-xl bg-slate-100 dark:bg-dark-card p-3 text-left" onClick={showSearch}>2. Dersleri ekle {basketCount > 0 && `(${basketCount} ders eklendi)`}</button></li>
+            <li><button className="primary-action w-full text-left" disabled={!basketCount || isGenerating} onClick={() => { setMobileTab('grid'); generateSchedule(); }}>3. {isGenerating ? 'Hesaplanıyor…' : 'Program oluştur'}</button></li>
+          </ol>
+        </div>
+      </div>}
 
       {/* Mobile View Switcher */}
       <div className="lg:hidden bg-white dark:bg-dark-surface border-b border-slate-200 dark:border-dark-border px-4 py-2 flex items-center justify-center gap-2">
@@ -58,7 +72,7 @@ function AppContent() {
       <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
         
         {/* Left Panel: Search & Basket (4 cols on desktop) */}
-        <aside className={`lg:col-span-4 flex-col gap-3 h-[calc(100vh-6.5rem)] sticky top-20 ${
+        <aside className={`lg:col-span-4 min-w-0 flex-col gap-3 h-[75dvh] lg:h-[calc(100vh-6.5rem)] lg:sticky lg:top-20 ${
           mobileTab === 'left' ? 'flex' : 'hidden lg:flex'
         }`}>
           {/* Sidebar Tabs */}
@@ -104,11 +118,16 @@ function AppContent() {
         </aside>
 
         {/* Right Panel: Combination Bar & Timetable Grid (8 cols on desktop) */}
-        <section className={`lg:col-span-8 flex-col gap-3 ${
+        <section data-schedule-panel className={`lg:col-span-8 min-w-0 flex-col gap-3 ${
           mobileTab === 'grid' ? 'flex' : 'hidden lg:flex'
         }`}>
           {/* Combination Navigation & Preference Filters */}
-          <CombinationBar />
+          <CombinationBar onReviewBasket={showBasket} />
+
+          {!basketCount && !selectedCombination && <div className="rounded-xl p-5 bg-white dark:bg-dark-surface text-sm space-y-3">
+            <p>Programın henüz boş. Önce almak istediğin dersleri ekle.</p>
+            <button onClick={showSearch} className="primary-action">Ders aramaya başla</button>
+          </div>}
 
           {/* Interactive Timetable Grid */}
           <TimetableGrid gridRef={gridRef} />
@@ -117,8 +136,8 @@ function AppContent() {
       </main>
 
       {/* Global Modals */}
-      <CustomBlockModal />
-      <TranscriptModal />
+      {customBlockModalData && <CustomBlockModal key={`${customBlockModalData.day}:${customBlockModalData.timeSlot}`} />}
+      {transcriptModalOpen && <TranscriptModal />}
       <CourseDetailModal />
 
     </div>

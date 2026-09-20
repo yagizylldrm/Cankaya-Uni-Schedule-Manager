@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSchedule } from '../context/ScheduleContext';
-import { generateCombinations } from '../services/api';
+import PlanTransfer from './PlanTransfer';
 import { 
   GraduationCap, 
   Sun, 
@@ -15,72 +15,67 @@ import {
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
-export default function Navbar({ timetableRef }) {
+export default function Navbar({ timetableRef, onShowSchedule }) {
   const {
     theme,
     toggleTheme,
     basket,
-    preferences,
-    customBlocks,
-    setCombinations,
-    setCurrentComboIndex,
-    setConflictsInfo,
     isGenerating,
-    setIsGenerating,
     setTranscriptModalOpen,
-    profile
+    profile,
+    generateSchedule,
+    canExport,
+    isScheduleStale
   } = useSchedule();
 
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [transferMode, setTransferMode] = useState(null);
+  const menuRef = useRef(null);
+  useEffect(() => {
+    if (!isExportMenuOpen) return;
+    const outside = event => { if (!menuRef.current?.contains(event.target)) setIsExportMenuOpen(false); };
+    const escape = event => { if (event.key === 'Escape') setIsExportMenuOpen(false); };
+    document.addEventListener('pointerdown', outside);
+    document.addEventListener('keydown', escape);
+    return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', escape); };
+  }, [isExportMenuOpen]);
 
   const basketCount = Object.keys(basket).length;
   const passedCount = Object.keys(profile.passedCourses || {}).length;
 
   // Generate schedule combinations
   const handleGenerate = async () => {
-    if (basketCount === 0) {
-      alert('Lütfen önce sol panelden alınmak istenen dersleri sepete ekleyin.');
-      return;
-    }
-
-    setIsGenerating(true);
-    setConflictsInfo(null);
-
-    try {
-      // Build selected_courses: { [code]: [section_nos] }
-      const selectedCourses = {};
-      Object.entries(basket).forEach(([code, c]) => {
-        selectedCourses[code] = c.selectedSections && c.selectedSections.length > 0
-          ? c.selectedSections
-          : (c.allSections || []).map(s => String(s.section_no));
-      });
-
-      const res = await generateCombinations(selectedCourses, preferences, customBlocks);
-      setCombinations(res.combinations || []);
-      setCurrentComboIndex(0);
-
-      if (res.count === 0) {
-        setConflictsInfo(res.conflicts_info || 'Çakışmasız kombinasyon bulunamadı.');
-      }
-    } catch (err) {
-      alert(`Hata: ${err.message}`);
-    } finally {
-      setIsGenerating(false);
-    }
+    onShowSchedule();
+    await generateSchedule();
   };
 
   // Export as PNG image
   const handleExportPNG = async () => {
     setIsExportMenuOpen(false);
-    if (!timetableRef.current) return;
+    if (!timetableRef.current || !canExport) return;
 
     setExporting(true);
     try {
       const canvas = await html2canvas(timetableRef.current, {
         scale: 2,
         useCORS: true,
-        backgroundColor: theme === 'dark' ? '#181825' : '#ffffff'
+        backgroundColor: theme === 'dark' ? '#181825' : '#ffffff',
+        onclone: doc => {
+          const grid = doc.querySelector('[data-weekly-grid]');
+          if (grid) {
+            for (let el = grid; el && el !== doc.body; el = el.parentElement) el.style.display = 'block';
+            grid.style.width = '1000px';
+            grid.querySelector('[data-grid-scroll]').style.overflow = 'visible';
+            grid.querySelectorAll('.truncate').forEach(el => {
+              el.style.display = 'block';
+              el.style.overflow = 'visible';
+              el.style.whiteSpace = 'normal';
+              el.style.lineHeight = '20px';
+              el.style.minHeight = '24px';
+            });
+          }
+        }
       });
       const link = document.createElement('a');
       link.download = `Cankaya_Ders_Programi_${new Date().toISOString().slice(0, 10)}.png`;
@@ -96,28 +91,19 @@ export default function Navbar({ timetableRef }) {
   // Export as JSON
   const handleExportJSON = () => {
     setIsExportMenuOpen(false);
-    const data = {
-      profile,
-      basket,
-      customBlocks,
-      preferences,
-      exportedAt: new Date().toISOString()
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const link = document.createElement('a');
-    link.download = `cankaya_program_${new Date().toISOString().slice(0, 10)}.json`;
-    link.href = URL.createObjectURL(blob);
-    link.click();
+    setTransferMode('save');
   };
 
   const handlePrint = () => {
     setIsExportMenuOpen(false);
+    if (!canExport) return;
     window.print();
   };
 
   return (
+    <>
     <header className="sticky top-0 z-30 bg-white/95 dark:bg-dark-surface/95 backdrop-blur border-b border-slate-200 dark:border-dark-border shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
         
         {/* Brand & Logo */}
         <div className="flex items-center gap-3">
@@ -140,7 +126,7 @@ export default function Navbar({ timetableRef }) {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           
           {/* Theme Toggle */}
           <button
@@ -167,25 +153,26 @@ export default function Navbar({ timetableRef }) {
           </button>
 
           {/* Export Dropdown */}
-          <div className="relative">
+          <div ref={menuRef} className="relative">
             <button
               onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
               disabled={exporting}
+              aria-label="Programı kaydet veya yükle"
+              aria-expanded={isExportMenuOpen}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg text-slate-700 dark:text-dark-text bg-slate-100 dark:bg-dark-card hover:bg-slate-200 dark:hover:bg-slate-700/50 border border-slate-200 dark:border-dark-border transition"
             >
               <Download className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-              <span className="hidden sm:inline">Dışa Aktar</span>
+              <span>Kaydet / Yükle</span>
             </button>
 
             {isExportMenuOpen && (
               <>
-                <div 
-                  className="fixed inset-0 z-40" 
-                  onClick={() => setIsExportMenuOpen(false)}
-                />
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark-card rounded-xl shadow-xl border border-slate-200 dark:border-dark-border py-1.5 z-50 text-sm">
+                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-dark-card rounded-xl shadow-xl border border-slate-200 dark:border-dark-border py-1.5 z-50 text-sm">
+                  <button onClick={() => { setTransferMode('load'); setIsExportMenuOpen(false); }} className="w-full px-4 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-800">Kayıtlı programı yükle</button>
+                  {!canExport && <p className="px-4 py-2 text-xs text-amber-700 dark:text-amber-300">{isScheduleStale ? 'Dışa aktarmadan önce programı yeniden oluşturun.' : 'Kaydetmek için önce program oluşturun.'}</p>}
                   <button
                     onClick={handleExportPNG}
+                    disabled={!canExport}
                     className="w-full px-4 py-2 text-left flex items-center gap-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-dark-text"
                   >
                     <ImageIcon className="w-4 h-4 text-blue-500" />
@@ -193,13 +180,17 @@ export default function Navbar({ timetableRef }) {
                   </button>
                   <button
                     onClick={handleExportJSON}
+                    disabled={!canExport}
                     className="w-full px-4 py-2 text-left flex items-center gap-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-dark-text"
                   >
                     <FileJson className="w-4 h-4 text-amber-500" />
-                    <span>JSON Verisi Olarak</span>
+                    <span>Programı kaydet (JSON)</span>
                   </button>
+                  <button disabled={!canExport} onClick={() => { setTransferMode('calendar'); setIsExportMenuOpen(false); }} className="w-full px-4 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-800">Takvime aktar (.ics)</button>
+                  <button disabled={!canExport} onClick={() => { setTransferMode('csv'); setIsExportMenuOpen(false); }} className="w-full px-4 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-800">CSV olarak indir</button>
                   <button
                     onClick={handlePrint}
+                    disabled={!canExport}
                     className="w-full px-4 py-2 text-left flex items-center gap-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-dark-text"
                   >
                     <Printer className="w-4 h-4 text-emerald-500" />
@@ -227,5 +218,7 @@ export default function Navbar({ timetableRef }) {
         </div>
       </div>
     </header>
+    {transferMode && <PlanTransfer mode={transferMode} onClose={() => setTransferMode(null)} onRestored={onShowSchedule} />}
+    </>
   );
 }

@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import { parseTimeRange } from '../utils/plan';
 import { useSchedule } from '../context/ScheduleContext';
 import { MapPin, User, Clock, Plus, AlertTriangle } from 'lucide-react';
 
@@ -48,8 +49,12 @@ export default function TimetableGrid({ gridRef }) {
     basket,
     customBlocks,
     setCustomBlockModalData,
-    setCourseDetailModalCode
+    setCourseDetailModalCode,
+    isScheduleStale,
+    isGenerating
   } = useSchedule();
+  const [view, setView] = useState(() => window.matchMedia('(max-width: 767px)').matches ? 'agenda' : 'week');
+  const [agendaDay, setAgendaDay] = useState(() => DAYS[(new Date().getDay() + 6) % 7]);
 
   // Active sections to display:
   // If combinations are available, use the currently active combination.
@@ -141,13 +146,56 @@ export default function TimetableGrid({ gridRef }) {
     return matrix;
   }, [activeSections, customBlocks]);
 
+  const agendaItems = [
+    ...activeSections.flatMap(sec => (sec.slots || []).filter(s => s.day === agendaDay).map(s => ({ ...s,
+      title: `${sec.course_code} · Şube ${sec.section_no}`, detail: [s.classroom || sec.classroom, sec.instructor].filter(Boolean).join(' · '),
+      courseCode: sec.course_code, block: null }))),
+    ...Object.values(customBlocks).filter(b => b.day === agendaDay).map(b => ({ ...b, detail: b.note, block: b }))
+  ].sort((a, b) => (parseTimeRange(a.time_slot)?.[0] ?? 0) - (parseTimeRange(b.time_slot)?.[0] ?? 0));
+
   return (
+    <>
+    <div data-view-controls className="flex flex-wrap items-center justify-between gap-2 text-sm">
+      <p role="status">{isGenerating ? 'Program güncelleniyor…' : isScheduleStale ? 'Önceki program · Güncelleme gerekli' : combinations.length ? 'Seçili program' : 'Taslak · Seçili şubelerin ön izlemesi'}</p>
+      <div className="flex gap-1 rounded-xl bg-white dark:bg-dark-surface p-1 border border-slate-200 dark:border-dark-border">
+        <button aria-pressed={view === 'agenda'} onClick={() => setView('agenda')} className={`px-3 py-2 rounded-lg ${view === 'agenda' ? 'bg-cankaya-blue text-white' : ''}`}>Günlük</button>
+        <button aria-pressed={view === 'week'} onClick={() => setView('week')} className={`px-3 py-2 rounded-lg ${view === 'week' ? 'bg-cankaya-blue text-white' : ''}`}>Haftalık</button>
+      </div>
+    </div>
+    {view === 'agenda' && <section data-agenda aria-label="Günlük program" className="bg-white dark:bg-dark-surface border border-slate-200 dark:border-dark-border rounded-2xl p-4 space-y-4">
+      <div className="flex items-center gap-3 text-sm font-semibold"><label htmlFor="agenda-day">Gün</label>
+        <select id="agenda-day" value={agendaDay} onChange={e => setAgendaDay(e.target.value)} className="rounded-lg border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card px-3 py-2 flex-1">
+          {DAYS.map(day => <option key={day}>{day}</option>)}
+        </select>
+      </div>
+      {!agendaItems.length && <p className="text-sm text-slate-500 dark:text-dark-subtext py-6">{agendaDay} için ders veya etkinlik bulunmuyor.</p>}
+      <ul className="space-y-3">
+        {agendaItems.map((item, index) => {
+          const range = parseTimeRange(item.time_slot);
+          const conflict = range && agendaItems.some((other, i) => {
+            const r = parseTimeRange(other.time_slot);
+            return i !== index && r && Math.max(range[0], r[0]) < Math.min(range[1], r[1]);
+          });
+          return <li key={`${item.title}-${item.time_slot}-${index}`}>
+            <button onClick={() => item.block ? setCustomBlockModalData({ day: agendaDay, timeSlot: item.time_slot, currentBlock: item.block }) : setCourseDetailModalCode(item.courseCode)}
+              className={`w-full text-left rounded-xl border p-4 space-y-1 ${conflict ? 'border-rose-400 bg-rose-50 dark:bg-rose-950/20' : 'border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-card'}`}>
+              <p className="text-sm font-semibold">{item.time_slot.replace('/', ' – ')}</p>
+              <p className="font-bold">{item.title}</p>
+              {item.detail && <p className="text-sm text-slate-600 dark:text-dark-subtext">{item.detail}</p>}
+              {conflict && <p className="text-sm text-rose-700 dark:text-rose-300 font-semibold">Bu saatte çakışma var</p>}
+            </button>
+          </li>;
+        })}
+      </ul>
+      <button onClick={() => setCustomBlockModalData({ day: agendaDay, timeSlot: '12:00 - 12:50', currentBlock: null })} className="primary-action">Etkinlik ekle</button>
+    </section>}
     <div 
       ref={gridRef}
-      className="bg-white dark:bg-dark-surface rounded-2xl border border-slate-200 dark:border-dark-border shadow-xs overflow-hidden flex flex-col"
+      data-weekly-grid
+      className={`${view === 'week' ? 'flex' : 'hidden'} bg-white dark:bg-dark-surface rounded-2xl border border-slate-200 dark:border-dark-border shadow-xs overflow-hidden flex-col`}
     >
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse min-w-[700px] text-left">
+      <div data-grid-scroll className="overflow-x-auto">
+        <table className="w-full table-fixed border-collapse min-w-[700px] text-left">
           
           {/* Header Days Row */}
           <thead>
@@ -273,5 +321,6 @@ export default function TimetableGrid({ gridRef }) {
         </table>
       </div>
     </div>
+    </>
   );
 }

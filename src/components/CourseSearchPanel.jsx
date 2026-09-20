@@ -118,6 +118,8 @@ export default function CourseSearchPanel() {
               Ana Bölüm:
             </label>
             <select
+              id="primary-department"
+              aria-label="Ana bölüm"
               value={profile.primaryDept}
               onChange={(e) => updateProfile({ primaryDept: e.target.value })}
               className="w-full px-2.5 py-1.5 bg-white dark:bg-dark-surface border border-slate-300 dark:border-dark-border rounded-lg text-slate-800 dark:text-dark-text focus:ring-1 focus:ring-cankaya-blue font-medium"

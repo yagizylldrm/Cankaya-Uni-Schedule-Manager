@@ -36,6 +36,7 @@ export default function CustomBlockModal() {
   const [note, setNote] = useState(currentBlock?.note || '');
   const [color, setColor] = useState(currentBlock?.color || 'amber');
   const [allWeekdays, setAllWeekdays] = useState(false);
+  const [chosenTime, setChosenTime] = useState(timeSlot);
 
   const handlePresetSelect = (p) => {
     setTitle(p.title);
@@ -51,10 +52,10 @@ export default function CustomBlockModal() {
 
     if (allWeekdays) {
       ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma'].forEach(d => {
-        setCustomBlock(d, timeSlot, title.trim(), note.trim(), color);
+        setCustomBlock(d, chosenTime, title.trim(), note.trim(), color);
       });
     } else {
-      setCustomBlock(day, timeSlot, title.trim(), note.trim(), color);
+      setCustomBlock(day, chosenTime, title.trim(), note.trim(), color);
     }
 
     setCustomBlockModalData(null);
@@ -94,6 +95,11 @@ export default function CustomBlockModal() {
 
         {/* Content Body */}
         <div className="p-4 space-y-4 text-xs">
+          {!isEdit && <div className="text-sm"><label htmlFor="activity-time">Etkinlik saati</label>
+            <select id="activity-time" value={chosenTime} onChange={e => setChosenTime(e.target.value)} className="mt-1 w-full rounded-lg border p-2 bg-white dark:bg-dark-card">
+              {Array.from(new Set([timeSlot, '08:40 - 09:30', ...Array.from({ length: 12 }, (_, i) => `${String(i + 9).padStart(2, '0')}:00 - ${String(i + 9).padStart(2, '0')}:50`)])).map(time => <option key={time}>{time}</option>)}
+            </select>
+          </div>}
           
           {/* Quick Presets */}
           <div>

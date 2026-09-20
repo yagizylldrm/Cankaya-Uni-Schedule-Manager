@@ -1,6 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
+import { generateCombinations } from '../services/api';
+import { inputSignature, validatePlan } from '../utils/plan';
 
 const ScheduleContext = createContext(null);
+
+const courseSelectionSignature = basket => JSON.stringify(Object.keys(basket).sort().map(code =>
+  [code, [...(basket[code].selectedSections || [])].sort()]));
 
 const STORAGE_KEYS = {
   THEME: 'cankaya_theme',
@@ -95,6 +100,8 @@ export function ScheduleProvider({ children }) {
 
   const addToBasket = (courseDetail) => {
     const code = courseDetail.code;
+    if (basket[code]) return;
+    clearGeneratedSchedule();
     const allSecNos = courseDetail.sections ? courseDetail.sections.map(s => String(s.section_no)) : [];
     setBasket(prev => {
       if (prev[code]) return prev; // Already in basket
@@ -116,6 +123,8 @@ export function ScheduleProvider({ children }) {
   };
 
   const removeFromBasket = (courseCode) => {
+    if (!basket[courseCode]) return;
+    clearGeneratedSchedule();
     setBasket(prev => {
       const next = { ...prev };
       delete next[courseCode];
@@ -124,6 +133,8 @@ export function ScheduleProvider({ children }) {
   };
 
   const toggleSectionSelection = (courseCode, sectionNo) => {
+    if (!basket[courseCode]) return;
+    clearGeneratedSchedule();
     const secStr = String(sectionNo);
     setBasket(prev => {
       const c = prev[courseCode];
@@ -207,11 +218,108 @@ export function ScheduleProvider({ children }) {
     setPreferences(prev => ({ ...prev, ...updates }));
   };
 
-  // 6. Generated Combinations State
-  const [combinations, setCombinations] = useState([]);
+  // Keep only the chosen combination across reloads, not the entire search result.
+  const [savedResult] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('cankaya_selected_schedule'));
+      if (!saved) return null;
+      return { ...saved, plan: validatePlan(saved.plan) };
+    } catch { return null; }
+  });
+  const [combinations, setCombinations] = useState(() => savedResult?.plan.selectedCombination ? [savedResult.plan.selectedCombination] : []);
   const [currentComboIndex, setCurrentComboIndex] = useState(0);
   const [conflictsInfo, setConflictsInfo] = useState(null);
+  const [conflictDetails, setConflictDetails] = useState([]);
+  const [resultSignature, setResultSignature] = useState(savedResult?.signature || null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState('');
+  const [semester, setSemester] = useState(savedResult?.plan.semester || { start: '', end: '' });
+  const [restoredPlan, setRestoredPlan] = useState(false);
+  const [storageError, setStorageError] = useState('');
+  const requestId = useRef(0);
+  const courseSelection = courseSelectionSignature(basket);
+  const previousCourseSelection = useRef(courseSelection);
+  const signature = inputSignature(basket, preferences, customBlocks, profile);
+  const isScheduleStale = Boolean(resultSignature && resultSignature !== signature);
+  const selectedCombination = combinations[currentComboIndex] || null;
+  const canExport = Boolean(selectedCombination && !isScheduleStale && !isGenerating);
+
+  useEffect(() => {
+    // Do not associate an old result with the newly edited inputs.
+    if (isScheduleStale) return;
+    try {
+      if (!selectedCombination) localStorage.removeItem('cankaya_selected_schedule');
+      else localStorage.setItem('cankaya_selected_schedule', JSON.stringify({ signature: resultSignature,
+        plan: { version: 1, basket, preferences, customBlocks, selectedCombination, semester,
+          program: { primaryDept: profile.primaryDept, secondaryDept: profile.secondaryDept, secondaryType: profile.secondaryType } } }));
+      setStorageError('');
+    } catch { setStorageError('Program bu tarayıcıya kaydedilemedi. JSON olarak indirebilirsiniz.'); }
+  }, [selectedCombination, resultSignature, isScheduleStale, basket, preferences, customBlocks, profile, semester]);
+
+  const clearGeneratedSchedule = () => {
+    // A response for the previous basket must not restore removed courses.
+    ++requestId.current;
+    setCombinations([]);
+    setCurrentComboIndex(0);
+    setResultSignature(null);
+    setConflictsInfo(null);
+    setConflictDetails([]);
+    setGenerationError('');
+    setIsGenerating(false);
+    setRestoredPlan(false);
+  };
+
+  const generateSchedule = useCallback(async (overrides = {}) => {
+    const id = ++requestId.current;
+    const nextPreferences = overrides.preferences || preferences;
+    const nextBlocks = overrides.customBlocks || customBlocks;
+    if (overrides.preferences) setPreferences(nextPreferences);
+    if (overrides.customBlocks) setCustomBlocks(nextBlocks);
+    const requestedSignature = inputSignature(basket, nextPreferences, nextBlocks, profile);
+    setGenerationError('');
+    setIsGenerating(true);
+    try {
+      const selected = Object.fromEntries(Object.entries(basket).map(([code, c]) => [code, c.selectedSections || []]));
+      const res = await generateCombinations(selected, nextPreferences, nextBlocks);
+      if (id !== requestId.current) return;
+      setCombinations(res.combinations || []);
+      setCurrentComboIndex(0);
+      setResultSignature(requestedSignature);
+      setConflictsInfo(res.count === 0 ? res.conflicts_info || 'Çakışmasız program bulunamadı.' : null);
+      setConflictDetails(res.conflict_details || []);
+      setRestoredPlan(false);
+    } catch (err) {
+      if (id === requestId.current) setGenerationError(err.message);
+    } finally {
+      if (id === requestId.current) setIsGenerating(false);
+    }
+  }, [basket, preferences, customBlocks, profile]);
+
+  useEffect(() => {
+    if (previousCourseSelection.current === courseSelection) return;
+    previousCourseSelection.current = courseSelection;
+    if (Object.keys(basket).length) generateSchedule();
+  }, [courseSelection, basket, generateSchedule]);
+
+  const restorePlan = raw => {
+    const plan = validatePlan(raw);
+    ++requestId.current; // Ignore responses started before the import.
+    setIsGenerating(false);
+    // Import restores the exact saved alternative rather than generating a new one.
+    previousCourseSelection.current = courseSelectionSignature(plan.basket);
+    setBasket(plan.basket);
+    setPreferences(plan.preferences);
+    setCustomBlocks(plan.customBlocks);
+    setProfile(prev => ({ ...prev, ...plan.program }));
+    setSemester(plan.semester);
+    setCombinations(plan.selectedCombination ? [plan.selectedCombination] : []);
+    setCurrentComboIndex(0);
+    setResultSignature(plan.selectedCombination ? inputSignature(plan.basket, plan.preferences, plan.customBlocks, plan.program) : null);
+    setConflictsInfo(null);
+    setConflictDetails([]);
+    setGenerationError('');
+    setRestoredPlan(true);
+  };
 
   // 7. Modals
   const [transcriptModalOpen, setTranscriptModalOpen] = useState(false);
@@ -241,13 +349,21 @@ export function ScheduleProvider({ children }) {
       preferences,
       updatePreferences,
       combinations,
-      setCombinations,
       currentComboIndex,
       setCurrentComboIndex,
       conflictsInfo,
-      setConflictsInfo,
       isGenerating,
-      setIsGenerating,
+      generateSchedule,
+      generationError,
+      conflictDetails,
+      isScheduleStale,
+      selectedCombination,
+      canExport,
+      semester,
+      setSemester,
+      restorePlan,
+      restoredPlan,
+      storageError,
       transcriptModalOpen,
       setTranscriptModalOpen,
       customBlockModalData,

@@ -23,9 +23,16 @@ Thumbs.db
 
 # Node & Build artifacts
 node_modules/
+test-results/
+playwright-report/
 frontend/node_modules/
 dist/
 frontend/dist/
 .vercel/
 .env
 .env.local
+.vercel
+.env*
+.vercel_python_packages/
+api/uv.lock
+api/pyproject.toml
