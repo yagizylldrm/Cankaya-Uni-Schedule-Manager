@@ -1,150 +1,187 @@
 {
   "primary_dept": "CENG",
   "secondary_type": "YOK",
-  "secondary_dept": "YOK",
-  "custom_overrides": {
-    "PHYS131": "ZORUNLU",
-    "CENG329": "SECMELI",
-    "CENG403": "SECMELI"
-  },
+  "secondary_dept": "PSY",
+  "custom_overrides": {},
   "custom_credits": {},
   "theme": "modern",
-  "custom_schedule_blocks": {},
+  "custom_schedule_blocks": {
+    "Çarşamba:11:00 - 11:50": {
+      "day": "Çarşamba",
+      "time_slot": "11:00 - 11:50",
+      "title": "Yemek Arası",
+      "note": "11-11 / Öğle Yemeği",
+      "color": "amber"
+    },
+    "Salı:11:00 - 11:50": {
+      "day": "Salı",
+      "time_slot": "11:00 - 11:50",
+      "title": "Yemek Arası",
+      "note": "11-11 / Öğle Yemeği",
+      "color": "amber"
+    },
+    "Perşembe:12:00 - 12:50": {
+      "day": "Perşembe",
+      "time_slot": "12:00 - 12:50",
+      "title": "Yemek Arası",
+      "note": "12-12 / Öğle Yemeği",
+      "color": "amber"
+    },
+    "Cuma:12:00 - 12:50": {
+      "day": "Cuma",
+      "time_slot": "12:00 - 12:50",
+      "title": "Yemek Arası",
+      "note": "12-12 / Öğle Yemeği",
+      "color": "amber"
+    },
+    "Pazartesi:11:00 - 11:50": {
+      "day": "Pazartesi",
+      "time_slot": "11:00 - 11:50",
+      "title": "lol",
+      "note": "yokum twin",
+      "color": "slate"
+    }
+  },
   "passed_courses": {
     "ENG121": {
       "code": "ENG121",
       "grade": "AA",
-      "name": "English for Academic Purposes I"
+      "name": "ENG121"
     },
     "ENG122": {
       "code": "ENG122",
       "grade": "AA",
-      "name": "English for Academic Purposes II"
+      "name": "ENG122"
     },
     "BIO101": {
       "code": "BIO101",
       "grade": "AA",
-      "name": "BIO101 - Biyoloji"
+      "name": "BIO101"
     },
     "CENG105": {
       "code": "CENG105",
       "grade": "AA",
-      "name": "Introduction to Computers and Programming"
+      "name": "CENG105"
     },
     "CENG111": {
       "code": "CENG111",
       "grade": "CB",
-      "name": "Introduction to Computer Engineering Concepts"
+      "name": "CENG111"
     },
     "ESR103": {
       "code": "ESR103",
       "grade": "AA",
-      "name": "ESR103 - ESR Bölümü"
+      "name": "ESR103"
     },
     "HIST201": {
       "code": "HIST201",
       "grade": "AA",
-      "name": "Atatürk İlkeleri ve İnkılap Tarihi I"
+      "name": "HIST201"
     },
     "HIST202": {
       "code": "HIST202",
       "grade": "AA",
-      "name": "Atatürk İlkeleri ve İnkılap Tarihi II"
+      "name": "HIST202"
     },
     "MATH157": {
       "code": "MATH157",
       "grade": "AA",
-      "name": "Calculus I / Genel Matematik I"
+      "name": "MATH157"
     },
     "PHYS131": {
       "code": "PHYS131",
       "grade": "BB",
-      "name": "General Physics I / Genel Fizik I"
+      "name": "PHYS131"
     },
     "TURK101": {
       "code": "TURK101",
       "grade": "BA",
-      "name": "Türk Dili I / Turkish Language I"
+      "name": "TURK101"
     },
     "CENG114": {
       "code": "CENG114",
       "grade": "BA",
-      "name": "CENG114 - Bilgisayar Mühendisliği (Computer Engineering)"
+      "name": "CENG114"
     },
     "CENG124": {
       "code": "CENG124",
       "grade": "AA",
-      "name": "CENG124 - Bilgisayar Mühendisliği (Computer Engineering)"
+      "name": "CENG124"
     },
     "MATH158": {
       "code": "MATH158",
       "grade": "CC",
-      "name": "Calculus II / Genel Matematik II"
+      "name": "MATH158"
     },
     "PHYS132": {
       "code": "PHYS132",
       "grade": "BA",
-      "name": "General Physics II / Genel Fizik II"
+      "name": "PHYS132"
     },
     "TURK102": {
       "code": "TURK102",
       "grade": "AA",
-      "name": "Türk Dili II / Turkish Language II"
+      "name": "TURK102"
     },
     "CENG235": {
       "code": "CENG235",
       "grade": "BB",
-      "name": "Logic Design / Mantık Tasarımı"
+      "name": "CENG235"
     },
     "CENG241": {
       "code": "CENG241",
       "grade": "BA",
-      "name": "Data Structures / Veri Yapıları"
+      "name": "CENG241"
     },
     "EE205": {
       "code": "EE205",
       "grade": "CC",
-      "name": "Circuit Theory II / Devre Teorisi II"
+      "name": "EE205"
     },
     "EE213": {
       "code": "EE213",
       "grade": "BB",
-      "name": "EE213 - Elektrik-Elektronik Mühendisliği (Electrical & Electronics)"
+      "name": "EE213"
     },
     "MATH254": {
       "code": "MATH254",
       "grade": "BA",
-      "name": "MATH254 - Matematik (Mathematics)"
+      "name": "MATH254"
     },
     "ALM101": {
       "code": "ALM101",
       "grade": "BA",
-      "name": "ALM101 - ALM Bölümü"
+      "name": "ALM101"
     },
     "CENG218": {
       "code": "CENG218",
       "grade": "AA",
-      "name": "CENG218 - Bilgisayar Mühendisliği (Computer Engineering)"
+      "name": "CENG218"
     },
     "CENG222": {
       "code": "CENG222",
       "grade": "CB",
-      "name": "CENG222 - Bilgisayar Mühendisliği (Computer Engineering)"
+      "name": "CENG222"
     },
     "CENG236": {
       "code": "CENG236",
       "grade": "BA",
-      "name": "CENG236 - Bilgisayar Mühendisliği (Computer Engineering)"
+      "name": "CENG236"
     },
     "INTT104": {
       "code": "INTT104",
       "grade": "AA",
-      "name": "INTT104 - Uluslararası Ticaret ve Finansman"
+      "name": "INTT104"
     },
     "MATH205": {
       "code": "MATH205",
       "grade": "DD",
-      "name": "Differential Equations / Diferansiyel Denklemler"
+      "name": "MATH205"
+    },
+    "PREP150": {
+      "code": "PREP150",
+      "grade": "AA",
+      "name": "PREP150"
     }
   }
 }

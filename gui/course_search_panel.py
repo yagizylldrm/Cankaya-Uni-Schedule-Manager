@@ -21,7 +21,7 @@ class CreditEditDialog(QDialog):
     def __init__(self, course_code, current_credit, current_ects, parent=None):
         super().__init__(parent)
         self.course_code = course_code
-        self.setWindowTitle(f"✏️ Kredi Düzenle - {course_code}")
+        self.setWindowTitle(f"Kredi Düzenle - {course_code}")
         self.setFixedWidth(320)
         self.result_credit = current_credit
         self.result_ects = current_ects
@@ -57,7 +57,7 @@ class CreditEditDialog(QDialog):
         btn_layout = QHBoxLayout()
         btn_cancel = QPushButton("İptal")
         btn_cancel.clicked.connect(self.reject)
-        btn_save = QPushButton("💾 Kaydet")
+        btn_save = QPushButton("Kaydet")
         btn_save.setObjectName("primaryButton")
         btn_save.clicked.connect(self.on_save)
         btn_layout.addWidget(btn_cancel)
@@ -92,7 +92,7 @@ class CourseSearchPanel(QWidget):
         layout.setSpacing(10)
 
         # 1. STUDENT PROFILE GROUP (Bölüm & Yandal / Çift Anadal)
-        profile_group = QGroupBox("🎓 Öğrenci Bölüm Bilgileri")
+        profile_group = QGroupBox("Öğrenci Bölüm Bilgileri")
         profile_layout = QVBoxLayout(profile_group)
         profile_layout.setSpacing(6)
 
@@ -130,7 +130,7 @@ class CourseSearchPanel(QWidget):
         layout.addWidget(profile_group)
 
         # 2. SEARCH & FILTER GROUP
-        search_group = QGroupBox("🔍 Ders Arama & Filtreleme")
+        search_group = QGroupBox("Ders Arama & Filtreleme")
         search_layout = QVBoxLayout(search_group)
         search_layout.setSpacing(8)
 
@@ -156,11 +156,11 @@ class CourseSearchPanel(QWidget):
         type_layout.addWidget(QLabel("Ders Türü:"))
         self.combo_type = QComboBox()
         self.combo_type.addItem("Tüm Dersler", "TÜMÜ")
-        self.combo_type.addItem("📌 Tüm Zorunlu Dersler", "ZORUNLU")
+        self.combo_type.addItem("Tüm Zorunlu Dersler", "ZORUNLU")
         self.combo_type.addItem("🔹 Sadece Ana Bölüm Zorunlu", "ZORUNLU_ANA")
         self.combo_type.addItem("🟣 Sadece ÇAP Zorunlu", "ZORUNLU_CAP")
         self.combo_type.addItem("🔵 Sadece Yandal Zorunlu", "ZORUNLU_YANDAL")
-        self.combo_type.addItem("⭐ Tüm Seçmeli Dersler", "SECMELI")
+        self.combo_type.addItem("Tüm Seçmeli Dersler", "SECMELI")
         self.combo_type.addItem("🔹 Teknik / Bölüm Seçmeli", "TEKNIK_SECMELI")
         self.combo_type.addItem("🔸 Sosyal / Serbest Seçmeli", "SERBEST_SECMELI")
         self.combo_type.currentIndexChanged.connect(self.on_search_changed)
@@ -179,7 +179,7 @@ class CourseSearchPanel(QWidget):
         self.chk_only_eligible.setToolTip("Yalnızca ön koşullarını sağladığınız dersleri listeler")
         self.chk_only_eligible.stateChanged.connect(self.on_search_changed)
 
-        self.chk_hide_passed = QCheckBox("🎓 Verdiğim Dersleri Gizle")
+        self.chk_hide_passed = QCheckBox("Verdiğim Dersleri Gizle")
         self.chk_hide_passed.setToolTip("Transkriptinizde daha önce başarıyla verdiğiniz dersleri arama listesinden gizler")
         self.chk_hide_passed.stateChanged.connect(self.on_search_changed)
 
@@ -198,17 +198,17 @@ class CourseSearchPanel(QWidget):
 
         # Action Buttons for Search Results: Add + Info + Toggle Type
         btn_search_actions = QHBoxLayout()
-        self.btn_add = QPushButton("➕ Ekle")
+        self.btn_add = QPushButton("Ekle")
         self.btn_add.setObjectName("primaryButton")
         self.btn_add.clicked.connect(self.add_selected_course_to_basket)
         btn_search_actions.addWidget(self.btn_add)
 
-        self.btn_info = QPushButton("📖 Bilgi")
+        self.btn_info = QPushButton("Bilgi")
         self.btn_info.setToolTip("Seçili dersin tanımını, içeriğini ve web sayfası bağlantılarını gösterir")
         self.btn_info.clicked.connect(self.open_selected_course_info)
         btn_search_actions.addWidget(self.btn_info)
 
-        self.btn_toggle_type = QPushButton("🔄 Zorunlu/Seçmeli")
+        self.btn_toggle_type = QPushButton("Zorunlu/Seçmeli")
         self.btn_toggle_type.setToolTip("Seçili dersin Zorunlu ⇋ Seçmeli durumunu değiştirir")
         self.btn_toggle_type.clicked.connect(self.toggle_selected_course_type)
         btn_search_actions.addWidget(self.btn_toggle_type)
@@ -217,7 +217,7 @@ class CourseSearchPanel(QWidget):
         layout.addWidget(search_group)
 
         # 3. TARGET COURSE BASKET GROUP
-        basket_group = QGroupBox("📋 Alınmak İstenen Dersler (Ders Sepeti)")
+        basket_group = QGroupBox("Alınmak İstenen Dersler (Ders Sepeti)")
         basket_layout = QVBoxLayout(basket_group)
 
         self.tree_basket = QTreeWidget()
@@ -228,17 +228,17 @@ class CourseSearchPanel(QWidget):
         basket_layout.addWidget(self.tree_basket)
 
         basket_actions = QHBoxLayout()
-        self.btn_remove = QPushButton("❌ Çıkar")
+        self.btn_remove = QPushButton("Çıkar")
         self.btn_remove.setObjectName("dangerButton")
         self.btn_remove.clicked.connect(self.remove_selected_course_from_basket)
         basket_actions.addWidget(self.btn_remove)
 
-        self.btn_basket_toggle = QPushButton("🔄 Tür Değiştir")
+        self.btn_basket_toggle = QPushButton("Tür Değiştir")
         self.btn_basket_toggle.setToolTip("Sepetteki dersin Zorunlu ⇋ Seçmeli durumunu değiştirir")
         self.btn_basket_toggle.clicked.connect(self.toggle_selected_course_type)
         basket_actions.addWidget(self.btn_basket_toggle)
 
-        self.btn_edit_credit = QPushButton("✏️ Kredi")
+        self.btn_edit_credit = QPushButton("Kredi")
         self.btn_edit_credit.setToolTip("Seçili dersin Yerel Kredi ve AKTS değerlerini düzenler")
         self.btn_edit_credit.clicked.connect(self.edit_selected_course_credit)
         basket_actions.addWidget(self.btn_edit_credit)
@@ -259,15 +259,15 @@ class CourseSearchPanel(QWidget):
         summary_layout.setContentsMargins(8, 8, 8, 8)
         summary_layout.setSpacing(4)
 
-        self.lbl_summary_title = QLabel("📊 SEPET KREDİ & YÜK ÖZETİ")
+        self.lbl_summary_title = QLabel("SEPET KREDİ & YÜK ÖZETİ")
         self.lbl_summary_title.setStyleSheet("font-weight: bold; color: #89dceb; font-size: 11px;")
         summary_layout.addWidget(self.lbl_summary_title)
 
-        self.lbl_summary_stats = QLabel("📚 0 Ders   |   💳 0 Kredi   |   🌟 0 AKTS")
+        self.lbl_summary_stats = QLabel("0 Ders   |   0 Kredi   |   0 AKTS")
         self.lbl_summary_stats.setStyleSheet("font-weight: bold; color: #cdd6f4; font-size: 13px;")
         summary_layout.addWidget(self.lbl_summary_stats)
 
-        self.lbl_summary_hours = QLabel("⏱️ Haftalık Ders Yükü: ~0 Saat / Hafta")
+        self.lbl_summary_hours = QLabel("Haftalık Ders Yükü: ~0 Saat / Hafta")
         self.lbl_summary_hours.setStyleSheet("color: #a6adc8; font-size: 11px;")
         summary_layout.addWidget(self.lbl_summary_hours)
 
@@ -408,9 +408,9 @@ class CourseSearchPanel(QWidget):
             cr, ec = self.data_manager.get_course_credits(course.code)
 
             if already_passed:
-                status_tag = "🎓 Verildi"
+                status_tag = "Verildi"
             elif not can_take:
-                status_tag = "🔒 Ön Koşul Eksik"
+                status_tag = "🔴 Ön Koşul Eksik"
             elif has_prereqs:
                 status_tag = "🟢 Alınabilir"
             else:
@@ -422,16 +422,16 @@ class CourseSearchPanel(QWidget):
             item.setData(USER_ROLE, course.code)
 
             # Prerequisite Tooltip
-            tooltip_lines = [f"📚 {course.code} ({sec_count} Şube)"]
+            tooltip_lines = [f"{course.code} ({sec_count} Şube)"]
             if already_passed:
-                tooltip_lines.append("🎓 Bu dersi daha önce başarıyla verdiniz.")
+                tooltip_lines.append("Bu dersi daha önce başarıyla verdiniz.")
             elif not can_take:
-                tooltip_lines.append(f"🔒 Ön Koşul Eksik: {prereq_info['rule_description']}")
-                tooltip_lines.append(f"⚠️ {prereq_info['message']}")
+                tooltip_lines.append(f"Ön Koşul Eksik: {prereq_info['rule_description']}")
+                tooltip_lines.append(f"{prereq_info['message']}")
             elif has_prereqs:
                 tooltip_lines.append(f"🟢 Ön Koşul Sağlandı: {prereq_info['rule_description']}")
             else:
-                tooltip_lines.append("ℹ️ Ön koşulsuz ders.")
+                tooltip_lines.append("Ön koşulsuz ders.")
             item.setToolTip("\n".join(tooltip_lines))
 
             # Visual color hinting
@@ -460,8 +460,9 @@ class CourseSearchPanel(QWidget):
             if self.list_results.count() >= 90:
                 break
 
-    def add_selected_course_to_basket(self):
-        item = self.list_results.currentItem()
+    def add_selected_course_to_basket(self, item=None):
+        if item is None:
+            item = self.list_results.currentItem()
         if not item:
             return
 
@@ -477,7 +478,7 @@ class CourseSearchPanel(QWidget):
         if not prereq_info.get("can_take", True):
             res = QMessageBox.warning(
                 self,
-                "⚠️ Ön Koşul Uyarısı",
+                "Ön Koşul Uyarısı",
                 f"<b>{c_code}</b> dersinin ön koşulları transkriptinizde eksik görünüyor!\n\n"
                 f"• Gereken Ön Koşul: <b>{prereq_info['rule_description']}</b>\n"
                 f"• Durum: {prereq_info['message']}\n\n"
@@ -485,6 +486,9 @@ class CourseSearchPanel(QWidget):
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No
             )
+            if self.window():
+                self.window().activateWindow()
+                self.window().raise_()
             if res != QMessageBox.StandardButton.Yes:
                 return
 
@@ -504,10 +508,33 @@ class CourseSearchPanel(QWidget):
             return
 
         c_code = current_item.data(0, USER_ROLE)
-        if c_code and c_code in self.basket_courses:
-            del self.basket_courses[c_code]
-            self.update_basket_tree()
-            self.courses_changed.emit()
+        if c_code:
+            c_code = c_code.split(":")[0]
+            if c_code in self.basket_courses:
+                del self.basket_courses[c_code]
+                self.update_basket_tree()
+                self.courses_changed.emit()
+
+    def update_basket_summary(self):
+        total_courses = len(self.basket_courses)
+        total_credit = 0
+        total_ects = 0
+        total_hours = 0
+
+        for c_code, data in self.basket_courses.items():
+            course = data["course"]
+            selected_secs = data["sections"]
+            cr, ec = self.data_manager.get_course_credits(course.code)
+            total_credit += cr
+            total_ects += ec
+            if selected_secs:
+                hrs = [len(course.sections[s].slots) for s in selected_secs if s in course.sections]
+                if hrs:
+                    total_hours += int(sum(hrs) / len(hrs))
+
+        if hasattr(self, 'lbl_summary_stats'):
+            self.lbl_summary_stats.setText(f"{total_courses} Ders   |   {total_credit} Kredi   |   {total_ects} AKTS")
+            self.lbl_summary_hours.setText(f"Haftalık Ders Yükü: ~{total_hours} Saat / Hafta")
 
     def update_basket_tree(self):
         self.tree_basket.blockSignals(True)
@@ -517,34 +544,30 @@ class CourseSearchPanel(QWidget):
         s_dept = self.combo_secondary.currentText()
         sec_type = self.combo_sec_type.currentData() or "YOK"
 
-        total_courses = len(self.basket_courses)
-        total_credit = 0
-        total_ects = 0
-        total_hours = 0
-
         for c_code, data in self.basket_courses.items():
             course = data["course"]
             selected_secs = data["sections"]
 
             _, type_label = self.data_manager.classify_course(course.code, p_dept, s_dept, sec_type)
             cr, ec = self.data_manager.get_course_credits(course.code)
-            total_credit += cr
-            total_ects += ec
 
-            if selected_secs:
-                hrs = [len(course.sections[s].slots) for s in selected_secs if s in course.sections]
-                if hrs:
-                    total_hours += int(sum(hrs) / len(hrs))
-
-            root = QTreeWidgetItem([f"📚 {course.code}  ({cr} Kr / {ec} AKTS)", type_label])
+            root = QTreeWidgetItem([f"{course.code}  ({cr} Kr / {ec} AKTS)", type_label])
             root.setData(0, USER_ROLE, c_code)
-            root.setCheckState(0, CHECKED if len(selected_secs) == len(course.sections) else PARTIALLY_CHECKED)
+            all_count = len(course.sections)
+            sel_count = len(selected_secs)
+            if sel_count == all_count:
+                root_state = CHECKED
+            elif sel_count == 0:
+                root_state = UNCHECKED
+            else:
+                root_state = PARTIALLY_CHECKED
+            root.setCheckState(0, root_state)
 
             for sec_no, sec in sorted(course.sections.items(), key=lambda x: int(x[0]) if x[0].isdigit() else x[0]):
                 sec_room = getattr(sec, 'classroom', '')
                 inst_text = sec.instructor or "Belirsiz"
                 if sec_room:
-                    inst_text += f" | 📍 {sec_room}"
+                    inst_text += f" | {sec_room}"
                 child = QTreeWidgetItem([f"Section {sec_no}", inst_text])
                 child.setData(0, USER_ROLE, f"{c_code}:{sec_no}")
                 is_checked = sec_no in selected_secs
@@ -555,33 +578,50 @@ class CourseSearchPanel(QWidget):
             root.setExpanded(True)
 
         self.tree_basket.blockSignals(False)
-
-        if hasattr(self, 'lbl_summary_stats'):
-            self.lbl_summary_stats.setText(f"📚 {total_courses} Ders   |   💳 {total_credit} Kredi   |   🌟 {total_ects} AKTS")
-            self.lbl_summary_hours.setText(f"⏱️ Haftalık Ders Yükü: ~{total_hours} Saat / Hafta")
+        self.update_basket_summary()
 
     def on_tree_item_changed(self, item, column):
         data = item.data(0, USER_ROLE)
         if not data:
             return
 
-        if ":" in data:
-            c_code, sec_no = data.split(":")
-            if c_code in self.basket_courses:
-                if item.checkState(0) == CHECKED:
-                    self.basket_courses[c_code]["sections"].add(sec_no)
-                else:
-                    self.basket_courses[c_code]["sections"].discard(sec_no)
-        else:
-            c_code = data
-            if c_code in self.basket_courses:
-                course = self.basket_courses[c_code]["course"]
-                if item.checkState(0) == CHECKED:
-                    self.basket_courses[c_code]["sections"] = set(course.sections.keys())
-                elif item.checkState(0) == UNCHECKED:
-                    self.basket_courses[c_code]["sections"].clear()
+        self.tree_basket.blockSignals(True)
+        try:
+            if ":" in data:
+                c_code, sec_no = data.split(":")
+                if c_code in self.basket_courses:
+                    if item.checkState(0) == CHECKED:
+                        self.basket_courses[c_code]["sections"].add(sec_no)
+                    else:
+                        self.basket_courses[c_code]["sections"].discard(sec_no)
 
-        self.update_basket_tree()
+                    parent = item.parent()
+                    if parent:
+                        course = self.basket_courses[c_code]["course"]
+                        sel_count = len(self.basket_courses[c_code]["sections"])
+                        all_count = len(course.sections)
+                        if sel_count == all_count:
+                            parent.setCheckState(0, CHECKED)
+                        elif sel_count == 0:
+                            parent.setCheckState(0, UNCHECKED)
+                        else:
+                            parent.setCheckState(0, PARTIALLY_CHECKED)
+            else:
+                c_code = data
+                if c_code in self.basket_courses:
+                    course = self.basket_courses[c_code]["course"]
+                    if item.checkState(0) == CHECKED:
+                        self.basket_courses[c_code]["sections"] = set(course.sections.keys())
+                        for i in range(item.childCount()):
+                            item.child(i).setCheckState(0, CHECKED)
+                    elif item.checkState(0) == UNCHECKED:
+                        self.basket_courses[c_code]["sections"].clear()
+                        for i in range(item.childCount()):
+                            item.child(i).setCheckState(0, UNCHECKED)
+        finally:
+            self.tree_basket.blockSignals(False)
+
+        self.update_basket_summary()
         self.courses_changed.emit()
 
     def get_selected_target_dict(self):
@@ -649,15 +689,21 @@ class CourseSearchPanel(QWidget):
 
         cur_cr, cur_ec = self.data_manager.get_course_credits(c_code)
         dlg = CreditEditDialog(c_code, cur_cr, cur_ec, parent=self)
-        if dlg.exec():
-            self.data_manager.set_custom_course_credits(c_code, dlg.result_credit, dlg.result_ects)
-            self.on_search_changed()
-            self.update_basket_tree()
-            self.courses_changed.emit()
+        try:
+            if dlg.exec():
+                self.data_manager.set_custom_course_credits(c_code, dlg.result_credit, dlg.result_ects)
+                self.on_search_changed()
+                self.update_basket_tree()
+                self.courses_changed.emit()
+        finally:
+            if self.window():
+                self.window().activateWindow()
+                self.window().raise_()
 
-    def open_selected_course_info(self):
+    def open_selected_course_info(self, item=None):
         c_code = None
-        item = self.list_results.currentItem()
+        if item is None:
+            item = self.list_results.currentItem()
         if item:
             c_code = item.data(USER_ROLE)
         if not c_code:
@@ -673,10 +719,18 @@ class CourseSearchPanel(QWidget):
                 "Ders Seçilmedi",
                 "Lütfen bilgisini görüntülemek istediğiniz bir dersi seçin."
             )
+            if self.window():
+                self.window().activateWindow()
+                self.window().raise_()
             return
 
         from gui.conflict_dialog import ConflictDetailDialog
-        ConflictDetailDialog.show_for_course(c_code, self.data_manager, parent=self)
+        try:
+            ConflictDetailDialog.show_for_course(c_code, self.data_manager, parent=self)
+        finally:
+            if self.window():
+                self.window().activateWindow()
+                self.window().raise_()
 
     def show_results_context_menu(self, pos):
         item = self.list_results.itemAt(pos)
@@ -688,10 +742,10 @@ class CourseSearchPanel(QWidget):
             return
 
         menu = QMenu(self)
-        action_info = menu.addAction(f"📖 '{c_code}' Ders Bilgisi ve Web Sayfası")
-        action_add = menu.addAction(f"➕ '{c_code}' Sepete Ekle")
-        action_toggle = menu.addAction(f"🔄 '{c_code}' Zorunlu/Seçmeli Durumunu Değiştir")
-        action_credit = menu.addAction(f"✏️ '{c_code}' Kredi / AKTS Düzenle")
+        action_info = menu.addAction(f"'{c_code}' Ders Bilgisi ve Web Sayfası")
+        action_add = menu.addAction(f"'{c_code}' Sepete Ekle")
+        action_toggle = menu.addAction(f"'{c_code}' Zorunlu/Seçmeli Durumunu Değiştir")
+        action_credit = menu.addAction(f"'{c_code}' Kredi / AKTS Düzenle")
 
         selected_action = menu.exec(self.list_results.mapToGlobal(pos))
         if selected_action == action_info:
@@ -715,10 +769,10 @@ class CourseSearchPanel(QWidget):
 
         c_code = data.split(":")[0]
         menu = QMenu(self)
-        action_info = menu.addAction(f"📖 '{c_code}' Ders Bilgisi ve Web Sayfası")
-        action_toggle = menu.addAction(f"🔄 '{c_code}' Zorunlu/Seçmeli Durumunu Değiştir")
-        action_credit = menu.addAction(f"✏️ '{c_code}' Kredi / AKTS Düzenle")
-        action_remove = menu.addAction(f"❌ '{c_code}' Sepetten Çıkar")
+        action_info = menu.addAction(f"'{c_code}' Ders Bilgisi ve Web Sayfası")
+        action_toggle = menu.addAction(f"'{c_code}' Zorunlu/Seçmeli Durumunu Değiştir")
+        action_credit = menu.addAction(f"'{c_code}' Kredi / AKTS Düzenle")
+        action_remove = menu.addAction(f"'{c_code}' Sepetten Çıkar")
 
         selected_action = menu.exec(self.tree_basket.mapToGlobal(pos))
         if selected_action == action_info:

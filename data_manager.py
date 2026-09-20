@@ -789,8 +789,35 @@ class DataManager:
             "custom_overrides": {},  # course_code -> "ZORUNLU" or "SECMELI"
             "custom_credits": {}     # course_code -> {"credit": int, "ects": int}
         }
+
+        self.reload_official_curricula()
         self.load_from_cache()
         self.load_student_profile()
+
+    def reload_official_curricula(self):
+        """Reloads official curricula and course details from local JSON files."""
+        curricula_path = os.path.join(os.path.dirname(__file__), "cankaya_official_curricula.json")
+        if os.path.exists(curricula_path):
+            try:
+                with open(curricula_path, "r", encoding="utf-8") as f:
+                    self.official_curricula = json.load(f)
+            except Exception as e:
+                print(f"Error loading official curricula: {e}")
+
+        details_path = os.path.join(os.path.dirname(__file__), "cankaya_course_details.json")
+        if os.path.exists(details_path):
+            try:
+                with open(details_path, "r", encoding="utf-8") as f:
+                    course_details = json.load(f)
+                    for code, d in course_details.items():
+                        norm = self.normalize_code(code)
+                        if norm not in self.KNOWN_COURSE_DETAILS:
+                            self.KNOWN_COURSE_DETAILS[norm] = {
+                                "name": d.get("name") or norm,
+                                "desc": d.get("desc") or ""
+                            }
+            except Exception as e:
+                print(f"Error loading course details: {e}")
 
     def process_raw_entries(self, raw_entries):
         """Builds structured Course & Section objects from raw scraped entries."""
@@ -1014,10 +1041,10 @@ class DataManager:
     def classify_course(self, course_code, primary_dept=None, secondary_dept=None, secondary_type=None):
         """
         Classifies course as:
-        - 'ZORUNLU' (Compulsory for primary major)
+        - 'ZORUNLU' (Compulsory for primary major based on Bilgi Paketi academic program)
         - 'ZORUNLU_CAP' (Compulsory for double major / ÇAP)
         - 'ZORUNLU_YANDAL' (Compulsory for minor / Yandal)
-        - 'TEKNIK_SECMELI' (Department elective)
+        - 'TEKNIK_SECMELI' (Department technical elective)
         - 'SERBEST_SECMELI' (Free / social elective)
         """
         primary = (primary_dept or self.student_profile.get("primary_dept", "CENG")).upper()
@@ -1027,54 +1054,40 @@ class DataManager:
         code_upper = course_code.upper()
         norm_code = self.normalize_code(code_upper)
         course_dept = Course.extract_dept_code(code_upper)
-        level = Course.extract_course_level(code_upper)
 
         # 0. Check User Custom Overrides first
         overrides = self.student_profile.get("custom_overrides", {})
         if norm_code in overrides:
             custom_val = overrides[norm_code]
             if custom_val == "ZORUNLU":
-                return "ZORUNLU", "📌 Zorunlu (Özel)"
+                return "ZORUNLU", "Zorunlu (Özel)"
             elif custom_val == "SECMELI":
                 return "SERBEST_SECMELI", "🔸 Seçmeli (Özel)"
 
-        # 1. Check University-wide compulsory (AİIT/HIST, TURK, ENG)
-        if norm_code in self.COMMON_UNIVERSITY_COMPULSORY:
-            return "ZORUNLU", "📌 Zorunlu"
-
-        # 2. Check Primary Department Specific Curricula
-        if primary in self.DEPARTMENT_CURRICULUM:
+        # 1. Primary Department Official Curriculum Check (Bilgi Paketi)
+        is_primary_compulsory = False
+        if self.official_curricula and primary in self.official_curricula:
+            comp_codes = {self.normalize_code(c) for c in self.official_curricula[primary].get("compulsory_codes", [])}
+            if norm_code in comp_codes:
+                is_primary_compulsory = True
+        elif primary in self.DEPARTMENT_CURRICULUM:
             curr = self.DEPARTMENT_CURRICULUM[primary]
             norm_comp_other = {self.normalize_code(c) for c in curr.get("compulsory_other", set())}
             norm_comp_own = {self.normalize_code(c) for c in curr.get("compulsory_own", set())}
-
             if norm_code in norm_comp_other or norm_code in norm_comp_own:
-                return "ZORUNLU", "📌 Zorunlu"
+                is_primary_compulsory = True
 
-        # 3. Check General Engineering & Science Compulsory for engineering majors
-        if primary in self.ENGINEERING_DEPTS:
-            norm_eng = {self.normalize_code(c) for c in self.ENGINEERING_COMMON_COMPULSORY}
-            if norm_code in norm_eng:
-                return "ZORUNLU", "📌 Zorunlu"
+        # University-wide common compulsory safeguard (TURK, HIST/AIIT, ENG, ESR)
+        if norm_code in self.COMMON_UNIVERSITY_COMPULSORY:
+            is_primary_compulsory = True
 
-        # 4. Check General Business & Social Science Compulsory for İİBF majors
-        if primary in self.IIBF_DEPTS:
-            norm_iibf = {self.normalize_code(c) for c in self.IIBF_COMMON_COMPULSORY}
-            if norm_code in norm_iibf:
-                return "ZORUNLU", "📌 Zorunlu"
+        if is_primary_compulsory:
+            return "ZORUNLU", "Zorunlu"
 
-        # 5. Check Primary Department Own Courses by level (1xx, 2xx, 3xx and capstones)
-        if course_dept == primary:
-            if level < 400 or level in (401, 402, 403, 407, 408, 491):
-                return "ZORUNLU", "📌 Zorunlu"
-            else:
-                return "TEKNIK_SECMELI", "🔹 Teknik Seçmeli"
-
-        # 6. Check Secondary Program (ÇAP vs YANDAL)
+        # 2. Check Secondary Program (ÇAP vs YANDAL)
         if secondary and secondary != "YOK" and sec_type not in ("YOK", ""):
             # --- CASE A: YANDAL (MINOR) ---
             if sec_type == "YANDAL":
-                # Check combination-specific minor curriculum first
                 comb = (primary, secondary)
                 if comb in self.YANDAL_COMBINATION_PACKAGES:
                     minor_pkg = {self.normalize_code(c) for c in self.YANDAL_COMBINATION_PACKAGES[comb]}
@@ -1084,37 +1097,166 @@ class DataManager:
                 if norm_code in minor_pkg:
                     return "ZORUNLU_YANDAL", "🔵 Zorunlu (Yandal)"
 
+                # Check if in secondary official technical elective pool or department
+                if self.official_curricula and secondary in self.official_curricula:
+                    sec_tech = {self.normalize_code(c) for c in self.official_curricula[secondary].get("technical_elective_codes", [])}
+                    if norm_code in sec_tech:
+                        return "TEKNIK_SECMELI", "🔹 Seçmeli (Yandal)"
+
                 if course_dept == secondary:
                     return "TEKNIK_SECMELI", "🔹 Seçmeli (Yandal)"
 
             # --- CASE B: ÇİFT ANADAL (ÇAP - DOUBLE MAJOR) ---
             elif sec_type == "CAP":
-                if secondary in self.DEPARTMENT_CURRICULUM:
+                is_sec_compulsory = False
+                if self.official_curricula and secondary in self.official_curricula:
+                    sec_comp = {self.normalize_code(c) for c in self.official_curricula[secondary].get("compulsory_codes", [])}
+                    if norm_code in sec_comp:
+                        is_sec_compulsory = True
+                elif secondary in self.DEPARTMENT_CURRICULUM:
                     curr_sec = self.DEPARTMENT_CURRICULUM[secondary]
                     norm_sec_other = {self.normalize_code(c) for c in curr_sec.get("compulsory_other", set())}
                     norm_sec_own = {self.normalize_code(c) for c in curr_sec.get("compulsory_own", set())}
-
                     if norm_code in norm_sec_other or norm_code in norm_sec_own:
-                        return "ZORUNLU_CAP", "🟣 Zorunlu (ÇAP)"
+                        is_sec_compulsory = True
 
-                if secondary in self.ENGINEERING_DEPTS:
-                    norm_eng = {self.normalize_code(c) for c in self.ENGINEERING_COMMON_COMPULSORY}
-                    if norm_code in norm_eng:
-                        return "ZORUNLU_CAP", "🟣 Zorunlu (ÇAP)"
+                if is_sec_compulsory:
+                    return "ZORUNLU_CAP", "🟣 Zorunlu (ÇAP)"
 
-                if secondary in self.IIBF_DEPTS:
-                    norm_iibf = {self.normalize_code(c) for c in self.IIBF_COMMON_COMPULSORY}
-                    if norm_code in norm_iibf:
-                        return "ZORUNLU_CAP", "🟣 Zorunlu (ÇAP)"
-
-                if course_dept == secondary:
-                    if level < 400 or level in (401, 402, 403, 407, 408, 491):
-                        return "ZORUNLU_CAP", "🟣 Zorunlu (ÇAP)"
-                    else:
+                if self.official_curricula and secondary in self.official_curricula:
+                    sec_tech = {self.normalize_code(c) for c in self.official_curricula[secondary].get("technical_elective_codes", [])}
+                    if norm_code in sec_tech:
                         return "TEKNIK_SECMELI", "🔹 Teknik Seçmeli (ÇAP)"
 
-        # 7. Fallback: Free / Social Elective
+                if course_dept == secondary:
+                    return "TEKNIK_SECMELI", "🔹 Teknik Seçmeli (ÇAP)"
+
+        # 3. Check Primary Department Official Elective Pools (Bilgi Paketi)
+        if self.official_curricula and primary in self.official_curricula:
+            prim_curr = self.official_curricula[primary]
+            tech_codes = {self.normalize_code(c) for c in prim_curr.get("technical_elective_codes", [])}
+            if norm_code in tech_codes:
+                return "TEKNIK_SECMELI", "🔹 Teknik Seçmeli"
+
+            social_codes = {self.normalize_code(c) for c in prim_curr.get("social_elective_codes", [])}
+            if norm_code in social_codes:
+                return "SERBEST_SECMELI", "🔸 Sosyal / Serbest Seçmeli"
+
+        # 4. Fallback Heuristics:
+        # If belongs to student's department but not compulsory -> Technical Elective
+        if course_dept == primary:
+            return "TEKNIK_SECMELI", "🔹 Teknik Seçmeli"
+
+        # Otherwise Free / Social Elective
         return "SERBEST_SECMELI", "🔸 Serbest/Sosyal Seçmeli"
+
+    def get_curriculum_progress(self, primary_dept=None, passed_courses=None):
+        """
+        Calculates curriculum completion metrics for student's primary department:
+        - Compulsory courses: total, passed, remaining list
+        - Technical electives: required slots, passed count, remaining slots
+        - Social / free electives: required slots, passed count, remaining slots
+        """
+        primary = (primary_dept or self.student_profile.get("primary_dept", "CENG")).upper()
+        if passed_courses is None:
+            passed_dict = self.get_passed_courses()
+        elif isinstance(passed_courses, dict):
+            passed_dict = passed_courses
+        elif isinstance(passed_courses, (list, set, tuple)):
+            passed_dict = {self.normalize_code(c): {"code": c, "grade": "CC"} for c in passed_courses}
+        else:
+            passed_dict = {}
+
+        norm_passed = {self.normalize_code(c) for c in passed_dict.keys()}
+
+        curriculum = self.official_curricula.get(primary)
+        if not curriculum:
+            # Fallback search by key or program_name
+            for k, v in self.official_curricula.items():
+                if primary in k or primary in v.get("program_name", "").upper():
+                    curriculum = v
+                    break
+
+        if not curriculum:
+            # Fallback to DEPARTMENT_CURRICULUM if available
+            comp_codes = set()
+            if primary in self.DEPARTMENT_CURRICULUM:
+                curr = self.DEPARTMENT_CURRICULUM[primary]
+                comp_codes = {self.normalize_code(c) for c in curr.get("compulsory_other", set()) | curr.get("compulsory_own", set())}
+            comp_codes.update({self.normalize_code(c) for c in self.COMMON_UNIVERSITY_COMPULSORY})
+
+            passed_comp = sorted(list(comp_codes & norm_passed))
+            remaining_comp = sorted(list(comp_codes - norm_passed))
+            return {
+                "department": primary,
+                "program_name": self.DEPARTMENT_NAMES.get(primary, primary),
+                "curriculum_name": "Standart Müfredat",
+                "compulsory_total": len(comp_codes),
+                "compulsory_passed": len(passed_comp),
+                "compulsory_remaining_count": len(remaining_comp),
+                "compulsory_remaining": [{"code": c, "norm_code": c, "name": self.get_course_info(c).get("name", c)} for c in remaining_comp],
+                "tech_slots_total": 5,
+                "tech_slots_passed": sum(1 for c in norm_passed if Course.extract_dept_code(c) == primary and c not in comp_codes),
+                "tech_slots_remaining": max(0, 5 - sum(1 for c in norm_passed if Course.extract_dept_code(c) == primary and c not in comp_codes)),
+                "social_slots_total": 2,
+                "social_slots_passed": sum(1 for c in norm_passed if Course.extract_dept_code(c) != primary and c not in comp_codes),
+                "social_slots_remaining": max(0, 2 - sum(1 for c in norm_passed if Course.extract_dept_code(c) != primary and c not in comp_codes)),
+            }
+
+        # With official Bilgi Paketi curriculum
+        compulsory_courses = curriculum.get("compulsory_courses", [])
+        passed_comp = []
+        remaining_comp = []
+
+        for c in compulsory_courses:
+            norm_c = c.get("norm_code") or self.normalize_code(c.get("code", ""))
+            if norm_c in norm_passed:
+                passed_comp.append(c)
+            else:
+                remaining_comp.append(c)
+
+        # Elective slots
+        elective_slots = curriculum.get("elective_slots", [])
+        tech_slots_total = sum(1 for s in elective_slots if s.get("slot_category") == "TEKNIK_SECMELI")
+        social_slots_total = sum(1 for s in elective_slots if s.get("slot_category") == "SOSYAL_SECMELI")
+
+        # If elective_slots is empty, fallback to elective_count or default
+        if not elective_slots and curriculum.get("elective_count", 0) > 0:
+            total_el = curriculum.get("elective_count", 0)
+            tech_slots_total = max(1, total_el - 2)
+            social_slots_total = min(2, total_el)
+
+        tech_codes = {self.normalize_code(c) for c in curriculum.get("technical_elective_codes", [])}
+        social_codes = {self.normalize_code(c) for c in curriculum.get("social_elective_codes", [])}
+
+        passed_tech = []
+        passed_social = []
+
+        for norm_c in norm_passed:
+            if norm_c in tech_codes:
+                passed_tech.append(norm_c)
+            elif norm_c in social_codes:
+                passed_social.append(norm_c)
+
+        tech_remaining = max(0, tech_slots_total - len(passed_tech))
+        social_remaining = max(0, social_slots_total - len(passed_social))
+
+        return {
+            "department": primary,
+            "program_name": curriculum.get("program_name") or self.DEPARTMENT_NAMES.get(primary, primary),
+            "curriculum_name": curriculum.get("curriculum_name", ""),
+            "compulsory_total": len(compulsory_courses),
+            "compulsory_passed": len(passed_comp),
+            "compulsory_remaining_count": len(remaining_comp),
+            "compulsory_remaining": remaining_comp,
+            "tech_slots_total": tech_slots_total,
+            "tech_slots_passed": len(passed_tech),
+            "tech_slots_remaining": tech_remaining,
+            "social_slots_total": social_slots_total,
+            "social_slots_passed": len(passed_social),
+            "social_slots_remaining": social_remaining
+        }
+
 
     def get_all_courses(self):
         return sorted(list(self.courses.values()), key=lambda c: c.code)

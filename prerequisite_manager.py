@@ -1,10 +1,35 @@
 import re
+import os
+import json
 
 class PrerequisiteManager:
     """
     Manages course prerequisite rules for Çankaya University.
     Evaluates whether a student with a set of passed courses is eligible to take a course.
     """
+
+    # Official prerequisites loaded directly from Çankaya Bilgi Paketi
+    OFFICIAL_PREREQUISITES = {}
+
+    @classmethod
+    def reload_official_prerequisites(cls):
+        """Reloads official prerequisites from cankaya_official_prerequisites.json."""
+        try:
+            _prereq_path = os.path.join(os.path.dirname(__file__), "cankaya_official_prerequisites.json")
+            if os.path.exists(_prereq_path):
+                with open(_prereq_path, "r", encoding="utf-8") as _f:
+                    _raw_rules = json.load(_f)
+                    cls.OFFICIAL_PREREQUISITES.clear()
+                    for _code, _item in _raw_rules.items():
+                        _r_type = _item.get("type", "AND")
+                        _r_courses = _item.get("courses", [])
+                        if _r_type == "OR":
+                            cls.OFFICIAL_PREREQUISITES[_code] = [tuple(_r_courses)]
+                        else:
+                            cls.OFFICIAL_PREREQUISITES[_code] = _r_courses
+        except Exception as _e:
+            print(f"Error loading official prerequisites: {_e}")
+
 
     # Rule format:
     # "COURSE": [req1, req2, ...]  (ALL required - AND)
@@ -162,9 +187,12 @@ class PrerequisiteManager:
     def get_prerequisite_rule(cls, course_code):
         """
         Retrieves the prerequisite requirements for a given course code.
-        If not in the explicit database, attempts intelligent sequential heuristics.
+        Checks official Bilgi Paketi rules first, then fallback database,
+        and finally attempts intelligent sequential heuristics.
         """
         norm = cls.normalize_code(course_code)
+        if norm in cls.OFFICIAL_PREREQUISITES:
+            return cls.OFFICIAL_PREREQUISITES[norm]
         if norm in cls.PREREQUISITE_DATABASE:
             return cls.PREREQUISITE_DATABASE[norm]
 
@@ -274,7 +302,7 @@ class PrerequisiteManager:
         can_take = len(missing) == 0
 
         if can_take:
-            msg = f"✅ Ön koşul sağlandı: {', '.join(satisfied) if satisfied else 'Gerekli dersler tamam'}"
+            msg = f"Ön koşul sağlandı: {', '.join(satisfied) if satisfied else 'Gerekli dersler tamam'}"
         else:
             missing_strs = []
             for m in missing:
@@ -282,7 +310,7 @@ class PrerequisiteManager:
                     missing_strs.append("(" + " veya ".join(m) + ")")
                 else:
                     missing_strs.append(str(m))
-            msg = f"❌ Eksik Ön Koşul: {', '.join(missing_strs)} dersi transkriptinizde verilmemiş!"
+            msg = f"Eksik Ön Koşul: {', '.join(missing_strs)} dersi transkriptinizde verilmemiş!"
 
         return {
             "can_take": can_take,
@@ -293,3 +321,7 @@ class PrerequisiteManager:
             "missing_prereqs": missing,
             "message": msg
         }
+
+
+# Initial load of official prerequisites
+PrerequisiteManager.reload_official_prerequisites()

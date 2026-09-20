@@ -20,7 +20,7 @@ try:
         QTreeWidgetItem, QAbstractItemView, QCheckBox, QTableWidget, QTableWidgetItem,
         QHeaderView, QMenu, QDialog, QScrollArea, QTextEdit, QCompleter
     )
-    from PySide6.QtCore import Qt, QThread, Signal as pyqtSignal
+    from PySide6.QtCore import Qt, QThread, QTimer, Signal as pyqtSignal
     from PySide6.QtGui import QColor, QFont, QBrush, QPixmap, QIcon
     QT_BINDING = "PySide6"
 except ImportError:
@@ -33,7 +33,7 @@ except ImportError:
             QTreeWidgetItem, QAbstractItemView, QCheckBox, QTableWidget, QTableWidgetItem,
             QHeaderView, QMenu, QDialog, QScrollArea, QTextEdit, QCompleter
         )
-        from PyQt6.QtCore import Qt, QThread, pyqtSignal
+        from PyQt6.QtCore import Qt, QThread, QTimer, pyqtSignal
         from PyQt6.QtGui import QColor, QFont, QBrush, QPixmap, QIcon
         QT_BINDING = "PyQt6"
     except ImportError:
@@ -45,7 +45,7 @@ except ImportError:
             QTreeWidgetItem, QAbstractItemView, QCheckBox, QTableWidget, QTableWidgetItem,
             QHeaderView, QMenu, QDialog, QScrollArea, QTextEdit, QCompleter
         )
-        from PyQt5.QtCore import Qt, QThread, pyqtSignal
+        from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
         from PyQt5.QtGui import QColor, QFont, QBrush, QPixmap, QIcon
         QT_BINDING = "PyQt5"
 

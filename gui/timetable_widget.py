@@ -1,7 +1,7 @@
 from gui.qt_compat import (
     QTableWidget, QTableWidgetItem, QHeaderView, QWidget, QVBoxLayout, QLabel, QFrame,
     Qt, QColor, QFont, QBrush, ALIGN_CENTER, RESIZE_STRETCH, RESIZE_FIXED, NO_EDIT_TRIGGERS,
-    NO_SELECTION, NO_FOCUS, ITEM_ENABLED, POINTING_HAND_CURSOR, pyqtSignal
+    NO_SELECTION, NO_FOCUS, ITEM_ENABLED, POINTING_HAND_CURSOR, pyqtSignal, QTimer
 )
 from gui.styles import StyleManager, ModernStyle, CankayaStyle
 from gui.conflict_dialog import ConflictDetailDialog
@@ -49,6 +49,7 @@ class TimetableWidget(QTableWidget):
         self.clear_schedule()
 
     def clear_schedule(self):
+        self.last_sections_list = []
         self.clearContents()
         for row in range(self.rowCount()):
             for col in range(self.columnCount()):
@@ -92,51 +93,75 @@ class TimetableWidget(QTableWidget):
         dialog = ConflictDetailDialog(
             day_name, time_slot, entries, custom_block=custom_block, data_manager=self.data_manager, parent=self
         )
-        if hasattr(dialog, 'exec'):
-            dialog.exec()
-        else:
-            dialog.exec_()
+        try:
+            if hasattr(dialog, 'exec'):
+                dialog.exec()
+            else:
+                dialog.exec_()
+        finally:
+            if self.window():
+                self.window().activateWindow()
+                self.window().raise_()
+
         if getattr(dialog, 'custom_block_modified', False):
-            self.display_schedule(self.last_sections_list)
-            self.custom_blocks_changed.emit()
+            QTimer.singleShot(0, lambda: (
+                self.display_schedule(self.last_sections_list),
+                self.custom_blocks_changed.emit()
+            ))
 
     def on_empty_cell_clicked(self, day_name, time_slot):
         """Opens the custom block edit dialog to add a new custom note/block."""
         dlg = CustomBlockEditDialog(day_name, time_slot, current_block=None, parent=self)
-        if dlg.exec():
-            if dlg.result_data and self.data_manager:
-                if dlg.result_data.get("all_weekdays"):
-                    for d in ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma"]:
+        try:
+            if dlg.exec():
+                if dlg.result_data and self.data_manager:
+                    if dlg.result_data.get("all_weekdays"):
+                        for d in ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma"]:
+                            self.data_manager.set_custom_schedule_block(
+                                d, time_slot, dlg.result_data["title"], dlg.result_data.get("note", ""), dlg.result_data.get("color", "amber")
+                            )
+                    else:
                         self.data_manager.set_custom_schedule_block(
-                            d, time_slot, dlg.result_data["title"], dlg.result_data.get("note", ""), dlg.result_data.get("color", "amber")
+                            day_name, time_slot, dlg.result_data["title"], dlg.result_data.get("note", ""), dlg.result_data.get("color", "amber")
                         )
-                else:
-                    self.data_manager.set_custom_schedule_block(
-                        day_name, time_slot, dlg.result_data["title"], dlg.result_data.get("note", ""), dlg.result_data.get("color", "amber")
-                    )
-                self.display_schedule(self.last_sections_list)
-                self.custom_blocks_changed.emit()
+                    QTimer.singleShot(0, lambda: (
+                        self.display_schedule(self.last_sections_list),
+                        self.custom_blocks_changed.emit()
+                    ))
+        finally:
+            if self.window():
+                self.window().activateWindow()
+                self.window().raise_()
 
     def on_custom_block_clicked(self, day_name, time_slot, current_block):
         """Opens the custom block edit dialog to update or delete an existing block."""
         dlg = CustomBlockEditDialog(day_name, time_slot, current_block=current_block, parent=self)
-        if dlg.exec():
-            if getattr(dlg, 'deleted', False) and self.data_manager:
-                self.data_manager.delete_custom_schedule_block(day_name, time_slot)
-                self.display_schedule(self.last_sections_list)
-                self.custom_blocks_changed.emit()
-            elif dlg.result_data and self.data_manager:
-                if dlg.result_data.get("all_weekdays"):
-                    for d in ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma"]:
+        try:
+            if dlg.exec():
+                if getattr(dlg, 'deleted', False) and self.data_manager:
+                    self.data_manager.delete_custom_schedule_block(day_name, time_slot)
+                    QTimer.singleShot(0, lambda: (
+                        self.display_schedule(self.last_sections_list),
+                        self.custom_blocks_changed.emit()
+                    ))
+                elif dlg.result_data and self.data_manager:
+                    if dlg.result_data.get("all_weekdays"):
+                        for d in ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma"]:
+                            self.data_manager.set_custom_schedule_block(
+                                d, time_slot, dlg.result_data["title"], dlg.result_data.get("note", ""), dlg.result_data.get("color", "amber")
+                            )
+                    else:
                         self.data_manager.set_custom_schedule_block(
-                            d, time_slot, dlg.result_data["title"], dlg.result_data.get("note", ""), dlg.result_data.get("color", "amber")
+                            day_name, time_slot, dlg.result_data["title"], dlg.result_data.get("note", ""), dlg.result_data.get("color", "amber")
                         )
-                else:
-                    self.data_manager.set_custom_schedule_block(
-                        day_name, time_slot, dlg.result_data["title"], dlg.result_data.get("note", ""), dlg.result_data.get("color", "amber")
-                    )
-                self.display_schedule(self.last_sections_list)
-                self.custom_blocks_changed.emit()
+                    QTimer.singleShot(0, lambda: (
+                        self.display_schedule(self.last_sections_list),
+                        self.custom_blocks_changed.emit()
+                    ))
+        finally:
+            if self.window():
+                self.window().activateWindow()
+                self.window().raise_()
 
     def render_empty_cell(self, row, col, day_name, time_slot_label, is_dark):
         """Renders an interactive empty cell."""
@@ -157,8 +182,8 @@ class TimetableWidget(QTableWidget):
                 border: 1px dashed {hover_border};
             }}
         """)
-        widget.setToolTip(f"📅 {day_name} {time_slot_label}\n💡 Tıklayarak bu kutuyu düzenleyin (örn. Yemek arası, çalışma saati)")
-        widget.mousePressEvent = lambda event, d=day_name, t=time_slot_label: self.on_empty_cell_clicked(d, t)
+        widget.setToolTip(f"{day_name} {time_slot_label}\nTıklayarak bu kutuyu düzenleyin (örn. Yemek arası, çalışma saati)")
+        widget.mousePressEvent = lambda event, d=day_name, t=time_slot_label: QTimer.singleShot(0, lambda: self.on_empty_cell_clicked(d, t))
         self.setCellWidget(row, col, widget)
 
     def render_custom_block_cell(self, row, col, day_name, time_slot_label, block, is_dark):
@@ -206,15 +231,15 @@ class TimetableWidget(QTableWidget):
         layout.addWidget(lbl_note)
 
         tooltip_lines = [
-            f"📌 {block['title']}",
-            f"⏰ Saat: {time_slot_label}",
+            f"{block['title']}",
+            f"Saat: {time_slot_label}",
         ]
         if block.get("note"):
-            tooltip_lines.append(f"📝 Not: {block['note']}")
-        tooltip_lines.append("✏️ Düzenlemek veya silmek için tıklayın")
+            tooltip_lines.append(f"Not: {block['note']}")
+        tooltip_lines.append("Düzenlemek veya silmek için tıklayın")
         widget.setToolTip("\n".join(tooltip_lines))
 
-        widget.mousePressEvent = lambda event, d=day_name, t=time_slot_label, b=block: self.on_custom_block_clicked(d, t, b)
+        widget.mousePressEvent = lambda event, d=day_name, t=time_slot_label, b=block: QTimer.singleShot(0, lambda: self.on_custom_block_clicked(d, t, b))
         self.setCellWidget(row, col, widget)
 
     def render_non_course_cell(self, row, col):
@@ -263,11 +288,13 @@ class TimetableWidget(QTableWidget):
         layout.setContentsMargins(4, 3, 4, 3)
         layout.setSpacing(1)
 
-        sec_numbers = ", ".join(sorted(set(str(s.section_no) for s, _ in entries)))
-        instructor_names = sorted(set(s.instructor for s, _ in entries if s.instructor and s.instructor != "Belirsiz"))
-        instructor_text = ", ".join(instructor_names) if instructor_names else "Belirsiz"
+        header_text = sec.course_code
+        if len(entries) == 1:
+            header_text += f" (S{sec.section_no})"
+        else:
+            header_text += f" ({len(entries)} Şube)"
 
-        lbl_code = QLabel(f"<b>{sec.course_code}</b> - Sec {sec_numbers}")
+        lbl_code = QLabel(f"<b>{header_text}</b>")
         lbl_code.setStyleSheet(f"color: {text_hex}; font-size: 11px; font-weight: bold; border: none; background: transparent;")
         lbl_code.setAlignment(ALIGN_CENTER)
 
@@ -275,9 +302,12 @@ class TimetableWidget(QTableWidget):
         divider.setObjectName("courseDivider")
         divider.setStyleSheet(f"background-color: {border_hex}; max-height: 1px; min-height: 1px; border: none; margin: 1px 2px;")
 
-        inst_color = "#e2e8f0" if is_dark else text_hex
-        lbl_inst = QLabel(instructor_text)
-        lbl_inst.setStyleSheet(f"color: {inst_color}; font-size: 10px; opacity: 0.9; border: none; background: transparent;")
+        inst_name = sec.instructor or "Belirsiz"
+        if len(entries) > 1:
+            inst_name = f"{inst_name} (+{len(entries)-1})"
+
+        lbl_inst = QLabel(inst_name)
+        lbl_inst.setStyleSheet(f"color: {text_hex}; font-size: 10px; opacity: 0.9; border: none; background: transparent;")
         lbl_inst.setAlignment(ALIGN_CENTER)
         lbl_inst.setWordWrap(True)
 
@@ -285,29 +315,28 @@ class TimetableWidget(QTableWidget):
         layout.addWidget(divider)
         layout.addWidget(lbl_inst)
 
-        # Extract classroom if specified by the school
-        rooms = set()
-        for s, sl in entries:
-            if getattr(sl, 'classroom', None):
-                rooms.add(sl.classroom)
-            elif getattr(s, 'classroom', None):
-                rooms.add(s.classroom)
-        room_text = ", ".join(sorted(rooms)) if rooms else ""
+        room_text = getattr(slot, 'classroom', '') or getattr(sec, 'classroom', '')
+        if not room_text and len(entries) > 1:
+            rooms = [getattr(sl, 'classroom', '') or getattr(s, 'classroom', '') for s, sl in entries]
+            rooms = [r for r in rooms if r]
+            if rooms:
+                room_text = rooms[0]
 
         if room_text:
             room_fg = "#4ade80" if is_dark else "#15803d"
-            lbl_room = QLabel(f"📍 {room_text}")
+            lbl_room = QLabel(f"{room_text}")
             lbl_room.setStyleSheet(f"color: {room_fg}; font-size: 9px; font-weight: bold; border: none; background: transparent;")
             lbl_room.setAlignment(ALIGN_CENTER)
             layout.addWidget(lbl_room)
 
         tooltip_lines = [
-            f"{sec.course_code} (Section {sec_numbers})",
+            f"{sec.course_code} - Section {sec.section_no}",
+            f"Öğretim Görevlisi: {sec.instructor}",
             f"Saat: {slot.time_slot}",
         ]
         if room_text:
-            tooltip_lines.append(f"📍 Sınıf/Derslik: {room_text}")
-        tooltip_lines.append("🔍 Detayları görmek için tıklayın")
+            tooltip_lines.append(f"Sınıf/Derslik: {room_text}")
+        tooltip_lines.append("Detayları görmek için tıklayın")
 
         for s, sl in entries:
             s_room = getattr(sl, 'classroom', '') or getattr(s, 'classroom', '')
@@ -316,7 +345,7 @@ class TimetableWidget(QTableWidget):
         widget.setToolTip("\n".join(tooltip_lines))
 
         # Bind click event
-        widget.mousePressEvent = lambda event, d=day_name, t=time_slot_label, e=entries: self.on_slot_clicked(d, t, e, custom_block=None)
+        widget.mousePressEvent = lambda event, d=day_name, t=time_slot_label, e=entries: QTimer.singleShot(0, lambda: self.on_slot_clicked(d, t, e, custom_block=None))
         self.setCellWidget(row, col, widget)
 
     def render_conflict_cell(self, row, col, day_name, time_slot_label, entries, custom_block=None, is_dark=False):
@@ -345,7 +374,7 @@ class TimetableWidget(QTableWidget):
         layout.setContentsMargins(4, 2, 4, 2)
         layout.setSpacing(1)
 
-        lbl_alert = QLabel("<b>⚠️ ÇAKIŞMA!</b>")
+        lbl_alert = QLabel("<b>ÇAKIŞMA!</b>")
         lbl_alert.setStyleSheet(f"color: {conf_text}; font-size: 11px; border: none; background: transparent;")
         lbl_alert.setAlignment(ALIGN_CENTER)
 
@@ -356,27 +385,27 @@ class TimetableWidget(QTableWidget):
         sec_codes = ", ".join(sorted(set(f"{s.course_code}(S{s.section_no})" for s, _ in entries)))
 
         if custom_block:
-            details_html = f"{sec_codes}<br><span style='font-size: 9px; font-weight: bold;'>⚡ {custom_block['title']}</span>"
+            details_html = f"{sec_codes}<br><span style='font-size: 9px; font-weight: bold;'>{custom_block['title']}</span>"
             lbl_details = QLabel(details_html)
             lbl_details.setStyleSheet(f"color: {conf_text}; font-size: 10px; border: none; background: transparent;")
             lbl_details.setAlignment(ALIGN_CENTER)
             lbl_details.setWordWrap(True)
 
-            lbl_hint = QLabel("🔍 İncele & Çöz")
+            lbl_hint = QLabel("İncele & Çöz")
             lbl_hint.setStyleSheet(f"color: {conf_text}; font-size: 9px; font-style: italic; border: none; background: transparent;")
             lbl_hint.setAlignment(ALIGN_CENTER)
 
             tooltip_lines = [
-                "⚠️ DERS VE KİŞİSEL ETKİNLİK ÇAKIŞMASI!",
-                f"📌 Kişisel Etkinlik: {custom_block['title']}" + (f" ({custom_block['note']})" if custom_block.get('note') else ""),
-                f"⏰ Saat: {time_slot_label}",
-                "📚 Çakışan Dersler:",
+                "DERS VE KİŞİSEL ETKİNLİK ÇAKIŞMASI!",
+                f"Kişisel Etkinlik: {custom_block['title']}" + (f" ({custom_block['note']})" if custom_block.get('note') else ""),
+                f"Saat: {time_slot_label}",
+                "Çakışan Dersler:",
             ]
             for s, sl in entries:
                 s_room = getattr(sl, 'classroom', '') or getattr(s, 'classroom', '')
-                r_str = f" [📍 {s_room}]" if s_room else ""
+                r_str = f" [{s_room}]" if s_room else ""
                 tooltip_lines.append(f"• {s.course_code} Sec {s.section_no} ({s.instructor}){r_str}")
-            tooltip_lines.append("🔍 Detayları görmek ve etkinliği düzenlemek için tıklayın")
+            tooltip_lines.append("Detayları görmek ve etkinliği düzenlemek için tıklayın")
 
         else:
             lbl_details = QLabel(sec_codes)
@@ -384,17 +413,17 @@ class TimetableWidget(QTableWidget):
             lbl_details.setAlignment(ALIGN_CENTER)
             lbl_details.setWordWrap(True)
 
-            lbl_hint = QLabel("🔍 İncelemek için tıkla")
+            lbl_hint = QLabel("İncelemek için tıkla")
             lbl_hint.setStyleSheet(f"color: {conf_text}; font-size: 9px; font-style: italic; border: none; background: transparent;")
             lbl_hint.setAlignment(ALIGN_CENTER)
 
             tooltip_lines = [
-                "⚠️ FARKLI DERSLER ARASINDA ÇAKIŞMA!",
-                "🔍 Çakışan dersleri ve alternatif şubeleri görmek için tıklayın:",
+                "FARKLI DERSLER ARASINDA ÇAKIŞMA!",
+                "Çakışan dersleri ve alternatif şubeleri görmek için tıklayın:",
             ]
             for s, sl in entries:
                 s_room = getattr(sl, 'classroom', '') or getattr(s, 'classroom', '')
-                r_str = f" [📍 {s_room}]" if s_room else ""
+                r_str = f" [{s_room}]" if s_room else ""
                 tooltip_lines.append(f"• {s.course_code} Section {s.section_no} ({s.instructor}){r_str}")
 
         layout.addWidget(lbl_alert)
@@ -403,7 +432,7 @@ class TimetableWidget(QTableWidget):
         layout.addWidget(lbl_hint)
 
         widget.setToolTip("\n".join(tooltip_lines))
-        widget.mousePressEvent = lambda event, d=day_name, t=time_slot_label, e=entries, cb=custom_block: self.on_slot_clicked(d, t, e, custom_block=cb)
+        widget.mousePressEvent = lambda event, d=day_name, t=time_slot_label, e=entries, cb=custom_block: QTimer.singleShot(0, lambda: self.on_slot_clicked(d, t, e, custom_block=cb))
         self.setCellWidget(row, col, widget)
 
     def display_schedule(self, sections_list):

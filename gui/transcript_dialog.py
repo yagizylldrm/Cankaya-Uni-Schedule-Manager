@@ -18,29 +18,16 @@ class TranscriptDialog(QDialog):
     """
     transcript_updated = pyqtSignal()
 
-    DEPARTMENT_OPTIONS = [
-        ("CENG", "CENG - Bilgisayar Mühendisliği"),
-        ("SENG", "SENG - Yazılım Mühendisliği"),
-        ("ECE", "ECE - Elektrik-Elektronik Mühendisliği"),
-        ("IE", "IE - Endüstri Mühendisliği"),
-        ("ME", "ME - Makine Mühendisliği"),
-        ("MECE", "MECE - Mekatronik Mühendisliği"),
-        ("CE", "CE - İnşaat Mühendisliği"),
-        ("ARCH", "ARCH - Mimarlık"),
-        ("INAR", "INAR - İç Mimarlık"),
-        ("CRP", "CRP - Şehir ve Bölge Planlama"),
-        ("MAN", "MAN - İşletme"),
-        ("ECON", "ECON - İktisat"),
-        ("INTT", "INTT - Uluslararası Ticaret"),
-        ("PSIR", "PSIR - Siyaset Bilimi ve Uluslararası İlişkiler"),
-        ("PRAD", "PRAD - Halkla İlişkiler ve Reklamcılık"),
-        ("LAW", "LAW - Hukuk"),
-        ("PSY", "PSY - Psikoloji"),
-        ("ELL", "ELL - İngiliz Dili ve Edebiyatı"),
-        ("TRAN", "TRAN - Mütercim Tercümanlık"),
-        ("MATH", "MATH - Matematik"),
-        ("PHYS", "PHYS - Fizik"),
-    ]
+    def get_department_options(self):
+        seen = {}
+        if hasattr(self.data_manager, "official_curricula"):
+            for code, curr in self.data_manager.official_curricula.items():
+                p_name = curr.get("program_name", "")
+                seen[code] = f"{code} - {p_name}" if p_name else f"{code} Bölümü"
+        for code, name in self.data_manager.DEPARTMENT_NAMES.items():
+            if code not in seen:
+                seen[code] = f"{code} - {name}"
+        return sorted([(k, v) for k, v in seen.items()], key=lambda x: x[0])
 
     GRADES = ["AA", "BA", "BB", "CB", "CC", "DC", "DD", "S", "P"]
 
@@ -58,7 +45,7 @@ class TranscriptDialog(QDialog):
 
     def init_ui(self):
         is_dark = StyleManager.get_active_theme() == "modern"
-        self.setWindowTitle("📜 Transkript & Ön Koşul Yönetimi")
+        self.setWindowTitle("Transkript & Ön Koşul Yönetimi")
         self.setMinimumWidth(700)
         self.setMinimumHeight(620)
         self.resize(760, 680)
@@ -93,7 +80,7 @@ class TranscriptDialog(QDialog):
         h_layout.setSpacing(2)
 
         h_title_color = "#89b4fa" if is_dark else "#0369a1"
-        lbl_title = QLabel("📜 <b>TRANSKRİPT & ÖN KOŞUL YÖNETİMİ</b>")
+        lbl_title = QLabel("<b>TRANSKRİPT & ÖN KOŞUL YÖNETİMİ</b>")
         lbl_title.setStyleSheet(f"color: {h_title_color}; font-size: 14px;")
         lbl_desc = QLabel(
             "Oasis'ten kopyaladığınız transkript metnini yapıştırarak veya verilen dersleri listeden seçerek sisteme aktarın.\n"
@@ -109,11 +96,11 @@ class TranscriptDialog(QDialog):
         mode_box = QHBoxLayout()
         mode_box.setSpacing(8)
 
-        self.btn_tab_paste = QPushButton("📋 Oasis Metin Yapıştır")
+        self.btn_tab_paste = QPushButton("Oasis Metin Yapıştır")
         self.btn_tab_paste.setCursor(POINTING_HAND_CURSOR)
         self.btn_tab_paste.clicked.connect(lambda: self.switch_tab(0))
 
-        self.btn_tab_manual = QPushButton("✏️ Verilen Dersler Listesi")
+        self.btn_tab_manual = QPushButton("Verilen Dersler Listesi")
         self.btn_tab_manual.setCursor(POINTING_HAND_CURSOR)
         self.btn_tab_manual.clicked.connect(lambda: self.switch_tab(1))
 
@@ -132,7 +119,7 @@ class TranscriptDialog(QDialog):
         main_layout.addWidget(self.container_manual)
 
         # 4. Analysis & Profile Summary Box
-        summary_group = QGroupBox("🎓 Öğrenci ve Transkript Bilgileri")
+        summary_group = QGroupBox("Öğrenci ve Transkript Bilgileri")
         summary_group.setStyleSheet(f"""
             QGroupBox {{
                 font-weight: bold;
@@ -157,11 +144,14 @@ class TranscriptDialog(QDialog):
         row1 = QHBoxLayout()
         row1.setSpacing(12)
 
+        dept_options = self.get_department_options()
+
         lbl_p_dept = QLabel("<b>Ana Bölüm:</b>")
         self.combo_primary = QComboBox()
-        for code, label in self.DEPARTMENT_OPTIONS:
+        for code, label in dept_options:
             self.combo_primary.addItem(label, code)
         self.set_combo_value(self.combo_primary, self.detected_data["primary_dept"])
+        self.combo_primary.currentIndexChanged.connect(self.on_primary_dept_changed)
         row1.addWidget(lbl_p_dept)
         row1.addWidget(self.combo_primary, 1)
 
@@ -176,7 +166,7 @@ class TranscriptDialog(QDialog):
 
         self.combo_sec_dept = QComboBox()
         self.combo_sec_dept.addItem("Yok", "YOK")
-        for code, label in self.DEPARTMENT_OPTIONS:
+        for code, label in dept_options:
             self.combo_sec_dept.addItem(label, code)
         self.set_combo_value(self.combo_sec_dept, self.detected_data["secondary_dept"])
         row1.addWidget(self.combo_sec_dept, 1)
@@ -185,16 +175,24 @@ class TranscriptDialog(QDialog):
 
         # Row 2: Badges
         row2 = QHBoxLayout()
-        self.lbl_stat_passed = QLabel("✅ <b>Verilen Ders Sayısı:</b> 0")
+        self.lbl_stat_passed = QLabel("<b>Verilen Ders Sayısı:</b> 0")
         self.lbl_stat_passed.setStyleSheet("color: #10b981; font-size: 12px;")
         row2.addWidget(self.lbl_stat_passed)
 
-        self.lbl_stat_failed = QLabel("⚠️ <b>Başarısız / Tekrar:</b> 0")
+        self.lbl_stat_failed = QLabel("<b>Başarısız / Tekrar:</b> 0")
         self.lbl_stat_failed.setStyleSheet("color: #f59e0b; font-size: 12px;")
         row2.addWidget(self.lbl_stat_failed)
         row2.addStretch()
-
         sum_layout.addLayout(row2)
+
+        # Row 3: Curriculum Progress
+        row3 = QHBoxLayout()
+        self.lbl_stat_curriculum = QLabel("<b>Müfredat:</b> Hesaplanıyor...")
+        self.lbl_stat_curriculum.setStyleSheet("color: #89b4fa; font-size: 11px;")
+        self.lbl_stat_curriculum.setWordWrap(True)
+        row3.addWidget(self.lbl_stat_curriculum)
+        sum_layout.addLayout(row3)
+
         main_layout.addWidget(summary_group)
 
         # 5. Bottom Action Buttons
@@ -219,7 +217,7 @@ class TranscriptDialog(QDialog):
         btn_cancel.clicked.connect(self.reject)
         btn_layout.addWidget(btn_cancel)
 
-        btn_save = QPushButton("💾 Kaydet ve Profili Güncelle")
+        btn_save = QPushButton("Kaydet ve Profili Güncelle")
         btn_save.setObjectName("primaryButton")
         btn_save.setFixedWidth(220)
         btn_save.setStyleSheet(f"""
@@ -287,7 +285,7 @@ class TranscriptDialog(QDialog):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(8)
 
-        lbl_help = QLabel("💡 <b>Oasis Transkript Sayfasından Kopyala-Yapıştır:</b>")
+        lbl_help = QLabel("<b>Oasis Transkript Sayfasından Kopyala-Yapıştır:</b>")
         lbl_help.setStyleSheet(f"color: {'#89b4fa' if is_dark else '#002855'}; font-size: 11px;")
         layout.addWidget(lbl_help)
 
@@ -312,7 +310,7 @@ class TranscriptDialog(QDialog):
         """)
         layout.addWidget(self.txt_paste)
 
-        btn_parse_text = QPushButton("🔍 Metni Ayrıştır ve Yükle")
+        btn_parse_text = QPushButton("Metni Ayrıştır ve Yükle")
         btn_parse_text.setCursor(POINTING_HAND_CURSOR)
         btn_parse_text.setStyleSheet(f"""
             QPushButton {{
@@ -359,7 +357,7 @@ class TranscriptDialog(QDialog):
             }}
         """)
 
-        # Populate course completion list from catalog & prerequisite database
+        # Populate course completion list from catalog & prerequisite database & official curricula
         course_items = []
         for code in self.data_manager.courses.keys():
             norm_code = self.data_manager.normalize_code(code)
@@ -369,6 +367,24 @@ class TranscriptDialog(QDialog):
                 course_items.append(f"{norm_code} - {c_name}")
             else:
                 course_items.append(norm_code)
+
+        if hasattr(self.data_manager, "official_curricula"):
+            for dept_code, curr in self.data_manager.official_curricula.items():
+                for c in curr.get("compulsory_courses", []):
+                    c_code = c.get("norm_code") or self.data_manager.normalize_code(c.get("code", ""))
+                    c_name = c.get("name_tr") or c.get("name_en") or ""
+                    item_str = f"{c_code} - {c_name}" if c_name else c_code
+                    course_items.append(item_str)
+                for c_code, c in curr.get("technical_elective_pool", {}).items():
+                    norm_c = self.data_manager.normalize_code(c_code)
+                    c_name = c.get("name_tr") or c.get("name_en") or ""
+                    item_str = f"{norm_c} - {c_name}" if c_name else norm_c
+                    course_items.append(item_str)
+                for c_code, c in curr.get("social_elective_pool", {}).items():
+                    norm_c = self.data_manager.normalize_code(c_code)
+                    c_name = c.get("name_tr") or c.get("name_en") or ""
+                    item_str = f"{norm_c} - {c_name}" if c_name else norm_c
+                    course_items.append(item_str)
 
         for prereq_code in PrerequisiteManager.PREREQUISITE_DATABASE.keys():
             norm_p = self.data_manager.normalize_code(prereq_code)
@@ -387,7 +403,7 @@ class TranscriptDialog(QDialog):
         self.combo_manual_grade.addItems(self.GRADES)
         self.combo_manual_grade.setFixedWidth(70)
 
-        btn_add = QPushButton("➕ Ekle")
+        btn_add = QPushButton("Ekle")
         btn_add.setCursor(POINTING_HAND_CURSOR)
         btn_add.setStyleSheet(f"""
             QPushButton {{
@@ -518,11 +534,11 @@ class TranscriptDialog(QDialog):
             self.table_courses.setItem(row, 1, item_name)
 
             grade = info.get("grade", "CC") if isinstance(info, dict) else str(info)
-            item_grade = QTableWidgetItem(f"🎓 {grade}")
+            item_grade = QTableWidgetItem(grade)
             item_grade.setTextAlignment(ALIGN_CENTER)
             self.table_courses.setItem(row, 2, item_grade)
 
-            btn_del = QPushButton("🗑️ Sil")
+            btn_del = QPushButton("Sil")
             btn_del.setCursor(POINTING_HAND_CURSOR)
             btn_del.setStyleSheet("""
                 QPushButton {
@@ -537,11 +553,40 @@ class TranscriptDialog(QDialog):
             btn_del.clicked.connect(lambda _, c=code: self.remove_course(c))
             self.table_courses.setCellWidget(row, 3, btn_del)
 
+    def on_primary_dept_changed(self):
+        p_dept = self.combo_primary.currentData()
+        if p_dept:
+            self.detected_data["primary_dept"] = p_dept
+            self.update_summary_display()
+
     def update_summary_display(self):
+        p_dept = self.combo_primary.currentData() or self.detected_data.get("primary_dept", "CENG")
         num_passed = len(self.detected_data["passed_courses"])
         num_failed = len(self.detected_data["failed_courses"])
-        self.lbl_stat_passed.setText(f"✅ <b>Verilen Ders Sayısı:</b> {num_passed}")
-        self.lbl_stat_failed.setText(f"⚠️ <b>Başarısız / Tekrar:</b> {num_failed}")
+        self.lbl_stat_passed.setText(f"<b>Verilen Ders Sayısı:</b> {num_passed}")
+        self.lbl_stat_failed.setText(f"<b>Başarısız / Tekrar:</b> {num_failed}")
+
+        # Calculate curriculum progress
+        prog = self.data_manager.get_curriculum_progress(p_dept, self.detected_data["passed_courses"])
+        comp_rem = prog.get("compulsory_remaining_count", 0)
+        comp_tot = prog.get("compulsory_total", 0)
+        tech_rem = prog.get("tech_slots_remaining", 0)
+        tech_tot = prog.get("tech_slots_total", 0)
+        soc_rem = prog.get("social_slots_remaining", 0)
+        soc_tot = prog.get("social_slots_total", 0)
+
+        is_dark = StyleManager.get_active_theme() == "modern"
+        comp_col = "#10b981" if comp_rem == 0 else ("#f59e0b" if is_dark else "#d97706")
+        tech_col = "#10b981" if tech_rem == 0 else ("#89b4fa" if is_dark else "#0284c7")
+        soc_col = "#10b981" if soc_rem == 0 else ("#cba6f7" if is_dark else "#7c3aed")
+
+        curr_text = (
+            f"<b>Müfredat Durumu ({p_dept}):</b> "
+            f"<span style='color: {comp_col}; font-weight: bold;'>Kalan Zorunlu: {comp_rem}/{comp_tot}</span>  |  "
+            f"<span style='color: {tech_col}; font-weight: bold;'>Kalan Teknik Seçmeli: {tech_rem}/{tech_tot}</span>  |  "
+            f"<span style='color: {soc_col}; font-weight: bold;'>Kalan Sosyal Seçmeli: {soc_rem}/{soc_tot}</span>"
+        )
+        self.lbl_stat_curriculum.setText(curr_text)
         self.update_manual_table()
 
     def save_and_apply(self):

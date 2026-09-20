@@ -10,11 +10,11 @@ class CustomBlockEditDialog(QDialog):
     (e.g., Lunch break 10-11, Gym, Study session, Work, etc.).
     """
     PRESETS = [
-        {"label": "🍔 Yemek Arası", "title": "Yemek Arası", "note": "12-13 / Öğle Yemeği", "color": "amber"},
-        {"label": "☕ Mola / Kahve", "title": "Mola", "note": "Dinlenme & Kahve", "color": "emerald"},
-        {"label": "📚 Ders Çalışma", "title": "Ders Çalışma", "note": "Kütüphane / Tekrar", "color": "blue"},
-        {"label": "🏋️ Spor / Fitness", "title": "Spor", "note": "Antrenman", "color": "purple"},
-        {"label": "💼 İş / Staj", "title": "İş / Staj", "note": "Ofis & Çalışma", "color": "rose"},
+        {"label": "Yemek Arası", "title": "Yemek Arası", "note": "12-13 / Öğle Yemeği", "color": "amber"},
+        {"label": "Mola / Kahve", "title": "Mola", "note": "Dinlenme & Kahve", "color": "emerald"},
+        {"label": "Ders Çalışma", "title": "Ders Çalışma", "note": "Kütüphane / Tekrar", "color": "blue"},
+        {"label": "Spor / Fitness", "title": "Spor", "note": "Antrenman", "color": "purple"},
+        {"label": "İş / Staj", "title": "İş / Staj", "note": "Ofis & Çalışma", "color": "rose"},
     ]
 
     COLORS = [
@@ -39,7 +39,7 @@ class CustomBlockEditDialog(QDialog):
         is_dark = StyleManager.get_active_theme() == "modern"
         is_edit = bool(self.current_block)
 
-        self.setWindowTitle("✏️ Özel Program Kutusu Düzenle" if is_edit else "➕ Özel Program Kutusu Ekle")
+        self.setWindowTitle("Özel Program Kutusu Düzenle" if is_edit else "Özel Program Kutusu Ekle")
         self.setFixedWidth(440)
 
         # Dialog theme
@@ -71,7 +71,7 @@ class CustomBlockEditDialog(QDialog):
         h_layout = QVBoxLayout(header_frame)
         h_layout.setSpacing(4)
 
-        lbl_title = QLabel(f"📅 <b>{self.day_name}</b> • ⏰ <b>{self.time_slot}</b>")
+        lbl_title = QLabel(f"<b>{self.day_name}</b> • <b>{self.time_slot}</b>")
         lbl_title.setStyleSheet(f"font-size: 13px; color: {'#89b4fa' if is_dark else '#0369a1'};")
         lbl_sub = QLabel("Bu saat dilimi için özel etkinlik, mola veya not belirleyin:")
         lbl_sub.setStyleSheet(f"font-size: 11px; color: {'#a6adc8' if is_dark else '#475569'};")
@@ -81,7 +81,7 @@ class CustomBlockEditDialog(QDialog):
         layout.addWidget(header_frame)
 
         # Quick Presets
-        lbl_presets = QLabel("⚡ <b>Hızlı Şablonlar:</b>")
+        lbl_presets = QLabel("<b>Hızlı Şablonlar:</b>")
         lbl_presets.setStyleSheet(f"font-size: 11px; color: {'#9399b2' if is_dark else '#64748b'};")
         layout.addWidget(lbl_presets)
 
@@ -150,7 +150,7 @@ class CustomBlockEditDialog(QDialog):
         btn_layout.setSpacing(10)
 
         if is_edit:
-            self.btn_delete = QPushButton("🗑️ Sil")
+            self.btn_delete = QPushButton("Sil")
             self.btn_delete.setCursor(POINTING_HAND_CURSOR)
             self.btn_delete.setStyleSheet("""
                 QPushButton {
@@ -189,7 +189,7 @@ class CustomBlockEditDialog(QDialog):
         btn_cancel.clicked.connect(self.reject)
         btn_layout.addWidget(btn_cancel)
 
-        btn_save = QPushButton("💾 Kaydet")
+        btn_save = QPushButton("Kaydet")
         btn_save.setCursor(POINTING_HAND_CURSOR)
         btn_save.setStyleSheet(f"""
             QPushButton {{
