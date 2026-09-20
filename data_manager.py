@@ -779,7 +779,7 @@ class DataManager:
         }
 
     def __init__(self, cache_filepath=None):
-        self.cache_filepath = cache_filepath or self.DEFAULT_CACHE_FILE
+        self.cache_filepath = cache_filepath or os.path.join(os.path.dirname(__file__), self.DEFAULT_CACHE_FILE)
         self.courses = {}  # course_code -> Course object
         self.departments = set()
         self.student_profile = {
@@ -883,9 +883,10 @@ class DataManager:
             return False
 
     def load_student_profile(self):
-        if os.path.exists(self.PROFILE_CACHE_FILE):
+        profile_path = os.path.join(os.path.dirname(__file__), self.PROFILE_CACHE_FILE)
+        if os.path.exists(profile_path):
             try:
-                with open(self.PROFILE_CACHE_FILE, 'r', encoding='utf-8') as f:
+                with open(profile_path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                     self.student_profile.update(data)
             except Exception:
@@ -899,7 +900,8 @@ class DataManager:
         if secondary_type is not None:
             self.student_profile["secondary_type"] = secondary_type
         try:
-            with open(self.PROFILE_CACHE_FILE, 'w', encoding='utf-8') as f:
+            profile_path = os.path.join(os.path.dirname(__file__), self.PROFILE_CACHE_FILE)
+            with open(profile_path, 'w', encoding='utf-8') as f:
                 json.dump(self.student_profile, f, ensure_ascii=False, indent=2)
         except Exception as e:
             print(f"Error saving student profile: {e}")

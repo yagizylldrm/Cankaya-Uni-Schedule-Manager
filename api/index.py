@@ -1,0 +1,452 @@
+import sys
+import os
+import re
+import json
+from typing import List, Dict, Any, Optional
+
+# Ensure project root is in sys.path
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Body
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+from data_manager import DataManager, Course, Section, ScheduleSlot
+from scheduler_engine import SchedulerEngine
+from prerequisite_manager import PrerequisiteManager
+from transcript_parser import TranscriptParser
+
+app = FastAPI(
+    title="Çankaya Üniversitesi Schedule Manager API",
+    description="Vercel Serverless API for Çankaya University Timetable & Prerequisite Management",
+    version="2.0.0"
+)
+
+# Enable CORS for local development and Vercel domains
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Initialize singletons
+dm = DataManager()
+scheduler = SchedulerEngine()
+
+
+# --- Pydantic Models ---
+
+class CombinationsRequest(BaseModel):
+    selected_courses: Dict[str, List[str]]  # { "CENG111": ["1", "2"], "MATH157": ["1"] }
+    preferences: Optional[Dict[str, bool]] = None  # { "free_friday": False, "free_monday": False, "no_morning": False }
+    custom_blocks: Optional[Dict[str, Dict[str, Any]]] = None
+
+class PrereqCheckRequest(BaseModel):
+    course_codes: List[str]
+    passed_courses: Dict[str, Any] = {}
+
+class TranscriptTextRequest(BaseModel):
+    text: str
+
+class CurriculumProgressRequest(BaseModel):
+    primary_dept: str = "CENG"
+    passed_courses: Dict[str, Any] = {}
+
+
+# --- Endpoints ---
+
+@app.get("/api/health")
+def health_check():
+    return {
+        "status": "ok",
+        "courses_count": len(dm.courses),
+        "departments_count": len(dm.departments),
+        "official_curricula_count": len(dm.official_curricula) if hasattr(dm, "official_curricula") else 0
+    }
+
+
+@app.get("/api/departments")
+def get_departments():
+    """Returns sorted list of all departments with codes and human-readable names."""
+    dept_map = {}
+    # 1. From active scraped courses
+    for c in dm.courses.values():
+        if c.dept_code and c.dept_code not in dept_map:
+            name = dm.DEPARTMENT_NAMES.get(c.dept_code, f"{c.dept_code} Bölümü")
+            dept_map[c.dept_code] = name
+
+    # 2. From official curricula
+    if hasattr(dm, "official_curricula"):
+        for code, curr in dm.official_curricula.items():
+            if code not in dept_map:
+                p_name = curr.get("program_name", "")
+                dept_map[code] = p_name if p_name else f"{code} Bölümü"
+
+    # 3. From known department names mapping
+    for code, name in dm.DEPARTMENT_NAMES.items():
+        if code not in dept_map:
+            dept_map[code] = name
+
+    result = [{"code": k, "name": v} for k, v in dept_map.items()]
+    result.sort(key=lambda x: x["code"])
+    return result
+
+
+@app.get("/api/courses")
+def get_courses(
+    query: str = "",
+    dept: str = "",
+    type: str = "TÜMÜ",
+    primary_dept: str = "CENG",
+    secondary_dept: str = "YOK",
+    secondary_type: str = "YOK",
+    only_eligible: bool = False,
+    hide_passed: bool = False,
+    passed_codes: str = ""  # Comma-separated list of passed courses from client
+):
+    """
+    Search and filter courses based on department, course type,
+    student profile (primary, secondary major) and prerequisites.
+    """
+    query_clean = query.strip().upper()
+    passed_set = set()
+    if passed_codes:
+        passed_set = {dm.normalize_code(c.strip()) for c in passed_codes.split(",") if c.strip()}
+
+    results = []
+    for course in dm.courses.values():
+        # Department filter
+        if dept and dept != "TÜMÜ" and course.dept_code != dept:
+            continue
+
+        norm_code = dm.normalize_code(course.code)
+
+        # Hide passed courses filter
+        if hide_passed and norm_code in passed_set:
+            continue
+
+        # Classify course
+        course_type, type_label = dm.classify_course(
+            course.code,
+            primary_dept=primary_dept,
+            secondary_dept=secondary_dept,
+            secondary_type=secondary_type
+        )
+
+        # Course type filter
+        if type and type != "TÜMÜ":
+            if type == "ZORUNLU" and course_type not in ("ZORUNLU", "ZORUNLU_CAP", "ZORUNLU_YANDAL"):
+                continue
+            elif type == "ZORUNLU_ANA" and course_type != "ZORUNLU":
+                continue
+            elif type == "ZORUNLU_CAP" and course_type != "ZORUNLU_CAP":
+                continue
+            elif type == "ZORUNLU_YANDAL" and course_type != "ZORUNLU_YANDAL":
+                continue
+            elif type == "SECMELI" and course_type not in ("TEKNIK_SECMELI", "SERBEST_SECMELI"):
+                continue
+            elif type == "TEKNIK_SECMELI" and course_type != "TEKNIK_SECMELI":
+                continue
+            elif type == "SERBEST_SECMELI" and course_type != "SERBEST_SECMELI":
+                continue
+
+        # Text search (code or instructor name)
+        if query_clean:
+            matches_code = query_clean in course.code.upper()
+            matches_inst = any(query_clean in sec.instructor.upper() for sec in course.sections.values())
+            if not matches_code and not matches_inst:
+                continue
+
+        # Check prerequisites eligibility
+        prereq_info = PrerequisiteManager.check_prerequisites(norm_code, passed_set)
+        can_take = prereq_info.get("can_take", True)
+        if only_eligible and not can_take:
+            continue
+
+        credit, ects = dm.get_course_credits(course.code)
+        c_info = dm.get_course_info(course.code)
+        instructors = sorted(list({sec.instructor for sec in course.sections.values() if sec.instructor != "Belirsiz"}))
+
+        results.append({
+            "code": course.code,
+            "dept_code": course.dept_code,
+            "name": c_info.get("name", course.code),
+            "credit": credit,
+            "ects": ects,
+            "type": course_type,
+            "type_label": type_label,
+            "sections_count": len(course.sections),
+            "instructors": instructors,
+            "can_take": can_take,
+            "prereq_message": prereq_info.get("message", ""),
+            "is_passed": norm_code in passed_set
+        })
+
+    # Sort: Compulsory first, then CAP, Yandal, Technical Elective, Free Elective, then code
+    type_priority = {
+        "ZORUNLU": 0,
+        "ZORUNLU_CAP": 1,
+        "ZORUNLU_YANDAL": 2,
+        "TEKNIK_SECMELI": 3,
+        "SERBEST_SECMELI": 4
+    }
+    results.sort(key=lambda x: (type_priority.get(x["type"], 5), x["code"]))
+    return results
+
+
+@app.get("/api/courses/{code}")
+def get_course_detail(
+    code: str,
+    primary_dept: str = "CENG",
+    secondary_dept: str = "YOK",
+    secondary_type: str = "YOK",
+    passed_codes: str = ""
+):
+    """Returns full details of a specific course: sections, slots, instructors, syllabi, web link."""
+    norm = dm.normalize_code(code)
+    if norm not in dm.courses:
+        # Search by upper
+        found = None
+        for k, c in dm.courses.items():
+            if dm.normalize_code(k) == norm:
+                found = c
+                break
+        if not found:
+            raise HTTPException(status_code=404, detail=f"Ders bulunamadı: {code}")
+        course = found
+    else:
+        course = dm.courses[norm]
+
+    c_info = dm.get_course_info(course.code)
+    course_type, type_label = dm.classify_course(
+        course.code,
+        primary_dept=primary_dept,
+        secondary_dept=secondary_dept,
+        secondary_type=secondary_type
+    )
+
+    passed_set = set()
+    if passed_codes:
+        passed_set = {dm.normalize_code(c.strip()) for c in passed_codes.split(",") if c.strip()}
+
+    prereq_info = PrerequisiteManager.check_prerequisites(norm, passed_set)
+    credit, ects = dm.get_course_credits(course.code)
+
+    sections_data = []
+    for sec_no, sec in sorted(course.sections.items(), key=lambda x: str(x[0])):
+        slots_data = []
+        for s in sec.slots:
+            slots_data.append({
+                "day": s.day,
+                "time_slot": s.time_slot,
+                "classroom": s.classroom or sec.classroom
+            })
+        sections_data.append({
+            "section_no": sec.section_no,
+            "instructor": sec.instructor,
+            "classroom": sec.classroom,
+            "slots": slots_data
+        })
+
+    return {
+        "code": course.code,
+        "dept_code": course.dept_code,
+        "name": c_info.get("name", course.code),
+        "credit": credit,
+        "ects": ects,
+        "type": course_type,
+        "type_label": type_label,
+        "description": c_info.get("description", ""),
+        "course_url": c_info.get("course_url", f"http://{norm.lower()}.cankaya.edu.tr/"),
+        "dept_url": c_info.get("dept_url", ""),
+        "prerequisites": prereq_info,
+        "sections": sections_data
+    }
+
+
+@app.post("/api/combinations")
+def generate_schedule_combinations(req: CombinationsRequest):
+    """
+    Computes all conflict-free timetable combinations given selected courses,
+    sections, preferences and student's custom schedule blocks.
+    """
+    if not req.selected_courses:
+        return {"count": 0, "combinations": [], "conflicts_info": "Hiçbir ders seçilmedi."}
+
+    # Build target_dict: { "CENG111": [SectionObj1, ...], ... }
+    target_dict = {}
+    missing_courses = []
+
+    for code, sec_nos in req.selected_courses.items():
+        norm = dm.normalize_code(code)
+        course = dm.courses.get(norm)
+        if not course:
+            for k, c in dm.courses.items():
+                if dm.normalize_code(k) == norm:
+                    course = c
+                    break
+
+        if not course:
+            missing_courses.append(code)
+            continue
+
+        selected_sections = []
+        if not sec_nos:
+            # If no sections explicitly selected, take all sections of course
+            selected_sections = list(course.sections.values())
+        else:
+            for sno in sec_nos:
+                s_str = str(sno)
+                if s_str in course.sections:
+                    selected_sections.append(course.sections[s_str])
+
+        if selected_sections:
+            target_dict[course.code] = selected_sections
+
+    if not target_dict:
+        return {
+            "count": 0,
+            "combinations": [],
+            "conflicts_info": "Seçilen derslere ait geçerli şube bulunamadı."
+        }
+
+    prefs = req.preferences or {}
+    custom_blocks = req.custom_blocks or {}
+
+    raw_combos = scheduler.generate_combinations(
+        target_dict,
+        preferences=prefs,
+        custom_blocks=custom_blocks
+    )
+
+    count = len(raw_combos)
+    conflicts_info = None
+
+    if count == 0:
+        # Diagnose reason for 0 combinations
+        custom_block_clash_courses = []
+        if custom_blocks:
+            for c_code, sec_list in target_dict.items():
+                if sec_list and all(scheduler.section_overlaps_custom_blocks(s, custom_blocks)[0] for s in sec_list):
+                    custom_block_clash_courses.append(c_code)
+
+        if custom_block_clash_courses:
+            conflicts_info = (
+                f"Seçtiğiniz {', '.join(custom_block_clash_courses)} derslerinin tüm şubeleri "
+                f"eklediğiniz kişisel etkinliklerinizle (mola, yemek vb.) çakışmaktadır. "
+                f"Lütfen ilgili saatteki etkinliği kaldırın veya farklı dersler seçin."
+            )
+        else:
+            conflicts_info = (
+                "Seçtiğiniz dersler/şubeler veya kişisel etkinlikler arasında çakışma oluşturmayan bir kombinasyon bulunamadı. "
+                "Lütfen farklı şubeler seçmeyi veya filtre tercihlerinizi esnetmeyi deneyin."
+            )
+
+    serialized_combos = []
+    for idx, combo in enumerate(raw_combos):
+        total_credit = 0
+        total_ects = 0
+        days_used = set()
+        combo_sections = []
+
+        distinct_codes = set()
+        for sec in combo:
+            if sec.course_code not in distinct_codes:
+                distinct_codes.add(sec.course_code)
+                cr, ec = dm.get_course_credits(sec.course_code)
+                total_credit += cr
+                total_ects += ec
+
+            for slot in sec.slots:
+                days_used.add(slot.day)
+
+            combo_sections.append({
+                "course_code": sec.course_code,
+                "section_no": sec.section_no,
+                "instructor": sec.instructor,
+                "classroom": sec.classroom,
+                "slots": [s.to_dict() for s in sec.slots]
+            })
+
+        serialized_combos.append({
+            "index": idx,
+            "total_courses": len(distinct_codes),
+            "total_credits": total_credit,
+            "total_ects": total_ects,
+            "days_count": len(days_used),
+            "sections": combo_sections
+        })
+
+    return {
+        "count": count,
+        "combinations": serialized_combos,
+        "conflicts_info": conflicts_info
+    }
+
+
+@app.post("/api/prerequisites/check")
+def check_prerequisites(req: PrereqCheckRequest):
+    """Checks prerequisite satisfaction for an array of courses against student's passed courses."""
+    passed_dict = req.passed_courses or {}
+    results = {}
+
+    for code in req.course_codes:
+        norm = dm.normalize_code(code)
+        info = PrerequisiteManager.check_prerequisites(norm, passed_dict)
+        results[code] = info
+
+    return {"results": results}
+
+
+@app.post("/api/transcript/parse")
+def parse_transcript_text(req: TranscriptTextRequest):
+    """Parses raw text pasted from Oasis transcript."""
+    if not req.text.strip():
+        raise HTTPException(status_code=400, detail="Transkript metni boş olamaz.")
+
+    parsed = TranscriptParser.parse_text(req.text)
+    return parsed
+
+
+@app.post("/api/transcript/upload")
+async def upload_transcript_file(file: UploadFile = File(...)):
+    """Uploads and parses a transcript file (.pdf, .txt, .html, .json)."""
+    contents = await file.read()
+    filename = file.filename.lower()
+
+    if filename.endswith(".pdf"):
+        # Save temp file to parse with pypdf
+        import tempfile
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+            tmp.write(contents)
+            tmp_path = tmp.name
+        try:
+            parsed = TranscriptParser.parse_file(tmp_path)
+            return parsed
+        finally:
+            try:
+                os.remove(tmp_path)
+            except Exception:
+                pass
+    else:
+        # Text based
+        try:
+            raw_text = contents.decode("utf-8")
+        except UnicodeDecodeError:
+            raw_text = contents.decode("latin-1")
+        parsed = TranscriptParser.parse_text(raw_text)
+        return parsed
+
+
+@app.post("/api/curriculum/progress")
+def get_curriculum_progress(req: CurriculumProgressRequest):
+    """Calculates curriculum progress for primary major and passed courses."""
+    progress = dm.get_curriculum_progress(
+        primary_dept=req.primary_dept,
+        passed_courses=req.passed_courses
+    )
+    return progress

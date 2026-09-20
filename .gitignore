@@ -20,3 +20,12 @@ Thumbs.db
 
 # Scratch and logs
 *.log
+
+# Node & Build artifacts
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.vercel/
+.env
+.env.local

@@ -1,0 +1,14 @@
+{
+  "name": "cankaya-uni-schedule-manager",
+  "version": "2.0.0",
+  "description": "Çankaya Üniversitesi Haftalık Ders Programı Oluşturucu - Web & Vercel Dağıtımı",
+  "scripts": {
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:api": "python -m uvicorn api.index:app --reload --port 8000",
+    "build": "npm --prefix frontend run build",
+    "install:all": "pip install -r requirements.txt && npm --prefix frontend install"
+  },
+  "keywords": ["cankaya", "schedule", "timetable", "fastapi", "react"],
+  "author": "",
+  "license": "MIT"
+}

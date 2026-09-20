@@ -20,24 +20,64 @@
 
 ---
 
-## 📦 Kurulum ve Çalıştırma
+## 🌐 Web & Vercel Dağıtımı (React + FastAPI)
 
-### 1. Depoyu Klonlayın veya İndirin
-```bash
-git clone https://github.com/Tun4ydin/Cankaya-Uni-Schedule-Manager.git
-cd Cankaya-Uni-Schedule-Manager
-```
+Uygulama artık hem masaüstü (Qt/PySide6) hem de modern bir web uygulaması (React + Tailwind CSS + FastAPI) olarak çalıştırılabilir ve tek tıkla **Vercel** üzerine deploy edilebilir.
 
-### 2. Gerekli Kütüphaneleri Yükleyin
+### 🚀 Vercel'e Deploy Etme
+
+1. Projeyi GitHub hesabınıza push edin:
+   ```bash
+   git add .
+   git commit -m "Add React frontend, FastAPI backend, and Vercel configuration"
+   git push origin main
+   ```
+2. [Vercel](https://vercel.com/) paneline giriş yapıp **"Add New Project"** seçeneğinden bu depoyu seçin.
+3. Vercel, kök dizindeki `vercel.json` dosyasını otomatik olarak algılar:
+   - **Framework Preset**: Other
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `frontend/dist`
+4. **Deploy** butonuna tıklayın. Vercel hem React ön yüzünü hem de `api/index.py` serverless FastAPI backend'ini otomatik olarak ayağa kaldıracaktır.
+
+---
+
+## 💻 Yerel Geliştirme (Web Sürümü)
+
+### 1. Bağımlılıkları Yükleyin
 ```bash
+# Python backend bağımlılıkları:
 pip install -r requirements.txt
+
+# React frontend bağımlılıkları:
+npm --prefix frontend install
 ```
 
-### 3. Uygulamayı Başlatın
+### 2. Geliştirme Sunucularını Başlatın
+İki ayrı terminalde veya kök komutlarla:
+
+**Terminal 1 (FastAPI Backend):**
 ```bash
-python3 main.py
-# veya Windows için:
+python -m uvicorn api.index:app --reload --port 8000
+# veya:
+npm run dev:api
+```
+
+**Terminal 2 (React Frontend):**
+```bash
+npm run dev:frontend
+```
+Tarayıcınızda `http://localhost:5173` adresine giderek uygulamayı kullanabilirsiniz.
+
+---
+
+## 🖥️ Masaüstü Sürümü (PySide6)
+
+Masaüstü Qt uygulamasını yerel bilgisayarınızda çalıştırmak isterseniz:
+
+```bash
+pip install -r requirements-desktop.txt
 python main.py
 ```
 
 > **Not**: Uygulama içerisinde güncel 587 derslik önbellek (`cankaya_courses.json`) hazır geldiği için ilk açılışta internetten veri çekmenize gerek kalmadan doğrudan program oluşturmaya başlayabilirsiniz.
+
