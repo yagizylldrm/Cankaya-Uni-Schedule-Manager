@@ -52,7 +52,7 @@ for code, d in sorted(details.items()):
 
 print(f"Generated {len(prereq_rules)} official prerequisite rules.")
 
-with open("cankaya_official_prerequisites.json", "w", encoding="utf-8") as out:
+with open("api/cankaya_official_prerequisites.json", "w", encoding="utf-8") as out:
     json.dump(prereq_rules, out, ensure_ascii=False, indent=2)
 
-print("Saved to cankaya_official_prerequisites.json!")
+print("Saved to api/cankaya_official_prerequisites.json!")

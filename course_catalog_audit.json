@@ -1,0 +1,631 @@
+{
+  "programs": [
+    {
+      "program_id": "432385",
+      "name": "Bilgisayar Programcılığı (Ön Lisans)",
+      "year": "2026",
+      "courses": 9
+    },
+    {
+      "program_id": "157341",
+      "name": "Dış Ticaret (Ön Lisans)",
+      "year": "2026",
+      "courses": 29
+    },
+    {
+      "program_id": "455727",
+      "name": "E-Ticaret ve Pazarlama (Ön Lisans)",
+      "year": "2026",
+      "courses": 42
+    },
+    {
+      "program_id": "226232",
+      "name": "Adalet (Ön Lisans)",
+      "year": "2018",
+      "courses": 20
+    },
+    {
+      "program_id": "469410",
+      "name": "Bilgisayar Bilimleri (Lisans)",
+      "year": "2026",
+      "courses": 39
+    },
+    {
+      "program_id": "157349",
+      "name": "İngiliz Dili ve Edebiyatı (Lisans)",
+      "year": "2026",
+      "courses": 57
+    },
+    {
+      "program_id": "420205",
+      "name": "İngilizce Mütercim ve Tercümanlık (Lisans)",
+      "year": "2026",
+      "courses": 65
+    },
+    {
+      "program_id": "378141",
+      "name": "Matematik (Lisans)",
+      "year": "2026",
+      "courses": 81
+    },
+    {
+      "program_id": "157351",
+      "name": "Mütercim-Tercümanlık (İngilizce) (Lisans)",
+      "year": "2019",
+      "courses": 34
+    },
+    {
+      "program_id": "226246",
+      "name": "Psikoloji (Lisans)",
+      "year": "2026",
+      "courses": 51
+    },
+    {
+      "program_id": "226273",
+      "name": "Bankacılık ve Finans (Lisans)",
+      "year": "2018",
+      "courses": 58
+    },
+    {
+      "program_id": "378142",
+      "name": "Halkla İlişkiler ve Reklamcılık (Lisans)",
+      "year": "2026",
+      "courses": 47
+    },
+    {
+      "program_id": "157358",
+      "name": "İktisat (Lisans)",
+      "year": "2026",
+      "courses": 81
+    },
+    {
+      "program_id": "157359",
+      "name": "İşletme (Lisans)",
+      "year": "2026",
+      "courses": 77
+    },
+    {
+      "program_id": "157361",
+      "name": "Siyaset Bilimi ve Uluslararası İlişkiler (Lisans)",
+      "year": "2026",
+      "courses": 66
+    },
+    {
+      "program_id": "157362",
+      "name": "Uluslararası Ticaret (Lisans)",
+      "year": "2015",
+      "courses": 82
+    },
+    {
+      "program_id": "420206",
+      "name": "Uluslararası Ticaret ve Finansman (Lisans)",
+      "year": "2026",
+      "courses": 78
+    },
+    {
+      "program_id": "432448",
+      "name": "Yönetim Bilişim Sistemleri (Lisans)",
+      "year": "2026",
+      "courses": 73
+    },
+    {
+      "program_id": "157347",
+      "name": "Hukuk (Lisans)",
+      "year": "2026",
+      "courses": 21
+    },
+    {
+      "program_id": "157371",
+      "name": "Bilgisayar Mühendisliği (Lisans)",
+      "year": "2026",
+      "courses": 103
+    },
+    {
+      "program_id": "252880",
+      "name": "Elektrik-Elektronik Mühendisliği (Lisans)",
+      "year": "2026",
+      "courses": 93
+    },
+    {
+      "program_id": "157381",
+      "name": "Elektronik ve Haberleşme Mühendisliği (Lisans)",
+      "year": "2015",
+      "courses": 48
+    },
+    {
+      "program_id": "157383",
+      "name": "Endüstri Mühendisliği (Lisans)",
+      "year": "2026",
+      "courses": 78
+    },
+    {
+      "program_id": "226263",
+      "name": "İnşaat Mühendisliği (Lisans)",
+      "year": "2026",
+      "courses": 83
+    },
+    {
+      "program_id": "226252",
+      "name": "Makine Mühendisliği (Lisans)",
+      "year": "2026",
+      "courses": 50
+    },
+    {
+      "program_id": "226255",
+      "name": "Malzeme Bilimi ve Mühendisliği (Lisans)",
+      "year": "2015",
+      "courses": 37
+    },
+    {
+      "program_id": "226258",
+      "name": "Mekatronik Mühendisliği (Lisans)",
+      "year": "2026",
+      "courses": 111
+    },
+    {
+      "program_id": "404203",
+      "name": "Yazılım Mühendisliği",
+      "year": "2026",
+      "courses": 81
+    },
+    {
+      "program_id": "107048",
+      "name": "İç Mimarlık (Lisans)",
+      "year": "2026",
+      "courses": 69
+    },
+    {
+      "program_id": "226261",
+      "name": "Mimarlık (Lisans)",
+      "year": "2026",
+      "courses": 70
+    },
+    {
+      "program_id": "226267",
+      "name": "Şehir ve Bölge Planlama (Lisans)",
+      "year": "2026",
+      "courses": 59
+    },
+    {
+      "program_id": "130437",
+      "name": "Ortak Dersler Bölümü",
+      "year": "2018",
+      "courses": 17
+    },
+    {
+      "program_id": "331357",
+      "name": "Yabancı Diller Bölümü",
+      "year": "2018",
+      "courses": 6
+    },
+    {
+      "program_id": "463193",
+      "name": "Bilgi Teknolojileri (Yüksek Lisans Tezli)",
+      "year": "2021",
+      "courses": 12
+    },
+    {
+      "program_id": "463194",
+      "name": "Bilgi Teknolojileri (Yüksek Lisans Tezsiz)",
+      "year": "2021",
+      "courses": 10
+    },
+    {
+      "program_id": "463195",
+      "name": "Bilgisayar Mühendisliği (Yüksek Lisans Tezli)",
+      "year": "2017",
+      "courses": 13
+    },
+    {
+      "program_id": "463196",
+      "name": "Bilgisayar Mühendisliği (Yüksek Lisans Tezsiz)",
+      "year": "2017",
+      "courses": 11
+    },
+    {
+      "program_id": "463223",
+      "name": "Elektrik-Elektronik Mühendisliği (Yüksek Lisans Tezli)",
+      "year": "2019",
+      "courses": 8
+    },
+    {
+      "program_id": "463185",
+      "name": "Elektrik-Elektronik Mühendisliği (Yüksek Lisans Tezsiz)",
+      "year": "2024",
+      "courses": 6
+    },
+    {
+      "program_id": "248962",
+      "name": "Elektronik ve Haberleşme Mühendisliği (Yüksek Lisans Tezli)",
+      "year": "2017",
+      "courses": 1
+    },
+    {
+      "program_id": "463189",
+      "name": "Endüstri Mühendisliği (Yüksek Lisans Tezli)",
+      "year": "2017",
+      "courses": 6
+    },
+    {
+      "program_id": "463190",
+      "name": "Endüstri Mühendisliği (Yüksek Lisans Tezsiz)",
+      "year": "2025",
+      "courses": 4
+    },
+    {
+      "program_id": "463234",
+      "name": "Finansal Ekonomi (Yüksek Lisans Tezli)",
+      "year": "2021",
+      "courses": 3
+    },
+    {
+      "program_id": "463252",
+      "name": "Finansal Ekonomi (Yüksek Lisans Tezsiz)",
+      "year": "2015",
+      "courses": 2
+    },
+    {
+      "program_id": "463192",
+      "name": "İç Mimarlık (Yüksek Lisans Tezli)",
+      "year": "2017",
+      "courses": 7
+    },
+    {
+      "program_id": "463246",
+      "name": "İngiliz Edebiyatı ve Kültür İncelemeleri (Yüksek Lisans Tezli)",
+      "year": "2017",
+      "courses": 5
+    },
+    {
+      "program_id": "463247",
+      "name": "İngiliz Edebiyatı ve Kültür İncelemeleri (Yüksek Lisans Tezsiz)",
+      "year": "2016",
+      "courses": 3
+    },
+    {
+      "program_id": "463235",
+      "name": "İnsan Kaynakları Yönetimi (Yüksek Lisans Tezli)",
+      "year": "2025",
+      "courses": 7
+    },
+    {
+      "program_id": "463253",
+      "name": "İnsan Kaynakları Yönetimi (Yüksek Lisans Tezsiz)",
+      "year": "2025",
+      "courses": 5
+    },
+    {
+      "program_id": "463201",
+      "name": "İnşaat Mühendisliği (Yüksek Lisans Tezli)",
+      "year": "2017",
+      "courses": 5
+    },
+    {
+      "program_id": "463202",
+      "name": "İnşaat Mühendisliği (Yüksek Lisans Tezsiz)",
+      "year": "2025",
+      "courses": 2
+    },
+    {
+      "program_id": "463199",
+      "name": "İş Sağlığı ve İş Güvenliği (Yüksek Lisans Tezli)",
+      "year": "2017",
+      "courses": 1
+    },
+    {
+      "program_id": "463251",
+      "name": "İşletme Yönetimi (Yüksek Lisans Tezli)",
+      "year": "2025",
+      "courses": 8
+    },
+    {
+      "program_id": "463250",
+      "name": "İşletme Yönetimi (Yüksek Lisans Tezsiz)",
+      "year": "2025",
+      "courses": 6
+    },
+    {
+      "program_id": "463240",
+      "name": "Kamu Hukuku (Yüksek Lisans Tezli)",
+      "year": "2018",
+      "courses": 11
+    },
+    {
+      "program_id": "463261",
+      "name": "Kamu Hukuku (Yüksek Lisans Tezsiz)",
+      "year": "2024",
+      "courses": 9
+    },
+    {
+      "program_id": "463188",
+      "name": "Makine Mühendisliği (Yüksek Lisans Tezli)",
+      "year": "2017",
+      "courses": 6
+    },
+    {
+      "program_id": "463191",
+      "name": "Makine Mühendisliği (Yüksek Lisans Tezsiz)",
+      "year": "2017",
+      "courses": 3
+    },
+    {
+      "program_id": "463204",
+      "name": "Matematik (Yüksek Lisans Tezli)",
+      "year": "2017",
+      "courses": 6
+    },
+    {
+      "program_id": "463205",
+      "name": "Matematik (Yüksek Lisans Tezsiz)",
+      "year": "2017",
+      "courses": 2
+    },
+    {
+      "program_id": "463207",
+      "name": "Mekatronik Mühendisliği (Yüksek Lisans Tezli)",
+      "year": "2017",
+      "courses": 8
+    },
+    {
+      "program_id": "463208",
+      "name": "Mekatronik Mühendisliği (Yüksek Lisans Tezsiz)",
+      "year": "2017",
+      "courses": 6
+    },
+    {
+      "program_id": "463216",
+      "name": "Mikro ve Nanoteknoloji (Yüksek Lisans Tezli)",
+      "year": "2017",
+      "courses": 5
+    },
+    {
+      "program_id": "463215",
+      "name": "Mikro ve Nanoteknoloji (Yüksek Lisans Tezsiz)",
+      "year": "2017",
+      "courses": 3
+    },
+    {
+      "program_id": "463206",
+      "name": "Mimarlık (Yüksek Lisans Tezli)",
+      "year": "2022",
+      "courses": 10
+    },
+    {
+      "program_id": "463245",
+      "name": "Özel Hukuk (Yüksek Lisans Tezli)",
+      "year": "2018",
+      "courses": 10
+    },
+    {
+      "program_id": "463260",
+      "name": "Özel Hukuk (Yüksek Lisans Tezsiz)",
+      "year": "2024",
+      "courses": 6
+    },
+    {
+      "program_id": "463258",
+      "name": "Pazarlama ve Marka Yönetimi (Yüksek Lisans Tezsiz)",
+      "year": "2023",
+      "courses": 5
+    },
+    {
+      "program_id": "463259",
+      "name": "Psikoloji (Yüksek Lisans Tezli)",
+      "year": "2018",
+      "courses": 9
+    },
+    {
+      "program_id": "463233",
+      "name": "Siyaset Bilimi (Yüksek Lisans Tezli)",
+      "year": "2017",
+      "courses": 7
+    },
+    {
+      "program_id": "463255",
+      "name": "Siyaset Bilimi (Yüksek Lisans Tezsiz)",
+      "year": "2016",
+      "courses": 5
+    },
+    {
+      "program_id": "463241",
+      "name": "Uluslararası Ticaret ve Finansman (Yüksek Lisans Tezli)",
+      "year": "2017",
+      "courses": 4
+    },
+    {
+      "program_id": "463242",
+      "name": "Uluslararası Ticaret ve Finansman (Yüksek Lisans Tezsiz)",
+      "year": "2017",
+      "courses": 3
+    },
+    {
+      "program_id": "463256",
+      "name": "Uluslararası Ticaret ve Lojistiği (Yüksek Lisans Tezli)",
+      "year": "2017",
+      "courses": 8
+    },
+    {
+      "program_id": "463257",
+      "name": "Uluslararası Ticaret ve Lojistiği (Yüksek Lisans Tezsiz)",
+      "year": "2017",
+      "courses": 6
+    },
+    {
+      "program_id": "463225",
+      "name": "Veri Analitiği (Yüksek Lisans Tezli)",
+      "year": "2024",
+      "courses": 11
+    },
+    {
+      "program_id": "463226",
+      "name": "Veri Analitiği (Yüksek Lisans Tezsiz)",
+      "year": "2024",
+      "courses": 9
+    },
+    {
+      "program_id": "463217",
+      "name": "Yapım Teknolojileri (Yüksek Lisans Tezli)",
+      "year": "2018",
+      "courses": 10
+    },
+    {
+      "program_id": "463218",
+      "name": "Yapım Teknolojileri (Yüksek Lisans Tezsiz)",
+      "year": "2018",
+      "courses": 8
+    },
+    {
+      "program_id": "463210",
+      "name": "Bilgisayar Bilimleri ve Mühendisliği (Doktora)",
+      "year": "2017",
+      "courses": 14
+    },
+    {
+      "program_id": "463187",
+      "name": "Elektronik ve Haberleşme Mühendisliği (Doktora)",
+      "year": "2017",
+      "courses": 1
+    },
+    {
+      "program_id": "463236",
+      "name": "İngiliz Edebiyatı ve Kültür İncelemeleri (Doktora)",
+      "year": "2018",
+      "courses": 5
+    },
+    {
+      "program_id": "463231",
+      "name": "İşletme (Doktora)",
+      "year": "2024",
+      "courses": 2
+    },
+    {
+      "program_id": "463232",
+      "name": "Kamu Hukuku (Doktora)",
+      "year": "2018",
+      "courses": 8
+    },
+    {
+      "program_id": "463211",
+      "name": "Makine Mühendisliği (Doktora)",
+      "year": "2017",
+      "courses": 6
+    },
+    {
+      "program_id": "463209",
+      "name": "Mimarlık (Doktora)",
+      "year": "2017",
+      "courses": 9
+    },
+    {
+      "program_id": "463237",
+      "name": "Özel Hukuk (Doktora)",
+      "year": "2018",
+      "courses": 8
+    },
+    {
+      "program_id": "463221",
+      "name": "Şehir ve Bölge Planlama (Doktora)",
+      "year": "2018",
+      "courses": 1
+    },
+    {
+      "program_id": "463186",
+      "name": "Tasarım (Doktora)",
+      "year": "2017",
+      "courses": 6
+    }
+  ],
+  "missing_details": [],
+  "unknown_prerequisites": [
+    "ARCH237",
+    "ARCH501",
+    "ARCH627",
+    "CE417",
+    "CE592",
+    "CENG589",
+    "CPR101",
+    "CPR200",
+    "CPR201",
+    "CPR205",
+    "CPR207",
+    "CPR209",
+    "CPR210",
+    "CPR256",
+    "CRP354",
+    "CRP389",
+    "CS201",
+    "ELL592",
+    "HIR204",
+    "HUK103",
+    "HUK111",
+    "HUK113",
+    "HUK121",
+    "HUK123",
+    "HUK125",
+    "HUK141",
+    "HUK153",
+    "HUK155",
+    "HUK159",
+    "HUK201",
+    "HUK203",
+    "HUK205",
+    "HUK207",
+    "HUK209",
+    "HUK211",
+    "HUK213",
+    "HUK217",
+    "HUK231",
+    "HUK241",
+    "HUK261",
+    "HUK301",
+    "HUK305",
+    "HUK313",
+    "HUK315",
+    "HUK317",
+    "HUK321",
+    "HUK322",
+    "HUK331",
+    "HUK361",
+    "HUK363",
+    "HUK371",
+    "HUK385",
+    "HUK415",
+    "HUK417",
+    "HUK419",
+    "HUK421",
+    "HUK429",
+    "HUK431",
+    "HUK440",
+    "HUK451",
+    "HUK455",
+    "HUK457",
+    "HUK463",
+    "HUK471",
+    "HUK479",
+    "HUK481",
+    "HUK508",
+    "HUK696",
+    "INAR100",
+    "INAR300",
+    "MAN499",
+    "MAN539",
+    "ME203",
+    "ME225",
+    "ME421",
+    "MECE223",
+    "MIS400",
+    "PREP150",
+    "PSI205",
+    "PSY423",
+    "PSY433",
+    "PSY489",
+    "SENG271",
+    "SENG440",
+    "SENG449",
+    "SENG464",
+    "TINS433"
+  ],
+  "offered_courses": 726,
+  "named_courses": 726,
+  "known_prerequisites": 639
+}

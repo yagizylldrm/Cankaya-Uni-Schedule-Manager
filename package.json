@@ -5,13 +5,13 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/plan.test.js",
-    "test:api": "python -m unittest discover -s tests -p test_*.py",
+    "test:api": "node scripts/python.mjs -m unittest discover -s tests -p test_*.py",
     "test:e2e": "playwright test",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "dev:frontend": "vite",
-    "dev:api": "python -m uvicorn api.index:app --reload --port 8000"
+    "dev:api": "node scripts/python.mjs -m uvicorn api.index:app --reload --port 8000"
   },
   "dependencies": {
     "clsx": "^2.1.1",

@@ -11,9 +11,10 @@ class TranscriptParser:
     - Failed / repeat courses
     """
 
-    PASSING_GRADES = {"AA", "BA", "BB", "CB", "CC", "DC", "DD", "S", "P"}
-    FAILING_GRADES = {"FD", "FF", "NA", "U", "W"}
-    ALL_GRADES = PASSING_GRADES | FAILING_GRADES
+    PASSING_GRADES = {"AA", "BA", "BB", "CB", "CC", "DC", "DD", "S", "EX"}
+    FAILING_GRADES = {"FD", "FF", "FG", "NA", "U", "W"}
+    PENDING_GRADES = {"P", "I"}
+    ALL_GRADES = PASSING_GRADES | FAILING_GRADES | PENDING_GRADES
 
     DEPARTMENT_NAMES_MAP = {
         "BİLGİSAYAR MÜHENDİSLİĞİ": "CENG",
@@ -184,6 +185,7 @@ class TranscriptParser:
             "student_id": "",
             "passed_courses": {},   # code -> {"grade": ..., "name": ...}
             "failed_courses": {},   # code -> {"grade": ..., "name": ...}
+            "pending_courses": {},
             "all_detected_courses": []
         }
 
@@ -238,67 +240,61 @@ class TranscriptParser:
                             result["secondary_dept"] = code
                             break
 
-        # 4. Extract Courses and Letter Grades
-        # Çankaya course code pattern: 2-5 letters followed by optional space and 3 digits
-        # e.g., "CENG111", "CENG 111", "MATH 157", "PHYS131", "AİİT 101", "TURK101"
-        course_pattern = re.compile(
-            r'\b([A-ZÇĞİÖŞÜ]{2,5})\s*(\d{3})\b.*?\b(AA|BA|BB|CB|CC|DC|DD|FD|FF|NA|S|U|W|P)\b',
-            re.IGNORECASE | re.DOTALL
-        )
-
-        # Split text into lines or rows for line-by-line parsing first
-        lines = clean_text.split('\n')
+        # Course records must start a row. Codes mentioned in explanatory prose
+        # (e.g. preparatory-program rules) are not enrolled courses.
+        code_pattern = re.compile(r"^[ \t]*\*?[ \t]*([A-Z\u00c7\u011e\u0130\u00d6\u015e\u00dc]{2,5})[ \t]*(\d{3})\b", re.IGNORECASE | re.MULTILINE)
+        grades = "|".join(sorted(cls.ALL_GRADES, key=lambda g: (-len(g), g)))
+        # PDF extraction can concatenate grade points and grades: 10.5BA, 0FF.
+        grade_pattern = re.compile(r"(?<![^\W\d_])(" + grades + r")(?![^\W\d_])", re.IGNORECASE)
+        # e-Devlet table rows: status, language, T, U, credits, ECTS, points/grade.
+        numeric_row = re.compile(r"^[ZS]\s+\S+\s+(?:[\d.,]+|-)(?:\s+(?:[\d.,]+|-)){3}\s+", re.IGNORECASE)
+        boundaries = re.compile(r"^(?:DNO\s*:|GNO\s*:|\(GPA\)|\(CGPA\)|\d{4}-\d{4}\b|Not Baremi|K\u0131saltmalar|A\u00e7\u0131klamalar|Explanations|\d+\s+\d+/)", re.IGNORECASE)
+        matches = list(code_pattern.finditer(clean_text))
         detected_courses = {}
-
-        for line in lines:
-            line_str = line.strip()
-            if not line_str:
-                continue
-
-            # Look for course code + grade in the same line
-            m = re.search(r'\b([A-Za-zçğıöşüÇĞİÖŞÜ]{2,5})\s*(\d{3})\b', line_str)
-            if m:
-                dept_part = m.group(1).upper()
-                num_part = m.group(2)
-                course_code = f"{dept_part}{num_part}"
-
-                # Look for valid grade in this line
-                # Search after the course code match
-                remainder = line_str[m.end():]
-                grade_match = re.search(r'\b(AA|BA|BB|CB|CC|DC|DD|FD|FF|NA|S|U|W|P)\b', remainder, re.IGNORECASE)
-                if grade_match:
-                    grade = grade_match.group(1).upper()
-                    # Also try to extract course title between code and grade
-                    name_part = remainder[:grade_match.start()].strip()
-                    # Clean unwanted numbers or symbols from name
-                    name_clean = re.sub(r'[\d\.\,\;\:\-\|\/\(\)]+', ' ', name_part).strip()
-
-                    detected_courses[course_code] = {
-                        "code": course_code,
-                        "grade": grade,
-                        "name": name_clean or course_code
-                    }
-
-        # If line-by-line caught very few courses, try full regex over the entire text
-        if len(detected_courses) < 3:
-            for m in course_pattern.finditer(clean_text):
-                dept_part = m.group(1).upper()
-                num_part = m.group(2)
-                code = f"{dept_part}{num_part}"
-                grade = m.group(3).upper()
-
-                if code not in detected_courses:
-                    detected_courses[code] = {
-                        "code": code,
-                        "grade": grade,
-                        "name": code
-                    }
+        for index, match in enumerate(matches):
+            end = matches[index + 1].start() if index + 1 < len(matches) else len(clean_text)
+            block = clean_text[match.end():end].splitlines()
+            code = cls.normalize_turkish_str(match[1]) + match[2]
+            title = block[0].strip() if block else ''
+            found = None
+            fallback = None
+            has_numeric_row = False
+            for row_index, raw_line in enumerate(block):
+                line = raw_line.strip()
+                if boundaries.match(line):
+                    break
+                numeric = numeric_row.match(line)
+                if numeric:
+                    has_numeric_row = True
+                    found = grade_pattern.search(line, numeric.end())
+                    # An ungraded numeric row must never borrow a later grade.
+                    break
+                if row_index == 0:
+                    # Preserve simple pasted rows such as CENG111 Programming AA.
+                    # Numeric table rows below take precedence over course status.
+                    candidates = list(grade_pattern.finditer(line))
+                    for candidate in reversed(candidates):
+                        prefix = line[:candidate.start()]
+                        if (not line[candidate.end():].strip(' |;\t') and
+                                (len(candidate[1]) > 1 or not prefix.strip() or
+                                 re.search(r'\d|[|\t]|  $', prefix))):
+                            fallback = candidate
+                            break
+            if not has_numeric_row and fallback:
+                found = fallback
+                title = block[0].strip()[:fallback.start()].strip()
+            if found:
+                grade = found[1].upper()
+                # Later transcript attempts replace earlier grades for the same code.
+                detected_courses[code] = {'code': code, 'grade': grade, 'name': title or code}
 
         # Categorize into passed vs failed
         for code, info in detected_courses.items():
             grade = info["grade"]
             if grade in cls.PASSING_GRADES:
                 result["passed_courses"][code] = info
+            elif grade in cls.PENDING_GRADES:
+                result["pending_courses"][code] = info
             else:
                 result["failed_courses"][code] = info
             result["all_detected_courses"].append(info)

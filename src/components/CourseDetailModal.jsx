@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useSchedule } from '../context/ScheduleContext';
+﻿import React, { useState, useEffect } from 'react';
+import { useSchedule } from '../context/useSchedule';
 import { fetchCourseDetail } from '../services/api';
 import { 
   X, 
@@ -11,7 +11,7 @@ import {
   CheckCircle2, 
   AlertCircle,
   Plus,
-  Check
+  Minus
 } from 'lucide-react';
 
 export default function CourseDetailModal() {
@@ -21,7 +21,8 @@ export default function CourseDetailModal() {
     profile,
     passedCodesString,
     basket,
-    addToBasket
+    addToBasket,
+    removeFromBasket
   } = useSchedule();
 
   const [detail, setDetail] = useState(null);
@@ -120,7 +121,9 @@ export default function CourseDetailModal() {
 
               {/* Prerequisites Card */}
               <div className={`p-3 rounded-xl border flex items-start gap-2.5 ${
-                detail.prerequisites?.can_take
+                detail.prerequisites?.known === false
+                  ? 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 text-amber-900 dark:text-amber-200'
+                  : detail.prerequisites?.can_take
                   ? 'bg-emerald-50/70 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900 text-emerald-900 dark:text-emerald-300'
                   : 'bg-rose-50/70 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900 text-rose-900 dark:text-rose-300'
               }`}>
@@ -131,11 +134,16 @@ export default function CourseDetailModal() {
                 )}
                 <div>
                   <div className="font-bold text-xs">
-                    {detail.prerequisites?.can_take ? 'Ön Koşul Durumu: Alınabilir' : 'Ön Koşul Uyarısı: Eksik Dersler Var'}
+                    {detail.prerequisites?.known === false ? 'Ön Koşul Bilgisi Doğrulanmadı' : detail.prerequisites?.can_take ? 'Ön Koşul Durumu: Alınabilir' : 'Ön Koşul Uyarısı: Eksik Dersler Var'}
                   </div>
                   <p className="text-[11px] opacity-90 mt-0.5">
                     {detail.prerequisites?.message || (detail.prerequisites?.has_prereqs ? detail.prerequisites?.rule_description : 'Bu dersin herhangi bir ön koşulu bulunmamaktadır.')}
                   </p>
+                  {detail.prerequisites?.source && (
+                    <a className="text-[11px] underline" href={detail.prerequisites.source} target="_blank" rel="noreferrer">
+                      Resmî müfredat{detail.prerequisites.curriculum ? ` (${detail.prerequisites.curriculum})` : ''}
+                    </a>
+                  )}
                 </div>
               </div>
 
@@ -164,10 +172,26 @@ export default function CourseDetailModal() {
 
               {/* Sections Table */}
               <div>
+                {detail.instructor_reference && detail.sections.every(sec => !sec.instructor || sec.instructor === 'Belirsiz') && (
+                  <div className="mb-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 p-3 text-xs text-amber-900 dark:text-amber-200">
+                    Ders sitesindeki kayıt: <strong>{detail.instructor_reference.name}</strong>.
+                    {' '}{detail.instructor_reference.published_term || 'Dönem belirtilmemiş'}
+                    {detail.instructor_reference.last_modified && ` · Sayfa güncellemesi: ${detail.instructor_reference.last_modified}`}.
+                    {' '}Güncel şube ataması doğrulanamadı.
+                    {' '}<a href={detail.instructor_reference.source} target="_blank" rel="noreferrer" className="underline">Kaynak</a>
+                  </div>
+                )}
                 <label className="block text-[11px] font-bold text-slate-500 dark:text-dark-subtext uppercase tracking-wider mb-1.5">
                   Açılan Şubeler ve Haftalık Saatler
                 </label>
                 <div className="border border-slate-200 dark:border-dark-border rounded-xl overflow-hidden divide-y divide-slate-100 dark:divide-dark-border">
+                  {detail.sections.length === 0 && (
+                    <p className="p-3 text-xs text-slate-600 dark:text-dark-subtext">
+                      {detail.untimed
+                        ? 'Bu ders için haftalık saat bulunmuyor; programa eklenir ve AKTS toplamına katılır.'
+                        : 'Bu ders için şube veya haftalık saat bilgisi bulunamadı.'}
+                    </p>
+                  )}
                   {detail.sections.map(sec => (
                     <div key={sec.section_no} className="p-2.5 bg-white dark:bg-dark-surface flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div>
@@ -180,6 +204,11 @@ export default function CourseDetailModal() {
                             {sec.instructor}
                           </span>
                         </div>
+                        {sec.instructor_evidence?.source && (
+                          <a href={sec.instructor_evidence.source} target="_blank" rel="noreferrer" className="text-[10px] underline text-slate-500">
+                            Resmî haftalık program · {sec.instructor_evidence.fetched_at?.slice(0, 10)}
+                          </a>
+                        )}
                         {sec.classroom && (
                           <div className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
                             <MapPin className="w-3 h-3" />
@@ -217,25 +246,25 @@ export default function CourseDetailModal() {
           {detail && (
             <button
               onClick={() => {
-                addToBasket(detail);
+                if (inBasket) removeFromBasket(detail.code);
+                else addToBasket(detail);
                 setCourseDetailModalCode(null);
               }}
-              disabled={inBasket}
               className={`flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-semibold shadow-md transition ${
                 inBasket
-                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 cursor-default'
+                  ? 'bg-rose-100 hover:bg-rose-200 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300'
                   : 'bg-cankaya-blue hover:bg-cankaya-navy text-cankaya-gold active:scale-95'
               }`}
             >
               {inBasket ? (
                 <>
-                  <Check className="w-4 h-4" />
-                  <span>Ders Sepette</span>
+                  <Minus className="w-4 h-4" />
+                  <span>Çıkar</span>
                 </>
               ) : (
                 <>
                   <Plus className="w-4 h-4" />
-                  <span>Sepete Ekle</span>
+                  <span>Ekle</span>
                 </>
               )}
             </button>

@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useSchedule } from '../context/ScheduleContext';
+﻿import React, { useEffect, useRef, useState } from 'react';
+import { useSchedule } from '../context/useSchedule';
 import { buildCalendar, buildCSV, createPlan, downloadFile, validatePlan } from '../utils/plan';
 
 export default function PlanTransfer({ mode, onClose, onRestored }) {
@@ -55,15 +55,17 @@ export default function PlanTransfer({ mode, onClose, onRestored }) {
         {reading && <p role="status">Dosya okunuyor…</p>}
         {candidate && <div className="rounded-xl p-4 bg-slate-100 dark:bg-dark-card space-y-2">
           <p className="font-semibold">{candidate.program.primaryDept} · {Object.keys(candidate.basket).length} ders</p>
-          <p>{candidate.selectedCombination ? 'Seçilen şubeler ve program geri yüklenecek.' : 'Ders sepeti yüklenecek; ardından program oluşturabilirsiniz.'}</p>
-          {candidate.selectedCombination?.sections.map(s => <p key={s.course_code}>{s.course_code} · Şube {s.section_no}</p>)}
-          <p>Mevcut sepet, tercihler ve etkinlikler bu dosyayla değiştirilecek. Transkriptiniz korunur.</p>
+          <p>{candidate.selectedCombination ? 'Seçilen şubeler ve program geri yüklenecek.' : 'Ders seçimleri yüklenecek; ardından program oluşturabilirsiniz.'}</p>
+          {candidate.selectedCombination?.sections.map(s => <p key={s.course_code}>
+            {s.course_code}{candidate.basket[s.course_code]?.untimed ? ' · Haftalık ders saati yok' : ` · Şube ${s.section_no}`}
+          </p>)}
+          <p>Mevcut ders seçimleri, tercihler ve etkinlikler bu dosyayla değiştirilecek. Transkriptiniz korunur.</p>
           <button className="primary-action" onClick={() => {
             try { schedule.restorePlan(candidate); onRestored(); onClose(); } catch (err) { setError(err.message); }
           }}>Programı yükle</button>
         </div>}
       </div> : <div className="space-y-4 text-sm">
-        <p>{mode === 'calendar' ? 'Dersler seçtiğiniz tarih aralığında her hafta, İstanbul saatine göre eklenir. Tatiller otomatik çıkarılmaz.' : mode === 'csv' ? 'Seçili programın her ders saati ayrı bir satır olarak indirilir. Ders, şube, gün, saat, öğretim elemanı, derslik ve kredi bilgileri eklenir. Transkript ve notlar eklenmez.' : 'Seçili program, ders sepeti, tercihler ve kişisel etkinlikler kaydedilir. Transkript ve notlar dosyaya eklenmez.'}</p>
+        <p>{mode === 'calendar' ? 'Dersler seçtiğiniz tarih aralığında her hafta, İstanbul saatine göre eklenir. Tatiller otomatik çıkarılmaz.' : mode === 'csv' ? 'Seçili programın her ders saati ayrı bir satır olarak indirilir. Ders, şube, gün, saat, öğretim elemanı, derslik ve kredi bilgileri eklenir. Transkript ve notlar eklenmez.' : 'Seçili program, ders seçimleri, tercihler ve kişisel etkinlikler kaydedilir. Transkript ve notlar dosyaya eklenmez.'}</p>
         {mode !== 'csv' && <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <label>Dönem başlangıcı {mode === 'save' && '(isteğe bağlı)'}<input type="date" value={dates.start} onChange={e => setDates({ ...dates, start: e.target.value })} className="mt-1 w-full rounded-lg p-2 border bg-transparent" /></label>
           <label>Dönem bitişi<input type="date" value={dates.end} min={dates.start} onChange={e => setDates({ ...dates, end: e.target.value })} className="mt-1 w-full rounded-lg p-2 border bg-transparent" /></label>

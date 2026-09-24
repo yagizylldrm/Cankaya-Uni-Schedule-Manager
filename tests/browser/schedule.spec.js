@@ -29,7 +29,6 @@ async function createSchedule(page) {
   await mockApi(page);
   await page.goto('/');
   await page.getByRole('button', { name: 'Ekle', exact: true }).click();
-  await page.getByRole('button', { name: 'Program Oluştur', exact: true }).click();
   await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
 }
 
@@ -37,18 +36,101 @@ async function menu(page) {
   await page.getByRole('button', { name: 'Programı kaydet veya yükle' }).click();
 }
 
-test('mobile first visit guides course selection and agenda has no page overflow', async ({ page }) => {
+test('selected courses remain available across search filters and draft switches', async ({ page }) => {
+  await mockApi(page);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Ekle', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Çıkar', exact: true })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Planlar' }).click();
+  await page.getByPlaceholder('Yeni plan adı').fill('Cuma boş');
+  await page.getByRole('button', { name: 'Boş plan' }).click();
+  await expect(page.getByRole('button', { name: 'Ekle', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Çıkar', exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Planlar' }).click();
+  await page.getByRole('button', { name: 'Aç', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Çıkar', exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Çıkar', exact: true })).toBeVisible();
+});
+
+test('recently added courses appear first in the course list', async ({ page }) => {
+  const another = { ...course, code: 'CENG102', name: 'İkinci Ders' };
+  await mockApi(page);
+  await page.route('**/api/courses?**', route => route.fulfill({ json: [course, another] }));
+  await page.route('**/api/courses/CENG102?**', route => route.fulfill({ json: another }));
+  await page.goto('/');
+  const cards = page.locator('div.group').filter({ has: page.getByRole('button', { name: 'Ekle', exact: true }) });
+  await expect(cards).toHaveCount(2);
+  await cards.nth(1).getByRole('button', { name: 'Ekle' }).click();
+  await expect(page.locator('div.group').first()).toContainText('CENG102');
+  await page.locator('div.group').filter({ hasText: 'CENG101' }).getByRole('button', { name: 'Ekle' }).click();
+  await expect(page.locator('div.group').first()).toContainText('CENG101');
+});
+
+test('draft preview does not draw every alternative section at once', async ({ page }) => {
+  const sameTimeCourse = { ...course, sections: [sections[0], { ...sections[1], slots: sections[0].slots }] };
+  await mockApi(page);
+  await page.route('**/api/courses/CENG101?**', route => route.fulfill({ json: sameTimeCourse }));
+  await page.route('**/api/combinations', route => route.fulfill({ json: {
+    count: 0, combinations: [], conflicts_info: 'Uygun program bulunamadı.'
+  } }));
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Ekle', exact: true }).click();
+  await expect(page.getByText('Uygun program bulunamadı.')).toBeVisible();
+  await expect(page.locator('[data-weekly-grid] [title^="CENG101 Sec"]')).toHaveCount(1);
+  await expect(page.locator('[data-weekly-grid]')).not.toContainText('ÇAKIŞMA!');
+});
+
+test('custom activities can be reviewed and cleared from the list', async ({ page }) => {
+  await mockApi(page);
+  await page.addInitScript(() => localStorage.setItem('cankaya_custom_blocks', JSON.stringify({
+    'Pazartesi:12:00 - 12:50': { day: 'Pazartesi', time_slot: '12:00 - 12:50', title: 'Yemek', note: '', color: 'amber' },
+  })));
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Etkinlikler' }).click();
+  await expect(page.getByRole('dialog', { name: 'Özel etkinlikler' })).toContainText('Yemek');
+  await page.getByRole('button', { name: 'Sil', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Özel etkinlikler' })).toContainText('Henüz etkinlik eklenmedi');
+});
+
+test('transcript import shows and enables the passed-course filter', async ({ page }) => {
+  await mockApi(page);
+  await page.route('**/api/courses?**', async route => {
+    const hidePassed = new URL(route.request().url()).searchParams.get('hide_passed') === 'true';
+    await route.fulfill({ json: hidePassed ? [] : [course] });
+  });
+  await page.route('**/api/transcript/parse', route => route.fulfill({ json: {
+    all_detected_courses: [{ code: 'CENG101' }],
+    passed_courses: { CENG101: { code: 'CENG101', grade: 'AA' } },
+    failed_courses: {}, pending_courses: {},
+  } }));
+  await page.goto('/');
+  await expect(page.getByRole('checkbox', { name: 'Geçtiğim Dersleri Gizle' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Transkript & Ön Koşul', exact: true }).click();
+  await page.getByPlaceholder('Oasis transkript sayfasındaki tüm metni kopyalayıp (Ctrl+A, Ctrl+C) buraya yapıştırın...').fill('CENG101 Programming AA');
+  await page.getByRole('button', { name: 'Transkripti Ayrıştır ve Aktar' }).click();
+  await page.getByRole('button', { name: 'Tamam', exact: true }).click();
+  const filter = page.getByRole('checkbox', { name: 'Geçtiğim Dersleri Gizle' });
+  await expect(filter).toBeChecked();
+  await expect(page.getByRole('button', { name: 'Ekle', exact: true })).toHaveCount(0);
+  await filter.uncheck();
+  await expect(page.getByRole('button', { name: 'Ekle', exact: true })).toBeVisible();
+  await page.reload();
+  await expect(filter).not.toBeChecked();
+});
+
+test('mobile first visit shows course selection and agenda has no page overflow', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   await mockApi(page);
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Ders programını üç adımda oluştur' })).toBeVisible();
   await expect(page.getByPlaceholder('Ders kodu veya öğretim elemanı ara...')).toBeVisible();
-  await page.getByRole('button', { name: '1. Bölümünü seç' }).click();
+  await page.getByRole('combobox', { name: 'Ana bölüm' }).click();
   await expect(page.getByRole('combobox', { name: 'Ana bölüm' })).toBeFocused();
   await page.getByRole('button', { name: 'Ekle', exact: true }).click();
-  await page.getByRole('button', { name: 'Program Oluştur', exact: true }).click();
+  await page.getByRole('button', { name: 'Haftalık Program' }).click();
   await expect(page.getByRole('region', { name: 'Günlük program' })).toBeVisible();
   await page.getByLabel('Gün', { exact: true }).selectOption('Pazartesi');
   await expect(page.getByRole('button', { name: /09:00 - 09:50 CENG101/ })).toBeVisible();
@@ -56,24 +138,29 @@ test('mobile first visit guides course selection and agenda has no page overflow
   await page.getByRole('button', { name: 'Etkinlik ekle', exact: true }).click();
   await page.getByLabel('Etkinlik saati').selectOption('13:00 - 13:50');
   await page.getByRole('button', { name: 'Ekle', exact: true }).last().click();
-  await expect(page.getByText('Seçimler değişti — programı yeniden oluşturun.')).toBeVisible();
+  await expect(page.getByRole('button', { name: /13:00 - 13:50/ })).toBeVisible();
   expect(errors).toEqual([]);
   await page.screenshot({ path: 'test-results/mobile-agenda.png', fullPage: true });
 });
 
-test('stale results block exports and verified conflict action regenerates', async ({ page }) => {
+test('preference conflict provides actionable one-click resolution', async ({ page }) => {
   await createSchedule(page);
   await page.getByRole('checkbox', { name: 'Pazartesi Boş' }).check();
-  await expect(page.getByText('Seçimler değişti — programı yeniden oluşturun.')).toBeVisible();
-  await menu(page);
-  await expect(page.getByRole('button', { name: 'Programı kaydet (JSON)' })).toBeDisabled();
-  await expect(page.getByRole('button', { name: 'PNG Görsel Olarak' })).toBeDisabled();
-  await page.getByRole('heading', { name: 'Çankaya Üniversitesi', exact: true }).click();
-  await page.getByRole('button', { name: 'Yeniden oluştur', exact: true }).click();
   await expect(page.getByText('Pazartesi boş tercihini kaldırırsanız program oluşturulabilir.')).toBeVisible();
   await page.getByRole('button', { name: 'Tercihi kaldır ve oluştur' }).click();
   await expect(page.getByRole('checkbox', { name: 'Pazartesi Boş' })).not.toBeChecked();
   await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
+});
+
+test('impossible preference keeps the current timetable visible', async ({ page }) => {
+  await createSchedule(page);
+  await page.getByRole('button', { name: 'Sonraki Kombinasyon' }).click();
+  await expect(page.locator('[data-weekly-grid] [title^="CENG101 Sec 2"]')).toHaveCount(1);
+  await page.getByRole('checkbox', { name: 'Pazartesi Boş' }).check();
+  await expect(page.getByText(/Mevcut program korunuyor/)).toBeVisible();
+  await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
+  await expect(page.locator('[data-weekly-grid] [title^="CENG101 Sec 2"]')).toHaveCount(1);
+  await expect(page.locator('[data-weekly-grid] [title^="CENG101 Sec 1"]')).toHaveCount(0);
 });
 
 test('JSON saves selected alternative, reload retains it, import reviews and restores it', async ({ page }) => {
@@ -115,16 +202,16 @@ test('calendar export uses provided dates and default excludes personal activiti
   expect(content.match(/BEGIN:VEVENT/g)).toHaveLength(2);
 });
 
-test('changes during an in-flight generation remain stale when response arrives', async ({ page }) => {
+test('preference toggles trigger automatic debounced generation', async ({ page }) => {
   await createSchedule(page);
-  let release;
-  const gate = new Promise(resolve => { release = resolve; });
-  await page.route('**/api/combinations', async route => { await gate; await route.fulfill({ json: { count: 2, combinations: combos } }); });
-  await page.getByRole('button', { name: 'Program Oluştur', exact: true }).click();
+  let fridayRequested = false;
+  await page.route('**/api/combinations', async route => {
+    fridayRequested = route.request().postDataJSON().preferences?.free_friday === true;
+    await route.fulfill({ json: { count: 2, combinations: combos } });
+  });
   await page.getByRole('checkbox', { name: 'Cuma Günü Boş' }).check();
-  release();
-  await expect(page.getByRole('button', { name: 'Program Oluştur', exact: true })).toBeEnabled();
-  await expect(page.getByText('Seçimler değişti — programı yeniden oluşturun.')).toBeVisible();
+  await expect.poll(() => fridayRequested).toBe(true);
+  await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
 });
 
 test('malformed import leaves existing schedule intact', async ({ page }) => {
@@ -142,7 +229,7 @@ test('PNG export captures weekly timetable from the mobile agenda', async ({ pag
   await mockApi(page);
   await page.goto('/');
   await page.getByRole('button', { name: 'Ekle', exact: true }).click();
-  await page.getByRole('button', { name: 'Program Oluştur', exact: true }).click();
+  await page.getByRole('button', { name: 'Haftalık Program' }).click();
   await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
   await menu(page);
   const pending = page.waitForEvent('download');
@@ -173,13 +260,13 @@ test('adding and removing courses automatically updates the preview and generate
   await page.getByRole('button', { name: 'Ekle', exact: true }).click();
   await expect(page.locator('[data-weekly-grid]')).toContainText('MATH101');
   await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: /Ders Sepeti/ }).click();
-  await page.getByRole('button', { name: 'Sepetten Kaldır' }).first().click();
+  await expect(page.getByText('Ders Sepeti', { exact: true })).toHaveCount(0);
+  await page.locator('div.group').filter({ hasText: 'CENG101' }).getByRole('button', { name: 'Çıkar', exact: true }).click();
   await expect(page.locator('[data-weekly-grid]')).not.toContainText('CENG101');
   await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
   await expect(page.locator('[data-weekly-grid]')).toContainText('MATH101');
   expect(requests).toEqual([['CENG101'], ['CENG101', 'MATH101'], ['MATH101']]);
-  await page.getByRole('button', { name: 'Sepetten Kaldır' }).click();
+  await page.getByRole('button', { name: 'Çıkar', exact: true }).click();
   await expect(page.locator('[data-weekly-grid]')).not.toContainText('MATH101');
   await expect(page.getByText('Seçimler değişti — programı yeniden oluşturun.')).not.toBeVisible();
   expect(requests).toHaveLength(3);
@@ -196,8 +283,7 @@ test('removing the last course while generation is pending ignores the old respo
   await request;
   await expect(page.getByText('Program güncelleniyor…', { exact: true })).toBeVisible();
   await expect(page.locator('[data-weekly-grid]')).toContainText('CENG101');
-  await page.getByRole('button', { name: /Ders Sepeti/ }).click();
-  await page.getByRole('button', { name: 'Sepetten Kaldır' }).click();
+  await page.getByRole('button', { name: 'Çıkar', exact: true }).click();
   await expect(page.locator('[data-weekly-grid]')).not.toContainText('CENG101');
   const response = page.waitForResponse('**/api/combinations');
   release();
@@ -236,24 +322,124 @@ test('section selection regenerates automatically and ignores superseded respons
     await route.fulfill({ json: { count: matches.length, combinations: matches,
       conflicts_info: matches.length ? null : 'CENG101: en az bir şube seçin.' } });
   });
-  await page.getByRole('button', { name: /Ders Sepeti/ }).click();
-  await page.getByRole('button', { name: 'Şubeleri Göster' }).click();
+  await page.getByText('Şubeler (2/2)', { exact: true }).click();
   const requested = page.waitForRequest('**/api/combinations');
-  await page.getByRole('checkbox', { name: /Section 1/ }).uncheck();
+  await page.getByRole('checkbox', { name: /Şube 1/ }).uncheck();
   expect((await requested).postDataJSON().selected_courses.CENG101).toEqual(['2']);
   await expect(page.getByText('Program güncelleniyor…', { exact: true })).toBeVisible();
   await expect(page.locator('[data-weekly-grid]')).not.toContainText('S.1');
   await expect(page.locator('[data-weekly-grid]')).toContainText('S.2');
-  await page.getByRole('checkbox', { name: /Section 2/ }).uncheck();
+  await page.getByRole('checkbox', { name: /Şube 2/ }).uncheck();
   await expect(page.getByText('CENG101: en az bir şube seçin.', { exact: true })).toBeVisible();
   const oldResponse = page.waitForResponse('**/api/combinations');
   release();
   await oldResponse;
   await expect(page.locator('[data-weekly-grid]')).not.toContainText('CENG101');
   await expect(page.getByText('Seçili program', { exact: true })).not.toBeVisible();
-  await page.getByRole('checkbox', { name: /Section 1/ }).check();
+  await page.getByRole('checkbox', { name: /Şube 1/ }).check();
   await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
   await expect(page.locator('[data-weekly-grid]')).toContainText('S.1');
   await expect(page.locator('[data-weekly-grid]')).not.toContainText('S.2');
   await expect(page.getByText('CENG101: en az bir şube seçin.', { exact: true })).not.toBeVisible();
+});
+
+test('adding another course keeps the page and previous timetable steady while updating', async ({ page }) => {
+  await mockApi(page);
+  const other = { ...course, code: 'MATH101', name: 'Matematik', sections: [{ ...sections[0], slots: [{ day: 'Salı', time_slot: '10:00 - 10:50' }] }] };
+  await page.route('**/api/courses?*', route => route.fulfill({ json: [course, other] }));
+  await page.route('**/api/courses/MATH101?*', route => route.fulfill({ json: other }));
+  let release;
+  const gate = new Promise(resolve => { release = resolve; });
+  await page.route('**/api/combinations', async route => {
+    const selected = route.request().postDataJSON().selected_courses;
+    const codes = Object.keys(selected);
+    if (codes.length === 2) await gate;
+    const chosen = codes.map(code => ({ ...(code === 'CENG101' ? sections[0] : other.sections[0]), course_code: code }));
+    await route.fulfill({ json: { count: 1, combinations: [{ ...combos[0], total_courses: codes.length, sections: chosen }] } });
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Ekle', exact: true }).first().click();
+  await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
+  const topBefore = await page.locator('[data-schedule-panel]').evaluate(element => element.getBoundingClientRect().top);
+  await page.getByRole('button', { name: 'Ekle', exact: true }).click();
+  await expect(page.getByText('Program güncelleniyor…', { exact: true })).toBeVisible();
+  await expect(page.locator('[data-weekly-grid]')).toContainText('CENG101');
+  expect(await page.locator('[data-schedule-panel]').evaluate(element => element.getBoundingClientRect().top)).toBe(topBefore);
+  release();
+  await expect(page.locator('[data-weekly-grid]')).toContainText('MATH101');
+  expect(await page.locator('[data-schedule-panel]').evaluate(element => element.getBoundingClientRect().top)).toBe(topBefore);
+});
+
+test('instructor filter selects only that teacher’s sections in the timetable', async ({ page }) => {
+  await mockApi(page);
+  const taughtSections = [
+    { ...sections[0], instructor: 'Dr. Ayşe Yılmaz' },
+    { ...sections[1], instructor: 'Dr. Mehmet Kaya' }
+  ];
+  const taughtCourse = { ...course, instructors: taughtSections.map(s => s.instructor), sections: taughtSections };
+  const requests = [];
+  await page.route('**/api/courses?*', route => route.fulfill({ json: [taughtCourse] }));
+  await page.route('**/api/courses/CENG101?*', route => route.fulfill({ json: taughtCourse }));
+  await page.route('**/api/combinations', async route => {
+    const selected = route.request().postDataJSON().selected_courses.CENG101;
+    requests.push(selected);
+    const matching = taughtSections.filter(s => selected.includes(s.section_no));
+    await route.fulfill({ json: { count: matching.length, combinations: matching.map((s, index) => ({
+      index, total_courses: 1, total_credits: 3, total_ects: 5, days_count: 1,
+      sections: [{ ...s, course_code: course.code }]
+    })) } });
+  });
+  await page.goto('/');
+  const filter = page.getByRole('combobox', { name: 'CENG101 hoca filtresi' });
+  await expect(filter).toBeVisible();
+  await filter.selectOption('Dr. Mehmet Kaya');
+  await page.getByRole('button', { name: 'Ekle', exact: true }).click();
+  await expect(page.locator('[data-weekly-grid]')).toContainText('Dr. Mehmet Kaya');
+  await expect.poll(() => requests.at(-1)).toEqual(['2']);
+
+  await filter.selectOption('Dr. Ayşe Yılmaz');
+  await expect(page.locator('[data-weekly-grid]')).toContainText('Dr. Ayşe Yılmaz');
+  await expect(page.locator('[data-weekly-grid]')).not.toContainText('Dr. Mehmet Kaya');
+  await expect.poll(() => requests.at(-1)).toEqual(['1']);
+  await page.reload();
+  await expect(filter).toHaveValue('Dr. Ayşe Yılmaz');
+  await expect(page.locator('[data-weekly-grid]')).toContainText('Dr. Ayşe Yılmaz');
+  await filter.selectOption('');
+  await expect.poll(() => requests.at(-1)).toEqual(['1', '2']);
+  await expect(filter).toHaveValue('');
+});
+
+test('adding a course shows immediate progress while its details load', async ({ page }) => {
+  await mockApi(page);
+  let release;
+  const gate = new Promise(resolve => { release = resolve; });
+  await page.route('**/api/courses/CENG101?*', async route => {
+    await gate;
+    await route.fulfill({ json: course });
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Ekle', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Ekleniyor…' })).toBeVisible();
+  release();
+  await expect(page.getByRole('button', { name: 'Çıkar', exact: true })).toBeVisible();
+  await expect(page.locator('[data-weekly-grid]')).toContainText('CENG101');
+});
+
+test('compact program response renders the same sections', async ({ page }) => {
+  await mockApi(page);
+  let compactRequested = false;
+  await page.route('**/api/combinations', async route => {
+    compactRequested = route.request().postDataJSON().compact === true;
+    await route.fulfill({ json: {
+      count: 2,
+      section_catalog: { CENG101: Object.fromEntries(sections.map(s => [s.section_no, { ...s, course_code: course.code }])) },
+      combinations: sections.map((s, index) => ({ index, total_courses: 1, total_credits: 3,
+        total_ects: 5, days_count: 1, section_refs: [[course.code, s.section_no]] }))
+    } });
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Ekle', exact: true }).click();
+  await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
+  await expect(page.locator('[data-weekly-grid]')).toContainText('CENG101');
+  expect(compactRequested).toBe(true);
 });

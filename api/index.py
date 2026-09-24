@@ -58,10 +58,12 @@ class CombinationsRequest(BaseModel):
     selected_courses: Dict[str, List[str]]  # { "CENG111": ["1", "2"], "MATH157": ["1"] }
     preferences: Optional[Dict[str, bool]] = None  # { "free_friday": False, "free_monday": False, "no_morning": False }
     custom_blocks: Optional[Dict[str, Dict[str, Any]]] = None
+    compact: bool = False
 
 class PrereqCheckRequest(BaseModel):
     course_codes: List[str]
     passed_courses: Dict[str, Any] = {}
+    primary_dept: str = 'CENG'
 
 class TranscriptTextRequest(BaseModel):
     text: str
@@ -111,7 +113,10 @@ def get_departments():
         if code not in dept_map:
             dept_map[code] = name
 
-    result = [{"code": k, "name": v} for k, v in dept_map.items()]
+    result = [{"code": k, "name": v,
+               "has_curriculum": k in dm.official_curricula,
+               "curriculum_name": dm.official_curricula.get(k, {}).get("curriculum_name", "")}
+              for k, v in dept_map.items()]
     result.sort(key=lambda x: x["code"])
     return result
 
@@ -126,6 +131,7 @@ def get_courses(
     secondary_type: str = "YOK",
     only_eligible: bool = False,
     hide_passed: bool = False,
+    include_outside_curriculum: bool = False,
     passed_codes: str = ""
 ):
     """Search and filter courses based on department, course type, and student profile."""
@@ -134,12 +140,18 @@ def get_courses(
     if passed_codes:
         passed_set = {dm.normalize_code(c.strip()) for c in passed_codes.split(",") if c.strip()}
 
+    allowed_codes = None if include_outside_curriculum else dm.curriculum_course_codes(
+        primary_dept, secondary_dept, secondary_type)
+    custom_codes = set(dm.student_profile.get("custom_overrides", {}))
     results = []
     for course in dm.courses.values():
         if dept and dept != "TÜMÜ" and course.dept_code != dept:
             continue
 
         norm_code = dm.normalize_code(course.code)
+
+        if allowed_codes is not None and norm_code not in allowed_codes and norm_code not in custom_codes:
+            continue
 
         if hide_passed and norm_code in passed_set:
             continue
@@ -173,13 +185,13 @@ def get_courses(
             if not matches_code and not matches_inst:
                 continue
 
-        prereq_info = PrerequisiteManager.check_prerequisites(norm_code, passed_set)
+        prereq_info = PrerequisiteManager.check_prerequisites(norm_code, passed_set, primary_dept=primary_dept)
         can_take = prereq_info.get("can_take", True)
         if only_eligible and not can_take:
             continue
 
-        credit, ects = dm.get_course_credits(course.code)
-        c_info = dm.get_course_info(course.code)
+        credit, ects = dm.get_course_credits(course.code, primary_dept=primary_dept)
+        c_info = dm.get_course_info(course.code, primary_dept=primary_dept)
         instructors = sorted(list({sec.instructor for sec in course.sections.values() if sec.instructor != "Belirsiz"}))
 
         results.append({
@@ -191,6 +203,7 @@ def get_courses(
             "type": course_type,
             "type_label": type_label,
             "sections_count": len(course.sections),
+            "untimed": is_untimed_course(course),
             "instructors": instructors,
             "can_take": can_take,
             "prereq_message": prereq_info.get("message", ""),
@@ -230,7 +243,7 @@ def get_course_detail(
     else:
         course = dm.courses[norm]
 
-    c_info = dm.get_course_info(course.code)
+    c_info = dm.get_course_info(course.code, primary_dept=primary_dept)
     course_type, type_label = dm.classify_course(
         course.code,
         primary_dept=primary_dept,
@@ -242,8 +255,8 @@ def get_course_detail(
     if passed_codes:
         passed_set = {dm.normalize_code(c.strip()) for c in passed_codes.split(",") if c.strip()}
 
-    prereq_info = PrerequisiteManager.check_prerequisites(norm, passed_set)
-    credit, ects = dm.get_course_credits(course.code)
+    prereq_info = PrerequisiteManager.check_prerequisites(norm, passed_set, primary_dept=primary_dept)
+    credit, ects = dm.get_course_credits(course.code, primary_dept=primary_dept)
 
     sections_data = []
     for sec_no, sec in sorted(course.sections.items(), key=lambda x: str(x[0])):
@@ -257,6 +270,7 @@ def get_course_detail(
         sections_data.append({
             "section_no": sec.section_no,
             "instructor": sec.instructor,
+            "instructor_evidence": sec.instructor_evidence,
             "classroom": sec.classroom,
             "slots": slots_data
         })
@@ -273,8 +287,16 @@ def get_course_detail(
         "course_url": c_info.get("course_url", f"http://{norm.lower()}.cankaya.edu.tr/"),
         "dept_url": c_info.get("dept_url", ""),
         "prerequisites": prereq_info,
+        "instructor_reference": dm.instructor_references.get(norm),
+        "untimed": is_untimed_course(course),
         "sections": sections_data
     }
+
+
+def is_untimed_course(course):
+    """Only verified zero-credit courses without meetings may omit section choices."""
+    details = dm.KNOWN_COURSE_DETAILS.get(dm.normalize_code(course.code), {})
+    return not course.sections and details.get("credit") == 0
 
 
 @router.post("/combinations")
@@ -302,7 +324,14 @@ def generate_schedule_combinations(req: CombinationsRequest):
 
         selected_sections = []
         if not sec_nos:
-            invalid_selections.append(f"{code}: en az bir şube seçin.")
+            if is_untimed_course(course):
+                # A registration-only course contributes ECTS without occupying
+                # any weekly time. Keep it in every combination as an empty slot.
+                selected_sections.append(Section(course.code, "SAATSIZ", slots=[]))
+            elif not course.sections:
+                invalid_selections.append(f"{code}: bu ders için şube veya haftalık saat bilgisi bulunamadı.")
+            else:
+                invalid_selections.append(f"{code}: en az bir şube seçin.")
         else:
             for sno in sec_nos:
                 s_str = str(sno)
@@ -318,7 +347,7 @@ def generate_schedule_combinations(req: CombinationsRequest):
         messages = [f"{code}: güncel ders listesinde bulunamadı." for code in missing_courses] + invalid_selections
         return {"count": 0, "combinations": [], "conflicts_info": "Ders ve şube seçimlerinizi kontrol edin.",
                 "conflict_details": [{"kind": "selection", "message": message,
-                    "action": {"type": "review_basket", "label": "Ders sepetini incele"}} for message in messages]}
+                    "action": {"type": "review_basket", "label": "Ders seçimlerini incele"}} for message in messages]}
 
     if not target_dict:
         return {
@@ -358,47 +387,52 @@ def generate_schedule_combinations(req: CombinationsRequest):
                 "Lütfen farklı şubeler seçmeyi veya filtre tercihlerinizi esnetmeyi deneyin."
             )
 
+    credits = {code: dm.get_course_credits(code) for code in target_dict}
+    total_credit = sum(value[0] for value in credits.values())
+    total_ects = sum(value[1] for value in credits.values())
+    section_payloads = {
+        id(sec): {
+            "course_code": sec.course_code,
+            "section_no": sec.section_no,
+            "instructor": sec.instructor,
+            "classroom": sec.classroom,
+            "slots": [slot.to_dict() for slot in sec.slots],
+        }
+        for sections in target_dict.values() for sec in sections
+    }
+    section_days = {
+        id(sec): {slot.day for slot in sec.slots}
+        for sections in target_dict.values() for sec in sections
+    }
     serialized_combos = []
     for idx, combo in enumerate(raw_combos):
-        total_credit = 0
-        total_ects = 0
         days_used = set()
         combo_sections = []
-
-        distinct_codes = set()
         for sec in combo:
-            if sec.course_code not in distinct_codes:
-                distinct_codes.add(sec.course_code)
-                cr, ec = dm.get_course_credits(sec.course_code)
-                total_credit += cr
-                total_ects += ec
-
-            for slot in sec.slots:
-                days_used.add(slot.day)
-
-            combo_sections.append({
-                "course_code": sec.course_code,
-                "section_no": sec.section_no,
-                "instructor": sec.instructor,
-                "classroom": sec.classroom,
-                "slots": [s.to_dict() for s in sec.slots]
-            })
+            days_used.update(section_days[id(sec)])
+            combo_sections.append([sec.course_code, sec.section_no] if req.compact else section_payloads[id(sec)])
 
         serialized_combos.append({
             "index": idx,
-            "total_courses": len(distinct_codes),
+            "total_courses": len(target_dict),
             "total_credits": total_credit,
             "total_ects": total_ects,
             "days_count": len(days_used),
-            "sections": combo_sections
+            "section_refs" if req.compact else "sections": combo_sections
         })
 
-    return {
+    response = {
         "count": count,
         "combinations": serialized_combos,
         "conflicts_info": conflicts_info,
         "conflict_details": scheduler.explain_conflicts(target_dict, prefs, custom_blocks) if count == 0 else []
     }
+    if req.compact:
+        response["section_catalog"] = {
+            code: {str(sec.section_no): section_payloads[id(sec)] for sec in sections}
+            for code, sections in target_dict.items()
+        }
+    return response
 
 
 @router.post("/prerequisites/check")
@@ -409,7 +443,7 @@ def check_prerequisites(req: PrereqCheckRequest):
 
     for code in req.course_codes:
         norm = dm.normalize_code(code)
-        info = PrerequisiteManager.check_prerequisites(norm, passed_dict)
+        info = PrerequisiteManager.check_prerequisites(norm, passed_dict, primary_dept=req.primary_dept)
         results[code] = info
 
     return {"results": results}
@@ -463,11 +497,6 @@ def get_curriculum_progress(req: CurriculumProgressRequest):
     return progress
 
 
-# Mount routes under both /api and root / and /api/index.py
-app.include_router(router, prefix="/api")
-app.include_router(router, prefix="")
-app.include_router(router, prefix="/api/index.py")
-
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -490,6 +519,11 @@ def root_page():
         "status": "ok",
         "courses_count": len(dm.courses)
     }
+
+# Register the SPA root before the compatibility router's own GET / endpoint.
+app.include_router(router, prefix="/api")
+app.include_router(router, prefix="/api/index.py")
+app.include_router(router, prefix="")
 
 @app.get("/{full_path:path}")
 def catch_all(full_path: str):

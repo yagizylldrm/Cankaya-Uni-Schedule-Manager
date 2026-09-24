@@ -1,6 +1,49 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createPlan, validatePlan, buildCalendar, buildCSV, inputSignature, parseTimeRange } from '../src/utils/plan.js';
+import { emptyDraft, validateDraftName } from '../src/utils/drafts.js';
+import { choosePreviewSections } from '../src/utils/previewSections.js';
+import { generateCombinations } from '../src/services/api.js';
+
+test('API combinations count distinct weekly timetables after hydration', async () => {
+  const originalFetch = globalThis.fetch;
+  const sections = {
+    '1': { course_code: 'EE205', section_no: '1', slots: [{ day: 'Cuma', time_slot: '09:00/09:20' }] },
+    '2': { course_code: 'EE205', section_no: '2', slots: [{ day: 'Cuma', time_slot: '09:00 - 09:50' }] },
+    '3': { course_code: 'EE205', section_no: '3', slots: [{ day: 'Salı', time_slot: '15:00/15:20' }] },
+  };
+  globalThis.fetch = async () => ({ ok: true, json: async () => ({
+    count: 3,
+    section_catalog: { EE205: sections },
+    combinations: ['1', '2', '3'].map((number, index) => ({ index, section_refs: [['EE205', number]] }))
+  }) });
+  try {
+    const result = await generateCombinations({ EE205: ['1', '2', '3'] });
+    assert.equal(result.count, 2);
+    assert.deepEqual(result.combinations.map(combo => combo.sections[0].section_no), ['1', '3']);
+    assert.deepEqual(result.combinations.map(combo => combo.index), [0, 1]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('draft preview shows one EE205 section and avoids an avoidable clash', () => {
+  const at = (day, hour) => ({ day, time_slot: `${hour}:00/${hour}:20` });
+  const basket = {
+    CENG466: { code: 'CENG466', selectedSections: ['2'], allSections: [
+      { section_no: '2', slots: [at('Çarşamba', '13')] }] },
+    EE205: { code: 'EE205', selectedSections: ['3', '8'], allSections: [
+      { section_no: '3', slots: [at('Çarşamba', '13'), at('Cuma', '09')] },
+      { section_no: '8', slots: [at('Salı', '15'), at('Cuma', '09')] }] },
+    MATH205: { code: 'MATH205', selectedSections: ['1'], allSections: [
+      { section_no: '1', slots: [at('Salı', '09')] }] },
+    PHYS132: { code: 'PHYS132', selectedSections: ['2'], allSections: [
+      { section_no: '2', slots: [at('Salı', '09')] }] },
+  };
+  const preview = choosePreviewSections(basket);
+  assert.equal(preview.length, 4);
+  assert.equal(preview.find(section => section.course_code === 'EE205').section_no, '8');
+});
 
 const section = { section_no: '2', instructor: 'Öğretim Üyesi', classroom: 'B-102', slots: [{ day: 'Pazartesi', time_slot: '09:00/09:20' }] };
 const state = {
@@ -20,6 +63,22 @@ test('saved plan round trip preserves chosen sections and drops transcript/unkno
   assert.equal(restored.selectedCombination.total_credits, 3);
   assert.ok(!JSON.stringify(saved).includes('SECRET'));
   assert.ok(!JSON.stringify(saved).includes('passedCourses'));
+});
+
+test('untimed zero-credit courses survive save, import and CSV export', () => {
+  const internship = { code: 'CENG200', name: 'Yaz Stajı I', credit: 0, ects: 5,
+    untimed: true, selectedSections: [], allSections: [] };
+  const plan = createPlan({ ...state,
+    basket: { ...state.basket, CENG200: internship },
+    selectedCombination: { sections: [...state.selectedCombination.sections,
+      { course_code: 'CENG200', section_no: 'SAATSIZ', instructor: 'Belirsiz', classroom: '', slots: [] }] },
+  });
+  assert.deepEqual(validatePlan(JSON.parse(JSON.stringify(plan))), plan);
+  assert.equal(plan.selectedCombination.total_ects, 10);
+  assert.ok(buildCSV(plan).includes('"Ders","CENG200","Yaz Stajı I","SAATSIZ"'));
+  const invalid = structuredClone(plan);
+  invalid.basket.CENG200.untimed = false;
+  assert.throws(() => validatePlan(invalid));
 });
 
 test('reject malformed plans and selected sections that disagree with basket', () => {
@@ -104,4 +163,22 @@ test('CSV keeps courses with unknown times and orders timed rows by weekday', ()
   const csv = buildCSV(plan, true);
   assert.ok(csv.includes('"Ders","CENG101","Ders","2","","",""'));
   assert.ok(csv.indexOf('"Etkinlik"') < csv.indexOf('"Ders","CENG101"'));
+});
+
+test('validateDraftName enforces length, trimmed text and uniqueness', () => {
+  const existing = [{ id: '1', name: 'Plan 1' }, { id: '2', name: 'Alternatif' }];
+  assert.equal(validateDraftName('  Yedek Plan  ', existing), 'Yedek Plan');
+  assert.throws(() => validateDraftName('', existing));
+  assert.throws(() => validateDraftName('   ', existing));
+  assert.throws(() => validateDraftName('a'.repeat(61), existing));
+  assert.throws(() => validateDraftName('plan 1', existing));
+  assert.equal(validateDraftName('Plan 1', existing, '1'), 'Plan 1');
+});
+
+test('emptyDraft creates clean default plan structure', () => {
+  const draft = emptyDraft({ primaryDept: 'CENG', secondaryDept: 'YOK', secondaryType: 'YOK' });
+  assert.equal(draft.version, 1);
+  assert.deepEqual(draft.basket, {});
+  assert.equal(draft.program.primaryDept, 'CENG');
+  assert.equal(draft.selectedCombination, null);
 });

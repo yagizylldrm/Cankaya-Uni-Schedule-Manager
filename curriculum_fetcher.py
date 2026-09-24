@@ -1,5 +1,6 @@
 import urllib.request
 import urllib.parse
+import urllib.error
 import ssl
 import json
 import os
@@ -13,16 +14,17 @@ class CurriculumFetcher:
     and cankaya_official_prerequisites.json.
     """
     BASE_URL = "https://ogbs.cankaya.edu.tr/Api/InformationPack"
-    TOKEN = "REDACTED_OGBS_TOKEN"
-
     def __init__(self, base_dir=None):
         self.ctx = ssl._create_unverified_context()
-        self.base_dir = base_dir or os.path.dirname(os.path.abspath(__file__))
+        self.base_dir = base_dir or os.path.join(os.path.dirname(os.path.abspath(__file__)), "api")
+        self.token = os.environ.get("CANKAYA_EBS_TOKEN", "").strip()
         self.curricula_path = os.path.join(self.base_dir, "cankaya_official_curricula.json")
         self.details_path = os.path.join(self.base_dir, "cankaya_course_details.json")
         self.prereqs_path = os.path.join(self.base_dir, "cankaya_official_prerequisites.json")
 
     def _api_get(self, endpoint, params=None):
+        if not self.token:
+            raise RuntimeError("CANKAYA_EBS_TOKEN ortam değişkeni gerekli; mevcut veri değiştirilmedi.")
         if params:
             query = "&".join(f"{k}={urllib.parse.quote(str(v))}" for k, v in params.items())
             url = f"{self.BASE_URL}{endpoint}?{query}"
@@ -30,14 +32,18 @@ class CurriculumFetcher:
             url = f"{self.BASE_URL}{endpoint}"
 
         req = urllib.request.Request(url, headers={
-            "Authorization": f"Bearer {self.TOKEN}",
+            "Authorization": f"Bearer {self.token}",
             "Content-Type": "application/json",
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
         })
         try:
             with urllib.request.urlopen(req, context=self.ctx, timeout=15) as resp:
                 return json.loads(resp.read().decode("utf-8"))
-        except Exception as e:
+        except urllib.error.HTTPError as e:
+            if e.code in (401, 403):
+                raise RuntimeError("EBS yetkilendirmesi başarısız; CANKAYA_EBS_TOKEN değerini yenileyin.") from e
+            return None
+        except Exception:
             return None
 
     @staticmethod
@@ -80,6 +86,10 @@ class CurriculumFetcher:
 
     def _infer_dept_code(self, dept_info):
         """Infers department short code like CENG, SENG, ECE, IE, ME."""
+        # Mathematics is deliberately excluded from the generic service-course
+        # prefix count below, but it is the owning department of this program.
+        name = dept_info["program_name"].upper()
+        if "MATEMAT" in name: return "MATH"
         counts = {}
         for c in dept_info["compulsory_courses"]:
             parts = c["code"].split()
@@ -90,7 +100,6 @@ class CurriculumFetcher:
         if counts:
             return max(counts, key=counts.get)
         # Fallback from program name
-        name = dept_info["program_name"].upper()
         if "BİLGİSAYAR MÜHENDİSLİĞİ" in name: return "CENG"
         if "YAZILIM MÜHENDİSLİĞİ" in name: return "SENG"
         if "ELEKTRİK-ELEKTRONİK" in name: return "EE"
@@ -108,12 +117,15 @@ class CurriculumFetcher:
         if "MATEMATİK" in name: return "MATH"
         return f"PROG_{dept_info['program_id']}"
 
-    def fetch_all_curricula(self, progress_callback=None, dept_list=None, cancel_check=None):
+    def fetch_all_curricula(self, progress_callback=None, dept_list=None, cancel_check=None,
+                            refresh_prerequisites=True):
         """
         Fetches curricula for undergraduate departments from Bilgi Paketi API.
         Merges with existing local files so previous data is not lost.
         Returns: (success: bool, dept_count: int, course_count: int)
         """
+        if not self.token:
+            raise RuntimeError("CANKAYA_EBS_TOKEN ortam değişkeni gerekli; mevcut veri değiştirilmedi.")
         # 1. Load existing data if available
         all_curricula = {}
         if os.path.exists(self.curricula_path):
@@ -135,6 +147,9 @@ class CurriculumFetcher:
         norm_dept_filter = None
         if dept_list:
             norm_dept_filter = {self.normalize_code(d) for d in dept_list}
+        selected_program_ids = {str(all_curricula[code]["program_id"])
+                                for code in (norm_dept_filter or [])
+                                if code in all_curricula and all_curricula[code].get("program_id")}
 
         # 2. Fetch faculties
         if progress_callback:
@@ -142,8 +157,8 @@ class CurriculumFetcher:
 
         faculties = self.get_faculties("L")
         if not faculties:
-            # If API is unreachable, keep existing cache and return true
-            return True, len(all_curricula), len(course_details)
+            # If API is unreachable, keep existing cache and report failure.
+            return False, len(all_curricula), len(course_details)
 
         # Collect all departments to fetch
         all_dept_entries = []
@@ -166,6 +181,8 @@ class CurriculumFetcher:
             processed += 1
             prog_id = dept.get("ProgramId")
             prog_name = dept.get("ProgramAdi", "")
+            if norm_dept_filter and selected_program_ids and str(prog_id) not in selected_program_ids:
+                continue
 
             if progress_callback:
                 progress_callback(processed, total_depts, f"Müfredat indiriliyor: {prog_name}")
@@ -175,7 +192,12 @@ class CurriculumFetcher:
                 continue
 
             # Latest curriculum
-            latest_curr = currs[0]
+            def curriculum_sort_key(record):
+                name = str(record[2]) if len(record) > 2 else ""
+                year = re.search(r"20\d{2}", name)
+                return (int(year.group()) if year else 0, int(record[0]))
+
+            latest_curr = max(currs, key=curriculum_sort_key)
             curr_id = latest_curr[0]
             curr_name = latest_curr[2] if len(latest_curr) > 2 else str(curr_id)
 
@@ -312,11 +334,21 @@ class CurriculumFetcher:
 
         # 3. Save to disk
         try:
-            with open(self.curricula_path, "w", encoding="utf-8") as f:
-                json.dump(all_curricula, f, ensure_ascii=False, indent=2)
-            with open(self.details_path, "w", encoding="utf-8") as f:
-                json.dump(course_details, f, ensure_ascii=False, indent=2)
+            for path, data in ((self.curricula_path, all_curricula), (self.details_path, course_details)):
+                temp = path + '.tmp'
+                with open(temp, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, ensure_ascii=False, indent=2)
+                os.replace(temp, path)
         except Exception as e:
             print(f"[CurriculumFetcher] Error saving files: {e}")
+            return False, len(all_curricula), len(course_details)
+
+        # 4. Refresh official prerequisites
+        if refresh_prerequisites:
+            try:
+                import refresh_prerequisites
+                refresh_prerequisites.main()
+            except Exception as e:
+                print(f"[CurriculumFetcher] Warning: could not refresh prerequisites: {e}")
 
         return True, len(all_curricula), len(course_details)

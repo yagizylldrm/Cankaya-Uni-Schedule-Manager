@@ -143,9 +143,9 @@ class SchedulerEngine:
         details = []
         budget = [40000]
 
-        def feasible(prefs, blocks):
+        def feasible(prefs, blocks, courses=course_sections_dict):
             candidates = []
-            for sections in course_sections_dict.values():
+            for sections in courses.values():
                 allowed = [s for s in sections if self.filter_and_rank_combinations([[s]], prefs)
                            and not self.section_overlaps_custom_blocks(s, blocks)[0]]
                 if not allowed:
@@ -211,15 +211,29 @@ class SchedulerEngine:
                 details.append({"kind": "course_pair", "message":
                     f"{code_a} ve {code_b} için seçtiğiniz şubelerin her eşleşmesi çakışıyor. "
                     f"Örnek: şube {a.section_no} / {b.section_no}, {slot.day} {slot.time_slot}.",
-                    "action": {"type": "review_basket", "label": "Sepette şubeleri değiştir"}})
+                    "action": {"type": "review_basket", "label": "Ders şubelerini değiştir"}})
             if len(details) >= 8:
                 break
 
         if not details:
+            # A conflict may require three courses even when every pair has a
+            # compatible section choice. Name that group when it is verified.
+            for subset in combinations(course_sections_dict.items(), 3):
+                if budget[0] <= 0:
+                    break
+                if feasible({}, {}, dict(subset)) is False:
+                    codes = [code for code, _ in subset]
+                    details.append({"kind": "course_group", "message":
+                        f"{', '.join(codes[:-1])} ve {codes[-1]} derslerinin seçili şubeleri "
+                        "birlikte çakışmasız bir program oluşturmuyor.",
+                        "action": {"type": "review_basket", "label": "Ders şubelerini değiştir"}})
+                    break
+
+        if not details:
             details.append({"kind": "combined", "message":
                 "Ders, şube, tercih ve etkinlik kısıtları birlikte uygun bir program bırakmıyor. "
-                "Sepetten farklı şubeler seçin veya birden fazla tercihi esnetin.",
-                "action": {"type": "review_basket", "label": "Ders sepetini incele"}})
+                "Farklı şubeler seçin veya birden fazla tercihi esnetin.",
+                "action": {"type": "review_basket", "label": "Ders seçimlerini incele"}})
         return details[:8]
 
     def generate_combinations(self, course_sections_dict, preferences=None, custom_blocks=None):
@@ -235,11 +249,29 @@ class SchedulerEngine:
         if not course_codes:
             return []
 
+        # Sections with the same meeting times produce the same weekly timetable.
+        # The request has already applied the student's section/instructor choices.
+        # Keep one representative so identical schedules are not multiplied.
+        def timetable_key(section):
+            meetings = []
+            for slot in section.slots:
+                start, end = self.parse_time_range(slot.time_slot)
+                meetings.append((slot.day, 0, start, end) if start is not None
+                                else (slot.day, 1, slot.time_slot, ''))
+            return tuple(sorted(meetings))
+
         # List of lists of candidate sections per course, pruning any section that conflicts with custom blocks
         sections_per_course = []
         for code in course_codes:
-            secs = [s for s in course_sections_dict.get(code, [])
-                    if self.filter_and_rank_combinations([[s]], preferences or {})]
+            seen_timetables = set()
+            secs = []
+            for section in course_sections_dict.get(code, []):
+                if not self.filter_and_rank_combinations([[section]], preferences or {}):
+                    continue
+                key = timetable_key(section)
+                if key not in seen_timetables:
+                    seen_timetables.add(key)
+                    secs.append(section)
             if not secs:
                 return []
 
@@ -258,6 +290,18 @@ class SchedulerEngine:
         if not sections_per_course:
             return []
 
+        # A section pair's timetable never changes during this search. Check it
+        # once instead of comparing every slot again at every backtracking node.
+        incompatible_earlier = {}
+        for later_index in range(1, len(sections_per_course)):
+            for later in sections_per_course[later_index]:
+                conflicts = set()
+                for earlier_sections in sections_per_course[:later_index]:
+                    for earlier in earlier_sections:
+                        if self.sections_overlap(later, earlier)[0]:
+                            conflicts.add(id(earlier))
+                incompatible_earlier[id(later)] = conflicts
+
         valid_combinations = []
 
         def backtrack(course_idx, current_combination):
@@ -267,15 +311,8 @@ class SchedulerEngine:
 
             candidate_sections = sections_per_course[course_idx]
             for sec in candidate_sections:
-                # Check conflict with already selected sections
-                conflict_found = False
-                for existing_sec in current_combination:
-                    overlap, _ = self.sections_overlap(sec, existing_sec)
-                    if overlap:
-                        conflict_found = True
-                        break
-
-                if not conflict_found:
+                if not any(id(existing_sec) in incompatible_earlier.get(id(sec), ())
+                           for existing_sec in current_combination):
                     current_combination.append(sec)
                     backtrack(course_idx + 1, current_combination)
                     current_combination.pop()

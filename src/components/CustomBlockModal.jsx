@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useSchedule } from '../context/ScheduleContext';
+﻿import React, { useState, useEffect } from 'react';
+import { useSchedule } from '../context/useSchedule';
 import { X, Trash2, Check, Clock, Calendar } from 'lucide-react';
 
 const PRESETS = [

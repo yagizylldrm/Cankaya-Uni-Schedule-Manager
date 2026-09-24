@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useSchedule } from '../context/ScheduleContext';
+import { useSchedule } from '../context/useSchedule';
 import { fetchDepartments, fetchCourses, fetchCourseDetail } from '../services/api';
 import { 
   Search, 
   Plus, 
-  Check, 
+  Minus,
   Info, 
   Filter, 
   Layers, 
@@ -19,6 +19,9 @@ export default function CourseSearchPanel() {
     updateProfile,
     basket,
     addToBasket,
+    removeFromBasket,
+    toggleSectionSelection,
+    selectCourseInstructor,
     passedCodesString,
     setCourseDetailModalCode
   } = useSchedule();
@@ -26,13 +29,20 @@ export default function CourseSearchPanel() {
   const [departments, setDepartments] = useState([]);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [addingCodes, setAddingCodes] = useState({});
 
   // Search & Filter state
   const [selectedDept, setSelectedDept] = useState('');
   const [selectedType, setSelectedType] = useState('TÜMÜ');
   const [searchQuery, setSearchQuery] = useState('');
   const [onlyEligible, setOnlyEligible] = useState(false);
-  const [hidePassed, setHidePassed] = useState(false);
+  const [includeOutsideCurriculum, setIncludeOutsideCurriculum] = useState(false);
+  const [instructorFilters, setInstructorFilters] = useState({});
+  const orderedCourses = useMemo(() => {
+    const recentFirst = new Map(Object.keys(basket).reverse().map((code, index) => [code, index]));
+    return [...courses].sort((a, b) =>
+      (recentFirst.get(a.code) ?? Infinity) - (recentFirst.get(b.code) ?? Infinity));
+  }, [courses, basket]);
 
   // Load departments once
   useEffect(() => {
@@ -55,7 +65,8 @@ export default function CourseSearchPanel() {
         secondary_dept: profile.secondaryDept,
         secondary_type: profile.secondaryType,
         only_eligible: onlyEligible,
-        hide_passed: hidePassed,
+        hide_passed: profile.hidePassedCourses === true,
+        include_outside_curriculum: includeOutsideCurriculum,
         passed_codes: passedCodesString
       })
         .then(data => {
@@ -82,12 +93,15 @@ export default function CourseSearchPanel() {
     profile.secondaryDept,
     profile.secondaryType,
     onlyEligible,
-    hidePassed,
+    profile.hidePassedCourses,
+    includeOutsideCurriculum,
     passedCodesString
   ]);
 
   // Handle adding course to basket
-  const handleAddCourse = async (courseCode) => {
+  const handleAddCourse = async (courseCode, instructor) => {
+    if (addingCodes[courseCode]) return;
+    setAddingCodes(prev => ({ ...prev, [courseCode]: true }));
     try {
       const detail = await fetchCourseDetail(courseCode, {
         primary_dept: profile.primaryDept,
@@ -95,9 +109,15 @@ export default function CourseSearchPanel() {
         secondary_type: profile.secondaryType,
         passed_codes: passedCodesString
       });
-      addToBasket(detail);
+      addToBasket(detail, instructor);
     } catch (err) {
-      alert(`Ders sepete eklenirken hata: ${err.message}`);
+      alert(`Ders eklenirken hata: ${err.message}`);
+    } finally {
+      setAddingCodes(prev => {
+        const next = { ...prev };
+        delete next[courseCode];
+        return next;
+      });
     }
   };
 
@@ -124,10 +144,15 @@ export default function CourseSearchPanel() {
               onChange={(e) => updateProfile({ primaryDept: e.target.value })}
               className="w-full px-2.5 py-1.5 bg-white dark:bg-dark-surface border border-slate-300 dark:border-dark-border rounded-lg text-slate-800 dark:text-dark-text focus:ring-1 focus:ring-cankaya-blue font-medium"
             >
-              {departments.map(d => (
+              {departments.filter(d => d.has_curriculum || d.code === profile.primaryDept).map(d => (
                 <option key={d.code} value={d.code}>{d.code} - {d.name}</option>
               ))}
             </select>
+            {departments.find(d => d.code === profile.primaryDept)?.curriculum_name && (
+              <p className="mt-1 text-[10px] text-slate-500 dark:text-dark-subtext">
+                Müfredat: {departments.find(d => d.code === profile.primaryDept).curriculum_name}
+              </p>
+            )}
           </div>
 
           {/* Secondary Program Type */}
@@ -158,7 +183,7 @@ export default function CourseSearchPanel() {
                 className="w-full px-2.5 py-1.5 bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-lg text-slate-800 dark:text-dark-text focus:ring-1 focus:ring-purple-500 font-medium"
               >
                 <option value="YOK">Bölüm Seçin...</option>
-                {departments.filter(d => d.code !== profile.primaryDept).map(d => (
+                {departments.filter(d => d.code !== profile.primaryDept && (d.has_curriculum || d.code === profile.secondaryDept)).map(d => (
                   <option key={d.code} value={d.code}>{d.code} - {d.name}</option>
                 ))}
               </select>
@@ -201,8 +226,8 @@ export default function CourseSearchPanel() {
               className="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-dark-text"
             >
               <option value="TÜMÜ">Tüm Türler</option>
-              <option value="ZORUNLU">Tüm Zorunlular</option>
-              <option value="ZORUNLU_ANA">🔹 Sadece Ana Zorunlu</option>
+              <option value="ZORUNLU">Zorunlular</option>
+
               {profile.secondaryType === 'CAP' && <option value="ZORUNLU_CAP">🟣 Sadece ÇAP Zorunlu</option>}
               {profile.secondaryType === 'YANDAL' && <option value="ZORUNLU_YANDAL">🔵 Sadece Yandal Zorunlu</option>}
               <option value="SECMELI">Tüm Seçmeliler</option>
@@ -220,7 +245,7 @@ export default function CourseSearchPanel() {
             placeholder="Ders kodu veya öğretim elemanı ara..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-dark-text placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-cankaya-blue"
+            className="w-full pl-8 pr-3 py-2 sm:py-1.5 text-sm sm:text-xs bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-dark-text placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-cankaya-blue"
           />
         </div>
 
@@ -236,14 +261,25 @@ export default function CourseSearchPanel() {
             <span>🟢 Sadece Alabileceğim</span>
           </label>
 
+          {passedCodesString && (
+            <label className="flex items-center gap-1.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={profile.hidePassedCourses === true}
+                onChange={(e) => updateProfile({ hidePassedCourses: e.target.checked })}
+                className="rounded border-slate-300 dark:border-dark-border text-cankaya-blue focus:ring-cankaya-blue w-3.5 h-3.5"
+              />
+              <span>Geçtiğim Dersleri Gizle</span>
+            </label>
+          )}
           <label className="flex items-center gap-1.5 cursor-pointer select-none">
             <input
               type="checkbox"
-              checked={hidePassed}
-              onChange={(e) => setHidePassed(e.target.checked)}
+              checked={includeOutsideCurriculum}
+              onChange={(e) => setIncludeOutsideCurriculum(e.target.checked)}
               className="rounded border-slate-300 dark:border-dark-border text-cankaya-blue focus:ring-cankaya-blue w-3.5 h-3.5"
             />
-            <span>Verdiğim Dersleri Gizle</span>
+            <span>Müfredat dışı açılan dersleri göster</span>
           </label>
         </div>
       </div>
@@ -261,9 +297,23 @@ export default function CourseSearchPanel() {
             <span>Kriterlere uygun ders bulunamadı.</span>
           </div>
         ) : (
-          courses.map(course => {
+          orderedCourses.map(course => {
             const inBasket = !!basket[course.code];
             const isPassed = course.is_passed;
+            const instructors = inBasket
+              ? [...new Set((basket[course.code].allSections || []).map(s => s.instructor).filter(name => name && name !== 'Belirsiz'))].sort()
+              : course.instructors || [];
+            const selectedNumbers = inBasket ? basket[course.code].selectedSections || [] : [];
+            const basketSections = inBasket ? basket[course.code].allSections || [] : [];
+            const allSelected = inBasket && selectedNumbers.length === basketSections.length &&
+              basketSections.every(s => selectedNumbers.includes(String(s.section_no)));
+            const selectedInstructor = inBasket
+              ? allSelected ? '' : instructors.find(name => {
+                const matching = basketSections.filter(s => s.instructor === name).map(s => String(s.section_no));
+                return matching.length === selectedNumbers.length &&
+                  matching.every(number => selectedNumbers.includes(number));
+              }) || '__custom__'
+              : instructors.includes(instructorFilters[course.code]) ? instructorFilters[course.code] : '';
 
             // Badge styling according to type
             let badgeClass = 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300';
@@ -296,7 +346,12 @@ export default function CourseSearchPanel() {
                           <UserCheck className="w-2.5 h-2.5" /> Geçildi
                         </span>
                       )}
-                      {!course.can_take && (
+                      {course.can_take === null && (
+                        <span className="px-1.5 rounded text-[10px] bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200" title={course.prereq_message}>
+                          Ön koşul bilgisi eksik
+                        </span>
+                      )}
+                      {course.can_take === false && (
                         <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 flex items-center gap-0.5" title={course.prereq_message}>
                           <AlertCircle className="w-2.5 h-2.5" /> Ön Koşul
                         </span>
@@ -318,7 +373,7 @@ export default function CourseSearchPanel() {
                 {/* Instructors & Section count */}
                 <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-dark-subtext pt-1 border-t border-slate-100 dark:border-dark-border/60">
                   <span className="truncate max-w-[150px]">
-                    {course.instructors.length > 0 ? course.instructors.join(', ') : `${course.sections_count} Şube`}
+                    {course.untimed ? 'Haftalık ders saati yok' : instructors.length > 0 ? instructors.join(', ') : `${course.sections_count} Şube`}
                   </span>
 
                   <div className="flex items-center gap-1.5">
@@ -331,18 +386,20 @@ export default function CourseSearchPanel() {
                     </button>
 
                     <button
-                      onClick={() => handleAddCourse(course.code)}
-                      disabled={inBasket}
+                      onClick={() => inBasket ? removeFromBasket(course.code) : handleAddCourse(course.code, selectedInstructor)}
+                      disabled={Boolean(addingCodes[course.code])}
                       className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-medium text-[10px] transition ${
                         inBasket
-                          ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 cursor-default'
+                          ? 'bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
                           : 'bg-cankaya-blue hover:bg-cankaya-navy text-cankaya-gold dark:bg-cankaya-gold dark:hover:bg-cankaya-goldLight dark:text-slate-900 active:scale-95'
                       }`}
                     >
-                      {inBasket ? (
+                      {addingCodes[course.code] ? (
+                        <span>Ekleniyor…</span>
+                      ) : inBasket ? (
                         <>
-                          <Check className="w-3 h-3" />
-                          <span>Sepette</span>
+                          <Minus className="w-3 h-3" />
+                          <span>Çıkar</span>
                         </>
                       ) : (
                         <>
@@ -353,6 +410,50 @@ export default function CourseSearchPanel() {
                     </button>
                   </div>
                 </div>
+                {instructors.length > 1 && (
+                  <label className="flex items-center gap-2 text-[10px] text-slate-600 dark:text-dark-subtext">
+                    <span className="shrink-0 font-medium">Hoca filtresi</span>
+                    <select
+                      aria-label={`${course.code} hoca filtresi`}
+                      value={selectedInstructor}
+                      onChange={e => {
+                        if (inBasket) selectCourseInstructor(course.code, e.target.value);
+                        else setInstructorFilters(prev => ({ ...prev, [course.code]: e.target.value }));
+                      }}
+                      className="min-w-0 flex-1 px-2 py-1 rounded-lg bg-slate-50 dark:bg-dark-surface border border-slate-200 dark:border-dark-border text-slate-800 dark:text-dark-text focus:ring-1 focus:ring-cankaya-blue"
+                    >
+                      <option value="">Tüm hocalar</option>
+                      {selectedInstructor === '__custom__' && <option value="__custom__" disabled>Özel şube seçimi</option>}
+                      {instructors.map(name => <option key={name} value={name}>{name}</option>)}
+                    </select>
+                  </label>
+                )}
+                {inBasket && basketSections.length > 1 && (
+                  <details className="border-t border-slate-100 dark:border-dark-border/60 pt-1 text-[10px] text-slate-600 dark:text-dark-subtext">
+                    <summary className="cursor-pointer font-medium select-none py-1">
+                      Şubeler ({selectedNumbers.length}/{basketSections.length})
+                    </summary>
+                    <div className="space-y-1 pt-1">
+                      {basketSections.map(section => (
+                        <label key={section.section_no} className="flex items-start gap-2 rounded-lg px-1.5 py-1 hover:bg-slate-50 dark:hover:bg-dark-surface cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={selectedNumbers.includes(String(section.section_no))}
+                            onChange={() => toggleSectionSelection(course.code, section.section_no)}
+                            className="mt-0.5 rounded border-slate-300 dark:border-dark-border text-cankaya-blue focus:ring-cankaya-blue w-3.5 h-3.5"
+                          />
+                          <span>
+                            <strong>Şube {section.section_no}</strong>
+                            {section.instructor && ` · ${section.instructor}`}
+                            <span className="block text-slate-400 dark:text-dark-subtext">
+                              {(section.slots || []).map(slot => `${slot.day} ${slot.time_slot}`).join(', ') || 'Saat bilgisi yok'}
+                            </span>
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </details>
+                )}
               </div>
             );
           })

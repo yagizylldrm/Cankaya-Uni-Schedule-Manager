@@ -47,8 +47,11 @@ export function validatePlan(data) {
         !Array.isArray(c.allSections) || c.allSections.length > 100 || !Array.isArray(c.selectedSections)) fail();
     const allSections = c.allSections.map(section);
     if (c.selectedSections.some(s => typeof s !== 'string' || !allSections.some(a => a.section_no === s))) fail();
+    const untimed = c.untimed === true;
+    if (untimed && (c.credit !== 0 || allSections.length !== 0 || c.selectedSections.length !== 0)) fail();
     basket[code] = { code, name: str(c.name, code), dept_code: str(c.dept_code), credit: num(c.credit), ects: num(c.ects),
-      type: str(c.type), type_label: str(c.type_label), allSections, selectedSections: [...new Set(c.selectedSections)] };
+      type: str(c.type), type_label: str(c.type_label), ...(untimed ? { untimed: true } : {}),
+      allSections, selectedSections: [...new Set(c.selectedSections)] };
   }
   const preferences = { ...DEFAULT_PREFERENCES };
   if (!object(data.preferences)) fail();
@@ -75,8 +78,11 @@ export function validatePlan(data) {
     const sections = combo.sections.map(s => {
       const clean = section(s);
       const code = str(s.course_code);
-      if (!basket[code] || seen.has(code) || !basket[code].selectedSections.includes(clean.section_no)) fail();
+      if (!basket[code] || seen.has(code)) fail();
       seen.add(code);
+      if (basket[code].untimed && clean.section_no === 'SAATSIZ' && clean.slots.length === 0 &&
+          clean.instructor === 'Belirsiz' && clean.classroom === '') return { ...clean, course_code: code };
+      if (!basket[code].selectedSections.includes(clean.section_no)) fail();
       const original = basket[code].allSections.find(a => a.section_no === clean.section_no);
       if (JSON.stringify(original) !== JSON.stringify(clean)) fail();
       return { ...clean, course_code: code };

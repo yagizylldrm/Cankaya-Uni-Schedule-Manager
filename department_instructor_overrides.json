@@ -1,0 +1,32 @@
+{
+  "HUK322": {
+    "1": {
+      "name": "Prof. Dr. Seydi Kaymaz",
+      "source": "https://hukuk.cankaya.edu.tr/wp-content/uploads/sites/47/2026/09/2026-2027-Ogretim-Yili-Ders-Programi-1.pdf",
+      "page": 4,
+      "term": "2026-2027 Güz",
+      "room": "Z-18",
+      "slots": ["Perşembe 13:00/13:20", "Perşembe 14:00/14:20"]
+    }
+  },
+  "HUK455": {
+    "1": {
+      "name": "Dr. Sevgi Tansu Yavuz",
+      "source": "https://hukuk.cankaya.edu.tr/wp-content/uploads/sites/47/2026/09/2026-2027-Ogretim-Yili-Ders-Programi-1.pdf",
+      "page": 5,
+      "term": "2026-2027 Güz",
+      "room": "Z-15",
+      "slots": ["Perşembe 15:00/15:20", "Perşembe 16:00/16:20"]
+    }
+  },
+  "HUK463": {
+    "1": {
+      "name": "Doç. Dr. Eda Manav Özdemir",
+      "source": "https://hukuk.cankaya.edu.tr/wp-content/uploads/sites/47/2026/09/2026-2027-Ogretim-Yili-Ders-Programi-1.pdf",
+      "page": 5,
+      "term": "2026-2027 Güz",
+      "room": "206",
+      "slots": ["Salı 09:00/09:20", "Salı 10:00/10:20", "Salı 11:00/11:20"]
+    }
+  }
+}

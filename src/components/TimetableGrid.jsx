@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { parseTimeRange } from '../utils/plan';
-import { useSchedule } from '../context/ScheduleContext';
+import { choosePreviewSections } from '../utils/previewSections';
+import { useSchedule } from '../context/useSchedule';
 import { MapPin, User, Clock, Plus, AlertTriangle } from 'lucide-react';
 
 const DAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
@@ -50,7 +51,7 @@ export default function TimetableGrid({ gridRef }) {
     customBlocks,
     setCustomBlockModalData,
     setCourseDetailModalCode,
-    isScheduleStale,
+
     isGenerating
   } = useSchedule();
   const [view, setView] = useState(() => window.matchMedia('(max-width: 767px)').matches ? 'agenda' : 'week');
@@ -61,27 +62,27 @@ export default function TimetableGrid({ gridRef }) {
   // Otherwise, if basket has items, show draft preview of selected sections.
   const activeSections = useMemo(() => {
     if (combinations && combinations.length > 0 && combinations[currentComboIndex]) {
-      return combinations[currentComboIndex].sections || [];
+      const previous = combinations[currentComboIndex].sections || [];
+      if (!isGenerating) return previous;
+
+      // Keep the existing timetable in place while updating, but apply section
+      // removals and replacements immediately. Newly added courses appear when
+      // the server returns a conflict-free combination.
+      const active = previous.filter(sec =>
+        basket[sec.course_code]?.selectedSections?.includes(String(sec.section_no)));
+      const activeCodes = new Set(active.map(sec => sec.course_code));
+      for (const code of new Set(previous.map(sec => sec.course_code))) {
+        const course = basket[code];
+        if (!course || activeCodes.has(code)) continue;
+        const replacement = (course.allSections || []).find(sec =>
+          course.selectedSections?.includes(String(sec.section_no)));
+        if (replacement) active.push({ ...replacement, course_code: code });
+      }
+      return active;
     }
 
-    // Fallback draft view from basket
-    const draft = [];
-    Object.values(basket).forEach(c => {
-      const selectedNos = c.selectedSections || [];
-      (c.allSections || []).forEach(sec => {
-        if (selectedNos.includes(String(sec.section_no))) {
-          draft.push({
-            course_code: c.code,
-            section_no: sec.section_no,
-            instructor: sec.instructor,
-            classroom: sec.classroom,
-            slots: sec.slots || []
-          });
-        }
-      });
-    });
-    return draft;
-  }, [combinations, currentComboIndex, basket]);
+    return choosePreviewSections(basket, customBlocks);
+  }, [combinations, currentComboIndex, basket, customBlocks, isGenerating]);
 
   // Color mapping per course code
   const courseColors = useMemo(() => {
@@ -156,7 +157,7 @@ export default function TimetableGrid({ gridRef }) {
   return (
     <>
     <div data-view-controls className="flex flex-wrap items-center justify-between gap-2 text-sm">
-      <p role="status">{isGenerating ? 'Program güncelleniyor…' : isScheduleStale ? 'Önceki program · Güncelleme gerekli' : combinations.length ? 'Seçili program' : 'Taslak · Seçili şubelerin ön izlemesi'}</p>
+      <p role="status">{isGenerating ? 'Program güncelleniyor…' : combinations.length ? 'Seçili program' : 'Taslak · Her ders için bir şubenin ön izlemesi'}</p>
       <div className="flex gap-1 rounded-xl bg-white dark:bg-dark-surface p-1 border border-slate-200 dark:border-dark-border">
         <button aria-pressed={view === 'agenda'} onClick={() => setView('agenda')} className={`px-3 py-2 rounded-lg ${view === 'agenda' ? 'bg-cankaya-blue text-white' : ''}`}>Günlük</button>
         <button aria-pressed={view === 'week'} onClick={() => setView('week')} className={`px-3 py-2 rounded-lg ${view === 'week' ? 'bg-cankaya-blue text-white' : ''}`}>Haftalık</button>
@@ -194,7 +195,7 @@ export default function TimetableGrid({ gridRef }) {
       data-weekly-grid
       className={`${view === 'week' ? 'flex' : 'hidden'} bg-white dark:bg-dark-surface rounded-2xl border border-slate-200 dark:border-dark-border shadow-xs overflow-hidden flex-col`}
     >
-      <div data-grid-scroll className="overflow-x-auto">
+      <div data-grid-scroll className="overflow-x-auto overscroll-x-contain touch-pan-x">
         <table className="w-full table-fixed border-collapse min-w-[700px] text-left">
           
           {/* Header Days Row */}

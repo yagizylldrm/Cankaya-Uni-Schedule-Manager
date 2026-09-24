@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useSchedule } from '../context/ScheduleContext';
+﻿import React, { useState, useEffect } from 'react';
+import { useSchedule } from '../context/useSchedule';
 import { parseTranscriptText, uploadTranscriptFile, fetchCurriculumProgress } from '../services/api';
 import { 
   X, 
@@ -14,7 +14,7 @@ import {
   TrendingUp
 } from 'lucide-react';
 
-const GRADES = ["AA", "BA", "BB", "CB", "CC", "DC", "DD", "S", "P"];
+const GRADES = ["AA", "BA", "BB", "CB", "CC", "DC", "DD", "S", "EX"];
 
 export default function TranscriptModal() {
   const {
@@ -25,8 +25,6 @@ export default function TranscriptModal() {
     addPassedCourse,
     removePassedCourse
   } = useSchedule();
-
-  if (!transcriptModalOpen) return null;
 
   const [activeTab, setActiveTab] = useState('paste'); // 'paste' | 'upload'
   const [pasteText, setPasteText] = useState('');
@@ -47,6 +45,8 @@ export default function TranscriptModal() {
       .then(data => setProgress(data))
       .catch(err => console.error('İlerleme yüklenemedi:', err));
   }, [profile.primaryDept, profile.passedCourses]);
+
+  if (!transcriptModalOpen) return null;
 
   // Handle parsing text
   const handleParseText = async () => {
@@ -100,13 +100,25 @@ export default function TranscriptModal() {
       updates.secondaryDept = res.secondary_dept;
     }
 
-    // Merge passed courses
-    const newPassed = { ...profile.passedCourses, ...(res.passed_courses || {}) };
-    updates.passedCourses = newPassed;
+    // A newer attempt can change a course's status. Keep unrelated manual entries.
+    const passed = { ...profile.passedCourses };
+    const failed = { ...profile.failedCourses };
+    const pending = { ...profile.pendingCourses };
+    for (const course of res.all_detected_courses || []) {
+      delete passed[course.code];
+      delete failed[course.code];
+      delete pending[course.code];
+    }
+    updates.passedCourses = { ...passed, ...(res.passed_courses || {}) };
+    updates.failedCourses = { ...failed, ...(res.failed_courses || {}) };
+    updates.pendingCourses = { ...pending, ...(res.pending_courses || {}) };
+    if (Object.keys(updates.passedCourses).length > 0) updates.hidePassedCourses = true;
 
     updateProfile(updates);
     const count = Object.keys(res.passed_courses || {}).length;
-    setSuccessMsg(`Başarılı! ${count} adet tamamlanan ders transkriptten aktarıldı.`);
+    const failedCount = Object.keys(res.failed_courses || {}).length;
+    const pendingCount = Object.keys(res.pending_courses || {}).length;
+    setSuccessMsg(`${count} tamamlanan/muaf ders ve ${failedCount} başarısız/çekilmiş ders aktarıldı.${pendingCount ? ` ${pendingCount} ders henüz tamamlanmamış.` : ''}`);
     setPasteText('');
   };
 

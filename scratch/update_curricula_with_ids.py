@@ -147,7 +147,7 @@ for f in fakulteler:
 print(f"Collected {len(all_dept_curricula)} departments curricula.")
 print(f"Total unique courses with IDs: {len(course_details_to_fetch)}")
 
-with open("cankaya_official_curricula.json", "w", encoding="utf-8") as out:
+with open("api/cankaya_official_curricula.json", "w", encoding="utf-8") as out:
     json.dump(all_dept_curricula, out, ensure_ascii=False, indent=2)
 
 with open("scratch/course_details_to_fetch.json", "w", encoding="utf-8") as out:

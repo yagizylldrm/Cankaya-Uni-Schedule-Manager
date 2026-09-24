@@ -9,7 +9,7 @@ headers = {
 }
 base_url = "https://ogbs.cankaya.edu.tr/Api/InformationPack"
 
-with open("cankaya_official_curricula.json") as f:
+with open("api/cankaya_official_curricula.json") as f:
     curricula = json.load(f)
 
 # Collect all courses with BimKodu, MufredatNo, BolumKodu

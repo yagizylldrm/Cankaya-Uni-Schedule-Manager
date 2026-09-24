@@ -1,17 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useSchedule } from '../context/ScheduleContext';
+import { useSchedule } from '../context/useSchedule';
 import PlanTransfer from './PlanTransfer';
+import DraftManager from './DraftManager';
+import CustomBlocksManager from './CustomBlocksManager';
 import { 
   GraduationCap, 
   Sun, 
   Moon, 
   FileText, 
-  Sparkles, 
+
   Download, 
   Check, 
   Image as ImageIcon, 
   FileJson,
-  Printer
+  Printer,
+  Layers
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
@@ -23,14 +26,15 @@ export default function Navbar({ timetableRef, onShowSchedule }) {
     isGenerating,
     setTranscriptModalOpen,
     profile,
-    generateSchedule,
+    drafts,
     canExport,
-    isScheduleStale
+    activeDraftId
   } = useSchedule();
 
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [transferMode, setTransferMode] = useState(null);
+  const [manager, setManager] = useState(null);
   const menuRef = useRef(null);
   useEffect(() => {
     if (!isExportMenuOpen) return;
@@ -44,11 +48,11 @@ export default function Navbar({ timetableRef, onShowSchedule }) {
   const basketCount = Object.keys(basket).length;
   const passedCount = Object.keys(profile.passedCourses || {}).length;
 
-  // Generate schedule combinations
-  const handleGenerate = async () => {
-    onShowSchedule();
-    await generateSchedule();
-  };
+  const activeDraft = drafts?.find(d => d.id === activeDraftId) || drafts?.[0];
+
+
+
+
 
   // Export as PNG image
   const handleExportPNG = async () => {
@@ -139,6 +143,16 @@ export default function Navbar({ timetableRef, onShowSchedule }) {
 
           {/* Transcript & Prerequisite */}
           <button
+            onClick={() => setManager('drafts')}
+            aria-label="Planlar"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg bg-cankaya-blue/10 dark:bg-cankaya-gold/15 text-cankaya-blue dark:text-cankaya-gold border border-cankaya-blue/20 dark:border-cankaya-gold/30 hover:bg-cankaya-blue/20 dark:hover:bg-cankaya-gold/25 transition max-w-[130px] sm:max-w-[190px]"
+            title="Plan taslakları ve yönetimi"
+          >
+            <Layers className="w-3.5 h-3.5 shrink-0 text-cankaya-blue dark:text-cankaya-gold" />
+            <span className="truncate">{activeDraft?.name || 'Planlar'}</span>
+          </button>
+          <button onClick={() => setManager('blocks')} className="hidden sm:inline-flex px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-slate-200 dark:border-dark-border text-slate-700 dark:text-dark-text hover:bg-slate-100 dark:hover:bg-dark-card transition" title="Özel etkinlikler ve molalar">Etkinlikler</button>
+          <button
             onClick={() => setTranscriptModalOpen(true)}
             className="relative flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg text-slate-700 dark:text-dark-text bg-slate-100 dark:bg-dark-card hover:bg-slate-200 dark:hover:bg-slate-700/50 border border-slate-200 dark:border-dark-border transition"
           >
@@ -169,7 +183,7 @@ export default function Navbar({ timetableRef, onShowSchedule }) {
               <>
                 <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-dark-card rounded-xl shadow-xl border border-slate-200 dark:border-dark-border py-1.5 z-50 text-sm">
                   <button onClick={() => { setTransferMode('load'); setIsExportMenuOpen(false); }} className="w-full px-4 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-800">Kayıtlı programı yükle</button>
-                  {!canExport && <p className="px-4 py-2 text-xs text-amber-700 dark:text-amber-300">{isScheduleStale ? 'Dışa aktarmadan önce programı yeniden oluşturun.' : 'Kaydetmek için önce program oluşturun.'}</p>}
+                  {!canExport && <p className="px-4 py-2 text-xs text-amber-700 dark:text-amber-300">{isGenerating ? 'Program güncelleniyor…' : 'Dışa aktarmak için önce bir ders ekleyin.'}</p>}
                   <button
                     onClick={handleExportPNG}
                     disabled={!canExport}
@@ -201,24 +215,13 @@ export default function Navbar({ timetableRef, onShowSchedule }) {
             )}
           </div>
 
-          {/* Generate Schedule (Primary Button) */}
-          <button
-            onClick={handleGenerate}
-            disabled={isGenerating || basketCount === 0}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold shadow-md transition ${
-              basketCount === 0
-                ? 'bg-slate-200 dark:bg-dark-card text-slate-400 cursor-not-allowed border border-slate-300 dark:border-dark-border'
-                : 'bg-cankaya-blue hover:bg-cankaya-navy text-cankaya-gold hover:text-white shadow-cankaya-blue/20 dark:bg-cankaya-gold dark:hover:bg-cankaya-goldLight dark:text-slate-900 cursor-pointer active:scale-95'
-            }`}
-          >
-            <Sparkles className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
-            <span>{isGenerating ? 'Hesaplanıyor...' : 'Program Oluştur'}</span>
-          </button>
 
         </div>
       </div>
     </header>
     {transferMode && <PlanTransfer mode={transferMode} onClose={() => setTransferMode(null)} onRestored={onShowSchedule} />}
+    {manager === 'drafts' && <DraftManager onClose={() => setManager(null)} />}
+    {manager === 'blocks' && <CustomBlocksManager onClose={() => setManager(null)} />}
     </>
   );
 }

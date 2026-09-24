@@ -132,7 +132,7 @@ for f in fakulteler:
         print(f"[{dept_code}] {prog_adi} ({curr_name}): {len(compulsory_courses)} Zorunlu, {len(elective_groups)} Seçmeli")
 
 # Save complete official curricula to file
-with open("cankaya_official_curricula.json", "w", encoding="utf-8") as out:
+with open("api/cankaya_official_curricula.json", "w", encoding="utf-8") as out:
     json.dump(all_dept_curricula, out, ensure_ascii=False, indent=2)
 
-print("\nSaved to cankaya_official_curricula.json successfully!")
+print("\nSaved to api/cankaya_official_curricula.json successfully!")

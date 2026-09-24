@@ -1,0 +1,694 @@
+{
+  "CE": {
+    "CE221": {
+      "type": "AND",
+      "courses": [
+        "PHYS131",
+        "MATH158"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805646+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "CE222": {
+      "type": "AND",
+      "courses": [
+        "CE221"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805659+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "CE224": {
+      "type": "AND",
+      "courses": [
+        "CE221"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805662+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "CE241": {
+      "type": "AND",
+      "courses": [
+        "PHYS131"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805664+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "CE270": {
+      "type": "AND",
+      "courses": [
+        "PHYS131",
+        "MATH157"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805665+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "CE230": {
+      "type": "AND",
+      "courses": [
+        "MATH158"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805667+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "CE301": {
+      "type": "AND",
+      "courses": [
+        "MATH254"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805670+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "CE371": {
+      "type": "AND",
+      "courses": [
+        "CE270"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805671+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "CE372": {
+      "type": "AND",
+      "courses": [
+        "CE270"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805673+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "CE381": {
+      "type": "AND",
+      "courses": [
+        "CE224"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805674+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "CE382": {
+      "type": "AND",
+      "courses": [
+        "CE381"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805676+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "CE362": {
+      "type": "AND",
+      "courses": [
+        "CE361"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805677+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "CE415": {
+      "type": "AND",
+      "courses": [
+        "CE371",
+        "CE382",
+        "CE362",
+        "CE352"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805684+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "CE416": {
+      "type": "AND",
+      "courses": [
+        "CE415"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805686+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "CE481": {
+      "type": "AND",
+      "courses": [
+        "CE224"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805687+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "CE300": {
+      "type": "AND",
+      "courses": [
+        "CE200"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805689+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "MATH158": {
+      "type": "AND",
+      "courses": [
+        "MATH157"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805690+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "MATH253": {
+      "type": "AND",
+      "courses": [
+        "MATH158"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805691+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "MATH254": {
+      "type": "AND",
+      "courses": [
+        "MATH157"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/12/25-26-CANKAYA-UNIVERSITESI-INSAAT-MUHENDISLIGI-BOLUMU-LISANS-ONKOSUL-TABLOSU_01.png",
+      "curriculum": "2025-2026 ?n?aat M?hendisli?i ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805693+00:00",
+      "source_sha256": "59a9d42fe3ef2199ee644a7751bb7ce116b2ff1e91d5b2552b72eb09a7468a95",
+      "source_key": "CE_DIAGRAM"
+    },
+    "CE482": {
+      "type": "AND",
+      "courses": [
+        "CE481",
+        "CE382"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805885+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE483": {
+      "type": "AND",
+      "courses": [
+        "CE381"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805889+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE484": {
+      "type": "AND",
+      "courses": [
+        "CE382"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805890+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE485": {
+      "type": "AND",
+      "courses": [
+        "CE381"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805892+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE486": {
+      "type": "AND",
+      "courses": [
+        "CE382"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805893+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE426": {
+      "type": "AND",
+      "courses": [
+        "CE381",
+        "CE361"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805895+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE466": {
+      "type": "AND",
+      "courses": [
+        "CE301"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805896+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE462": {
+      "type": "AND",
+      "courses": [
+        "CE362"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805899+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE463": {
+      "type": "AND",
+      "courses": [
+        "CE362"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805900+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE465": {
+      "type": "AND",
+      "courses": [
+        "CE362"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805902+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE468": {
+      "type": "AND",
+      "courses": [
+        "CE362",
+        "CE242"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805903+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE444": {
+      "type": "AND",
+      "courses": [
+        "CE242"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805905+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE448": {
+      "type": "AND",
+      "courses": [
+        "CE270"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805906+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE374": {
+      "type": "AND",
+      "courses": [
+        "CE270"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805908+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE473": {
+      "type": "AND",
+      "courses": [
+        "CE270"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805909+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE472": {
+      "type": "AND",
+      "courses": [
+        "CE270"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805910+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE451": {
+      "type": "AND",
+      "courses": [
+        "CE352"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805912+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE454": {
+      "type": "AND",
+      "courses": [
+        "CE352"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805913+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE475": {
+      "type": "AND",
+      "courses": [
+        "CE371"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805915+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    },
+    "CE477": {
+      "type": "AND",
+      "courses": [
+        "CE371"
+      ],
+      "source": "https://ce.cankaya.edu.tr/wp-content/uploads/sites/34/2025/11/ONKOSUL-SECMELI-TRK-2.png",
+      "curriculum": "2025 ?n?aat M?hendisli?i se?meli ders ?n ko?ul ?emas?",
+      "verified_at": "2026-09-23T19:34:27.805916+00:00",
+      "source_sha256": "4f53ba12484008c926ff58e58ba9a073556d174428bc1ad4a710d76bdb697413",
+      "source_key": "CE_ELECTIVES"
+    }
+  },
+  "IE": {
+    "MATH158": {
+      "type": "AND",
+      "courses": [
+        "MATH157"
+      ],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813485+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE"
+    },
+    "MATH254": {
+      "type": "AND",
+      "courses": [
+        "MATH158"
+      ],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813494+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE"
+    },
+    "MATH205": {
+      "type": "AND",
+      "courses": [
+        "MATH158"
+      ],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813496+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE"
+    },
+    "IE227": {
+      "type": "AND",
+      "courses": [
+        "MATH158"
+      ],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813498+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE"
+    },
+    "ME210": {
+      "type": "AND",
+      "courses": [
+        "ME113"
+      ],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813499+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE"
+    },
+    "IE202": {
+      "type": "AND",
+      "courses": [
+        "IE101"
+      ],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813553+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE"
+    },
+    "IE232": {
+      "type": "AND",
+      "courses": [
+        "IE101"
+      ],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813557+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE"
+    },
+    "IE228": {
+      "type": "AND",
+      "courses": [
+        "IE227"
+      ],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813559+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE"
+    },
+    "IE218": {
+      "type": "AND",
+      "courses": [
+        "IE117"
+      ],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813560+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE"
+    },
+    "IE333": {
+      "type": "AND",
+      "courses": [
+        "IE232",
+        "MATH205"
+      ],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813561+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE"
+    },
+    "IE334": {
+      "type": "AND",
+      "courses": [
+        "IE232",
+        "IE227"
+      ],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813563+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE"
+    },
+    "IE365": {
+      "type": "AND",
+      "courses": [
+        "IE232"
+      ],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813565+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE"
+    },
+    "IE364": {
+      "type": "AND",
+      "courses": [
+        "IE365"
+      ],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813566+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE"
+    },
+    "IE327": {
+      "type": "AND",
+      "courses": [
+        "IE228"
+      ],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813568+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE"
+    },
+    "IE408": {
+      "type": "AND",
+      "courses": [
+        "IE407"
+      ],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813570+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE"
+    },
+    "IE200": {
+      "type": "AND",
+      "courses": [
+        "ME210",
+        [
+          "IE202",
+          "IE232"
+        ]
+      ],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813571+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE"
+    },
+    "IE300": {
+      "type": "AND",
+      "courses": [
+        "IE200",
+        {
+          "at_least": 4,
+          "of": [
+            "IE302",
+            "IE326",
+            "IE327",
+            "IE333",
+            "IE334",
+            "IE341",
+            "IE364",
+            "IE365",
+            "IE366"
+          ]
+        }
+      ],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813573+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE"
+    },
+    "IE407": {
+      "type": "AND",
+      "courses": [
+        [
+          "IE218",
+          "IE364"
+        ],
+        [
+          "IE333",
+          "IE334"
+        ],
+        {
+          "at_least": 3,
+          "of": [
+            "IE302",
+            "IE326",
+            "IE327",
+            "IE341",
+            "IE365",
+            "IE366"
+          ]
+        }
+      ],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813574+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE",
+      "corequisites": [
+        "IE499"
+      ]
+    },
+    "IE499": {
+      "type": "AND",
+      "courses": [],
+      "source": "https://ie.cankaya.edu.tr/current/prerequisite/Prerequisite_2024-2025.pdf",
+      "curriculum": "2024-2025 ve sonras?; 03.09.2026 g?ncellemesi",
+      "verified_at": "2026-09-23T19:34:27.813576+00:00",
+      "source_sha256": "9f8bb928c3b59bf5a4738c33c2e84ba767c53dfc30545b36a761d4cb159792e0",
+      "source_key": "IE",
+      "corequisites": [
+        "IE407"
+      ]
+    }
+  }
+}

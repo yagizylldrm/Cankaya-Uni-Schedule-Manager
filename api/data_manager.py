@@ -24,6 +24,7 @@ class Section:
         self.course_code = course_code
         self.section_no = str(section_no)
         self.instructor = instructor
+        self.instructor_evidence = None
         self.classroom = classroom
         self.slots = slots or []  # List of ScheduleSlot objects
 
@@ -46,11 +47,14 @@ class Section:
         }
         if self.classroom:
             d["classroom"] = self.classroom
+        if self.instructor_evidence:
+            d["instructor_evidence"] = self.instructor_evidence
         return d
 
     @classmethod
     def from_dict(cls, d):
         sec = cls(d["course_code"], d["section_no"], d.get("instructor", "Belirsiz"), d.get("classroom", ""))
+        sec.instructor_evidence = d.get("instructor_evidence")
         sec.slots = [ScheduleSlot.from_dict(s) for s in d.get("slots", [])]
         return sec
 
@@ -114,7 +118,7 @@ class DataManager:
         c = c.replace('İ', 'I').replace('İ', 'I')
         return c
 
-    # Common university compulsory courses for all departments in Çankaya University
+    # Legacy fallback only for programs without an official curriculum record.
     COMMON_UNIVERSITY_COMPULSORY = {
         "AIIT101", "AIIT102", "HIST201", "HIST202", "HIST205",
         "TURK101", "TURK102", "TURK103", "TURK105", "TURK107",
@@ -580,27 +584,39 @@ class DataManager:
 
         # Matematik & Temel Bilimler
         "MATH157": {
-            "name": "Calculus I / Genel Matematik I",
+            "name": "Calculus for Engineering I / Mühendisler İçin Genel Matematik I",
             "desc": "Fonksiyonlar, limit, süreklilik, türev ve türevin fiziksel/geometrik uygulamaları, belirli ve belirsiz integral, kalkülüsün temel teoremleri."
         },
         "MATH158": {
-            "name": "Calculus II / Genel Matematik II",
+            "name": "Calculus for Engineering II / Mühendisler İçin Genel Matematik II",
             "desc": "İntegrasyon teknikleri, diziler, sonsuz seriler, Taylor ve Maclaurin serileri, kutupsal koordinatlar, çok değişkenli fonksiyonlar ve kısmi türev."
         },
         "MATH205": {
+            "name": "Basic Linear Algebra / Temel Lineer Cebir",
+            "desc": "Doğrusal denklem sistemleri, matrisler, determinantlar, vektör uzayları, taban ve boyut, doğrusal dönüşümler, özdeğerler ve özvektörler."
+        },
+        "MATH219": {
             "name": "Differential Equations / Diferansiyel Denklemler",
             "desc": "Birinci ve yüksek mertebeden lineer diferansiyel denklemler, sabit katsayılı denklemler, Laplace dönüşümleri ve seri çözümleri."
         },
         "MATH221": {
-            "name": "Linear Algebra / Lineer Cebir",
-            "desc": "Matrisler, determinantlar, lineer denklem sistemleri, vektör uzayları, taban ve boyut, doğrusal dönüşümler, özdeğerler ve özvektörler."
+            "name": "Introduction to Mathematical Software / Matematiksel Yazılımlara Giriş",
+            "desc": "Matematiksel yazılım ortamları, sembolik ve sayısal hesaplamalar, algoritmik problem çözme ve görselleştirme."
+        },
+        "MATH253": {
+            "name": "Advanced Calculus / İleri Matematik",
+            "desc": "Çok değişkenli fonksiyonlar, kısmi türevler, çok katlı integraller, vektör analizi, Green ve Stokes teoremleri."
+        },
+        "MATH254": {
+            "name": "Differential Equations / Diferansiyel Denklemler",
+            "desc": "Birinci ve yüksek mertebeden lineer diferansiyel denklemler, sabit katsayılı denklemler, Laplace dönüşümleri ve seri çözümleri."
         },
         "PHYS131": {
-            "name": "General Physics I / Genel Fizik I",
+            "name": "Physics I / Fizik I",
             "desc": "Vektörler, bir ve iki boyutta hareket, Newton hareket yasaları, iş, kinetik ve potansiyel enerji, çizgisel ve açısal momentum, dönme dinamiği."
         },
         "PHYS132": {
-            "name": "General Physics II / Genel Fizik II",
+            "name": "Physics II / Fizik II",
             "desc": "Elektrik yükleri, Coulomb yasası, elektrik alanı, Gauss yasası, potansiyel, sığa, akım ve direnç, manyetik alan, Faraday indüksiyon yasası."
         },
         "CHEM103": {
@@ -610,102 +626,146 @@ class DataManager:
 
         # Bilgisayar & Yazılım Mühendisliği
         "CENG105": {
-            "name": "Introduction to Computers and Programming",
-            "desc": "Temel bilgisayar mimarisi, işletim sistemleri, algoritmik düşünme, akış şemaları ve temel programlama prensipleri."
+            "name": "Computer Engineering Orientation / Bilgisayar Mühendisliği Oryantasyonu",
+            "desc": "Bilgisayar mühendisliği disiplinine giriş, üniversite ve bölüm olanakları, etik, kariyer alanları ve temel mühendislik prensipleri."
         },
         "CENG111": {
-            "name": "Introduction to Computer Engineering Concepts",
-            "desc": "Bilgisayar mühendisliği disiplinlerine genel bakış, sayı sistemleri, donanım/yazılım kavramları, etik ve mühendislik prensipleri."
+            "name": "Computer Programming I / Bilgisayar Programlama I",
+            "desc": "Algoritmik düşünme, akış şemaları, değişkenler, koşul ve döngü yapıları, fonksiyonlar ve temel programlama ilkeleri."
+        },
+        "CENG114": {
+            "name": "Computer Programming II / Bilgisayar Programlama II",
+            "desc": "Nesneye yönelik programlama (OOP), sınıflar, nesneler, kalıtım, polimorfizm ve dinamik bellek yönetimi."
+        },
+        "CENG124": {
+            "name": "Discrete Structures / Ayrık Yapılar",
+            "desc": "Önermeler mantığı, kümeler, bağıntılar, fonksiyonlar, tümevarım, sayma ilkeleri ve çizge kuramı."
         },
         "CENG154": {
-            "name": "Discrete Mathematics / Ayrık Matematik",
-            "desc": "Önermeler ve mantık, kümeler teorisi, bağıntılar, fonksiyonlar, matematiksel tümevarım, sayma yöntemleri ve çizge (graph) kuramı."
+            "name": "Computer Programming I / Bilgisayar Programlama I",
+            "desc": "Temel programlama kavramları, veri tipleri, denetim yapıları, fonksiyonlar ve algoritma geliştirme."
         },
         "CENG161": {
-            "name": "Computer Programming I / Bilgisayar Programlama I",
-            "desc": "Yapısal programlama ilkeleri, C/C++ dilinde değişkenler, koşul ve döngü yapıları, fonksiyonlar, diziler, karakter dizileri ve göstericiler (pointers)."
+            "name": "Introduction to Computer Programming / Bilgisayar Programlamaya Giriş",
+            "desc": "Mühendislik öğrencileri için temel programlama kavramları, algoritma geliştirme ve yapısal programlama."
         },
         "CENG162": {
-            "name": "Computer Programming II / Bilgisayar Programlama II",
-            "desc": "Nesneye yönelik programlama (OOP), sınıflar, kapsülleme, kalıtım, polimorfizm, dinamik bellek yönetimi ve şablonlar (templates)."
+            "name": "Computer Programming / Bilgisayar Programlama",
+            "desc": "İleri programlama teknikleri, diziler, fonksiyonlar, göstericiler ve dosya işlemleri."
+        },
+        "CENG218": {
+            "name": "Data Structures / Veri Yapıları",
+            "desc": "Yığın (stack), kuyruk (queue), bağlı listeler, ikili arama ağaçları, çizge algoritmaları ve karma tabloları."
         },
         "CENG235": {
+            "name": "Introduction to Probability and Statistics / Olasılık ve İstatistiğe Giriş",
+            "desc": "Olasılık teorisi, rastgele değişkenler, olasılık dağılımları, örnekleme, hipotez testleri ve regresyon analizi."
+        },
+        "CENG236": {
             "name": "Logic Design / Mantık Tasarımı",
-            "desc": "Boole cebri, mantık kapıları, Karnaugh haritaları, birleşimsel (combinational) devreler, ardışıl (sequential) devreler, flip-floplar ve sayaçlar."
+            "desc": "Boole cebri, mantık kapıları, Karnaugh haritaları, birleşimsel ve ardışıl mantık devreleri, flip-floplar."
         },
         "CENG241": {
-            "name": "Data Structures / Veri Yapıları",
-            "desc": "Yığın (stack), kuyruk (queue), bağlı listeler (linked lists), ikili arama ağaçları (BST), yığınlar (heaps), çizge algoritmaları ve karma tabloları (hashing)."
+            "name": "Object Oriented Programming / Nesneye Yönelik Programlama",
+            "desc": "Nesne yönelimli tasarım ilkeleri, sınıflar, kapsülleme, arayüzler, istisna yönetimi ve koleksiyonlar."
+        },
+        "CENG315": {
+            "name": "Algorithms / Algoritmalar",
+            "desc": "Algoritma analizi, asimptotik karmaşıklık, böl ve yönet, dinamik programlama ve açgözlü algoritmalar."
+        },
+        "CENG328": {
+            "name": "Operating Systems / İşletim Sistemleri",
+            "desc": "İşletim sistemi mimarisi, süreç yönetimi, iş parçacıkları, CPU çizelgeleme, senkronizasyon ve bellek yönetimi."
         },
         "CENG329": {
-            "name": "Algorithms / Algoritmalar",
-            "desc": "Algoritma karmaşıklığı, Asimptotik gösterimler (Big-O), böl ve yönet, dinamik programlama, açgözlü (greedy) algoritmalar ve en kısa yol algoritmaları."
+            "name": "Microprocessors / Mikroişlemciler",
+            "desc": "Mikroişlemci mimarisi, assembly dili, kesmeler (interrupts), bellek ve giriş/çıkış arayüzleri."
+        },
+        "CENG356": {
+            "name": "Computer Networks / Bilgisayar Ağları",
+            "desc": "Ağ mimarileri, OSI ve TCP/IP modelleri, yönlendirme protokolleri, taşıma katmanı ve ağ güvenliği."
         },
         "CENG361": {
-            "name": "Database Management Systems / Veritabanı Sistemleri",
-            "desc": "İlişkisel veritabanı modelleri, ER diyagramları, SQL sorgu dili, ilişkisel cebir, normalizasyon, transaction yönetimi ve indeksleme."
+            "name": "Innovative Game Design / Yenilikçi Oyun Tasarımı",
+            "desc": "Oyun mekanikleri, oyun motorları, 2B/3B oyun geliştirme, seviye tasarımı ve oyun fiziği."
+        },
+        "CENG382": {
+            "name": "Analysis of Dynamic Systems / Dinamik Sistemlerin Analizi",
+            "desc": "Dinamik sistemlerin modellenmesi, transfer fonksiyonları, durum uzayı analizi ve kararlılık."
         },
         "CENG383": {
-            "name": "Operating Systems / İşletim Sistemleri",
-            "desc": "İşletim sistemi mimarisi, süreçler (processes), iş parçacıkları (threads), CPU çizelgeleme, senkronizasyon, kilitlenmeler (deadlocks), sanal bellek ve dosya sistemleri."
+            "name": "Algorithms / Algoritmalar",
+            "desc": "Algoritma analizi, karmaşıklık hesaplama, çizge algoritmaları, en kısa yol ve dinamik programlama."
+        },
+        "CENG396": {
+            "name": "Introduction to Database Systems / Veritabanı Sistemlerine Giriş",
+            "desc": "İlişkisel veritabanı tasarımı, ER modelleme, SQL sorgulama, normalizasyon ve ilişkisel cebir."
         },
         "CENG403": {
-            "name": "Software Engineering / Yazılım Mühendisliği",
-            "desc": "Yazılım geliştirme yaşam döngüleri, çevik yöntemler (Agile/Scrum), gereksinim analizi, UML modelleme, mimari tasarım ve yazılım test yöntemleri."
+            "name": "Social Issues in Engineering / Mühendislikte Sosyal Konular",
+            "desc": "Mühendislik etiği, fikri mülkiyet hakları, bilişim hukuku, gizlilik ve teknolojinin toplumsal etkileri."
         },
         "CENG407": {
-            "name": "Innovative System Design and Development I",
+            "name": "Innovative System Design and Development I / Yenilikçi Sistem Tasarlama ve Geliştirme I",
             "desc": "Bitirme projesi I; takım çalışmasıyla gerçek dünya mühendislik probleminin analizi, sistem gereksinimleri ve mimari tasarımı."
         },
         "CENG408": {
-            "name": "Innovative System Design and Development II",
+            "name": "Innovative System Design and Development II / Yenilikçi Sistem Tasarlama ve Geliştirme II",
             "desc": "Bitirme projesi II; tasarlanan sistemin geliştirilmesi, test edilmesi, belgelenmesi ve jüri önünde sunumu."
         },
         "SENG101": {
-            "name": "Introduction to Software Engineering",
-            "desc": "Yazılım mühendisliğinin temelleri, yazılım geliştirme süreçleri, kalite faktörleri ve profesyonel etik kuralları."
+            "name": "Computer Programming I / Bilgisayar Programlama I",
+            "desc": "Yazılım mühendisliği için programlama temelleri, algoritma geliştirme ve yapısal kodlama."
         },
         "SENG201": {
-            "name": "Software Requirements Engineering",
-            "desc": "Yazılım gereksinim analizi, gereksinim çıkarma teknikleri, fonksiyonel/fonksiyonel olmayan gereksinimler ve kullanım senaryoları (use cases)."
+            "name": "Data Structures / Veri Yapıları",
+            "desc": "Temel veri yapıları; diziler, listeler, yığınlar, kuyruklar, ağaçlar ve arama/sıralama yöntemleri."
         },
         "SENG203": {
-            "name": "Software Design and Architecture",
-            "desc": "Yazılım mimarisi desenleri (design patterns), bileşen tabanlı tasarım, mikroservisler ve yazılım mimarisinin modellenmesi."
+            "name": "Discrete Structures / Ayrık Yapılar",
+            "desc": "Ayrık matematik, mantık, kümeler, bağıntılar ve yazılım modellemede kullanılan ayrık yapılar."
         },
         "SENG301": {
-            "name": "Software Testing and Quality Assurance",
-            "desc": "Birim testi (unit test), entegrasyon testi, kara kutu ve beyaz kutu test teknikleri, test otomasyonu ve yazılım kalite metrikleri."
+            "name": "Software Project Management / Yazılım Proje Yönetimi",
+            "desc": "Yazılım süreç yönetimi, çevik yöntemler, planlama, maliyet ve zaman tahmini, risk analizi."
         },
 
         # Elektrik, Endüstri, Makine, İnşaat
         "EE203": {
-            "name": "Circuit Theory I / Devre Teorisi I",
-            "desc": "Temel devre elemanları, Kirchhoff yasaları, düğüm ve çevre akımları yöntemleri, Thévenin ve Norton eşdeğer devreleri, op-amp devreleri."
+            "name": "Probability and Random Variables / Olasılık ve Rasgele Değişkenler",
+            "desc": "Olasılık uzayı, rastgele değişkenler, dağılım fonksiyonları, beklenen değer ve rastgele süreçler."
         },
         "EE205": {
-            "name": "Circuit Theory II / Devre Teorisi II",
-            "desc": "Sinüzoidal kararlı durum analizi, fazörler, AC güç hesapları, rezonans, üç fazlı devreler ve frekans cevabı."
+            "name": "Electrical Circuit Analysis I / Elektriksel Devre Analizi I",
+            "desc": "Devre elemanları, Kirchhoff yasaları, düğüm ve çevre analizleri, Thévenin/Norton eşdeğerleri ve RL/RC geçici rejim analizi."
+        },
+        "EE213": {
+            "name": "Electrical Circuit Analysis I / Elektriksel Devre Analizi I",
+            "desc": "Temel devre yasaları, doğrusal devre analizi, geçici rejim ve AC devre analizi temelleri."
+        },
+        "IE232": {
+            "name": "Operations Research I - Modeling / Yöneylem Araştırması I - Modelleme",
+            "desc": "Doğrusal programlama modelleme teknikleri, grafik çözüm, Simpleks algoritması ve duyarlılık analizi."
         },
         "IE241": {
-            "name": "Operations Research I / Yöneylem Araştırması I",
-            "desc": "Doğrusal programlama modelleri, grafik çözüm yöntemi, Simpleks algoritması, dualite teorisi ve duyarlılık analizi."
+            "name": "Cost Analysis in Engineering / Mühendislikte Maliyet Analizi",
+            "desc": "Maliyet kavramları, maliyet muhasebesi, başabaş analizi, maliyet tahmini ve mühendislik karar analizleri."
         },
         "IE333": {
-            "name": "Operations Research II / Yöneylem Araştırması II",
-            "desc": "Tamsayılı programlama, dinamik programlama, Markov zincirleri, kuyruk modelleri ve ağ optimizasyonu."
+            "name": "Operations Research II - Deterministic Problems / Yöneylem Araştırması II - Gerekirci Problemler",
+            "desc": "Tamsayılı programlama, dinamik programlama, ağ modelleri ve deterministik optimizasyon teknikleri."
         },
         "ME113": {
-            "name": "Computer Aided Engineering Drawing",
-            "desc": "Teknik resim prensipleri, izdüşüm yöntemleri, kesit alma, ölçülendirme, toleranslar ve AutoCAD / SolidWorks ile 2B/3B modelleme."
+            "name": "Computer Aided Engineering Drawing I / Bilgisayar Destekli Teknik Resim I",
+            "desc": "Teknik çizim kuralları, geometrik çizimler, izdüşüm yöntemleri, kesit alma ve CAD destekli modelleme."
         },
         "ME211": {
-            "name": "Statics / Statik",
-            "desc": "Parçacıkların ve rijit cisimlerin dengesi, serbest cisim diyagramları, kafes ve çerçeve sistemler, ağırlık merkezleri ve sürtünme."
+            "name": "Thermodynamics I / Termodinamik I",
+            "desc": "Termodinamiğin birinci ve ikinci yasaları, saf maddelerin özellikleri, kapalı ve açık sistemler için enerji analizi."
         },
         "CE221": {
-            "name": "Engineering Mechanics: Statics",
-            "desc": "Taşıyıcı sistemlerde kuvvet dengesi, kesit tesirleri, moment diyagramları ve yapı elemanlarının statik analizi."
+            "name": "Engineering Mechanics: Statics / Mühendislik Mekaniği: Statik",
+            "desc": "Kuvvet sistemleri, parçacık ve rijit cisimlerin dengesi, kafes sistemler, iç kuvvetler ve ağırlık merkezi."
         },
 
         # İşletme, İktisat, Hukuk, Mimarlık
@@ -730,12 +790,12 @@ class DataManager:
             "desc": "Tasarım elemanları; nokta, çizgi, düzlem, hacim, mekan, oran, armoni, kompozisyon ve iki/üç boyutlu tasarım alıştırmaları."
         },
         "ARCH103": {
-            "name": "Architectural Design Studio I",
-            "desc": "Mimari düşünce ve tasarım sürecine giriş; mekan organizasyonu, insan-mekan ölçeği ve kavramsal proje geliştirme."
+            "name": "Free-Hand Drawing / Serbest El Çizim",
+            "desc": "Serbest el çizim teknikleri, perspektif, ışık-gölge, oran-orantı ve eskiz yapma becerileri."
         }
     }
 
-    def get_course_info(self, course_code):
+    def get_course_info(self, course_code, primary_dept=None):
         """Returns structured information, links, and descriptions for a given course code."""
         norm = self.normalize_code(course_code)
         dept_code = Course.extract_dept_code(norm)
@@ -743,10 +803,11 @@ class DataManager:
         level = max(1, min(4, level_num // 100)) if level_num >= 100 else 1
 
         dept_name = self.DEPARTMENT_NAMES.get(dept_code, f"{dept_code} Bölümü")
-        cr, ec = self.get_course_credits(norm)
+        cr, ec = self.get_course_credits(norm, primary_dept=primary_dept)
 
         if norm in self.KNOWN_COURSE_DETAILS:
             details = self.KNOWN_COURSE_DETAILS[norm]
+            details = details.get('program_details', {}).get(primary_dept, details)
             name = details["name"]
             desc = details["desc"]
         else:
@@ -792,15 +853,59 @@ class DataManager:
 
         self.reload_official_curricula()
         self.load_from_cache()
+        self.load_instructor_evidence()
         self.load_student_profile()
+
+    def load_instructor_evidence(self):
+        self.instructor_references = {}
+        path = os.path.join(os.path.dirname(__file__), 'cankaya_instructors.json')
+        if not os.path.exists(path):
+            return
+        try:
+            with open(path, encoding='utf-8') as stream:
+                evidence = json.load(stream)
+            self.instructor_references = evidence.get('records', {})
+            if evidence.get('schedule_fetched_at') != getattr(self, 'schedule_fetched_at', None):
+                return  # The timetable changed; old section assignments need revalidation.
+            for code, course in self.courses.items():
+                for number, section in course.sections.items():
+                    record = evidence.get('sections', {}).get(self.normalize_code(code), {}).get(str(number))
+                    if record and record.get('verification') in {
+                        'course_section_and_all_slots_match',
+                        'current_term_department_timetable_course_section_room_and_slots_match',
+                    }:
+                        section.instructor = record['name']
+                        section.instructor_evidence = record
+        except (OSError, ValueError) as exc:
+            print(f'Instructor evidence could not be loaded: {exc}')
 
     def reload_official_curricula(self):
         """Reloads official curricula and course details from local JSON files."""
+        # Keep loaded records local to this instance; official data overrides fallbacks.
+        self.KNOWN_COURSE_DETAILS = dict(type(self).KNOWN_COURSE_DETAILS)
         curricula_path = os.path.join(os.path.dirname(__file__), "cankaya_official_curricula.json")
         if os.path.exists(curricula_path):
             try:
                 with open(curricula_path, "r", encoding="utf-8") as f:
                     self.official_curricula = json.load(f)
+                # Some program aliases (LAW/HUK, BF/BAF, etc.) share one
+                # official program, but their old copies have incomplete or
+                # differently normalized rows. Use the complete record for all.
+                by_program = {}
+                for curriculum in self.official_curricula.values():
+                    program_key = (str(curriculum.get("program_id")), str(curriculum.get("curriculum_id")))
+                    score = sum(len(curriculum.get(field, [])) for field in
+                        ("all_department_courses", "elective_slots", "technical_elective_codes", "social_elective_codes"))
+                    if program_key not in by_program or score > by_program[program_key][0]:
+                        by_program[program_key] = (score, curriculum)
+                for curriculum in self.official_curricula.values():
+                    program_key = (str(curriculum.get("program_id")), str(curriculum.get("curriculum_id")))
+                    rich = by_program[program_key][1]
+                    for field in ("compulsory_courses", "compulsory_codes", "all_department_courses",
+                                  "elective_slots", "technical_elective_codes", "technical_elective_pool",
+                                  "social_elective_codes", "social_elective_pool", "elective_count"):
+                        if field in rich:
+                            curriculum[field] = rich[field]
             except Exception as e:
                 print(f"Error loading official curricula: {e}")
 
@@ -811,8 +916,9 @@ class DataManager:
                     course_details = json.load(f)
                     for code, d in course_details.items():
                         norm = self.normalize_code(code)
-                        if norm not in self.KNOWN_COURSE_DETAILS:
+                        if d.get("name"):
                             self.KNOWN_COURSE_DETAILS[norm] = {
+                                **d,
                                 "name": d.get("name") or norm,
                                 "desc": d.get("desc") or ""
                             }
@@ -869,6 +975,7 @@ class DataManager:
                 data = json.load(f)
 
             self.departments = set(data.get("departments", []))
+            self.schedule_fetched_at = data.get('fetched_at')
             self.courses = {}
             for c_code, c_data in data.get("courses", {}).items():
                 self.courses[c_code] = Course.from_dict(c_data)
@@ -973,7 +1080,7 @@ class DataManager:
     def check_course_prerequisites(self, course_code):
         from prerequisite_manager import PrerequisiteManager
         passed = self.get_passed_courses()
-        return PrerequisiteManager.check_prerequisites(course_code, passed)
+        return PrerequisiteManager.check_prerequisites(course_code, passed, primary_dept=self.student_profile.get('primary_dept'))
 
     def toggle_custom_course_type(self, course_code):
         """Toggles user custom override for a course between ZORUNLU and SECMELI."""
@@ -992,7 +1099,7 @@ class DataManager:
             self.student_profile.get("secondary_type", "YOK")
         )
 
-    def get_course_credits(self, course_code):
+    def get_course_credits(self, course_code, primary_dept=None):
         """
         Returns (credit, ects) tuple for a given course code.
         Checks custom user overrides first, then known credits, then intelligent heuristics.
@@ -1005,7 +1112,13 @@ class DataManager:
             c = custom_credits[norm]
             return int(c.get("credit", 3)), int(c.get("ects", 5))
 
-        # 2. Known mapping
+        # 2. Official course record for the selected program.
+        details = self.KNOWN_COURSE_DETAILS.get(norm, {})
+        details = details.get('program_details', {}).get(primary_dept, details)
+        if details.get('credit') is not None and details.get('ects') is not None:
+            return details['credit'], details['ects']
+
+        # 3. Known mapping
         if norm in self.KNOWN_COURSE_CREDITS:
             return self.KNOWN_COURSE_CREDITS[norm]
 
@@ -1079,8 +1192,9 @@ class DataManager:
             if norm_code in norm_comp_other or norm_code in norm_comp_own:
                 is_primary_compulsory = True
 
-        # University-wide common compulsory safeguard (TURK, HIST/AIIT, ENG, ESR)
-        if norm_code in self.COMMON_UNIVERSITY_COMPULSORY:
+        # Older programs have no official record; only there use the legacy
+        # common-course fallback. Current programs define these courses exactly.
+        if primary not in self.official_curricula and norm_code in self.COMMON_UNIVERSITY_COMPULSORY:
             is_primary_compulsory = True
 
         if is_primary_compulsory:
@@ -1105,7 +1219,7 @@ class DataManager:
                     if norm_code in sec_tech:
                         return "TEKNIK_SECMELI", "🔹 Seçmeli (Yandal)"
 
-                if course_dept == secondary:
+                if secondary not in self.official_curricula and course_dept == secondary:
                     return "TEKNIK_SECMELI", "🔹 Seçmeli (Yandal)"
 
             # --- CASE B: ÇİFT ANADAL (ÇAP - DOUBLE MAJOR) ---
@@ -1130,7 +1244,7 @@ class DataManager:
                     if norm_code in sec_tech:
                         return "TEKNIK_SECMELI", "🔹 Teknik Seçmeli (ÇAP)"
 
-                if course_dept == secondary:
+                if secondary not in self.official_curricula and course_dept == secondary:
                     return "TEKNIK_SECMELI", "🔹 Teknik Seçmeli (ÇAP)"
 
         # 3. Check Primary Department Official Elective Pools (Bilgi Paketi)
@@ -1146,11 +1260,43 @@ class DataManager:
 
         # 4. Fallback Heuristics:
         # If belongs to student's department but not compulsory -> Technical Elective
+        if primary in self.official_curricula:
+            return "MUFREDAT_DISI", "Müfredat Dışı"
         if course_dept == primary:
             return "TEKNIK_SECMELI", "🔹 Teknik Seçmeli"
 
         # Otherwise Free / Social Elective
         return "SERBEST_SECMELI", "🔸 Serbest/Sosyal Seçmeli"
+
+    def curriculum_course_codes(self, primary_dept, secondary_dept="YOK", secondary_type="YOK"):
+        """Codes listed in the latest official program(s), including elective pools.
+
+        None means that no official primary curriculum is available, so callers
+        should retain legacy browsing rather than silently hide every course.
+        """
+        primary = (primary_dept or "CENG").upper()
+        curriculum = self.official_curricula.get(primary)
+        if not curriculum:
+            return None
+
+        def codes(record):
+            return {self.normalize_code(code) for key in
+                    ("compulsory_codes", "technical_elective_codes", "social_elective_codes")
+                    for code in record.get(key, []) if code}
+
+        allowed = codes(curriculum)
+        secondary = (secondary_dept or "YOK").upper()
+        secondary_type = (secondary_type or "YOK").upper()
+        if secondary_type == "CAP" and secondary in self.official_curricula:
+            allowed.update(codes(self.official_curricula[secondary]))
+        elif secondary_type == "YANDAL" and secondary != "YOK":
+            package = self.YANDAL_COMBINATION_PACKAGES.get((primary, secondary),
+                self.YANDAL_GENERAL_PACKAGES.get(secondary, set()))
+            allowed.update(self.normalize_code(code) for code in package)
+            if secondary in self.official_curricula:
+                allowed.update(self.normalize_code(code) for code in
+                    self.official_curricula[secondary].get("technical_elective_codes", []))
+        return allowed
 
     def get_curriculum_progress(self, primary_dept=None, passed_courses=None):
         """

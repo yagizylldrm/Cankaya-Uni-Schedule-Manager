@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSchedule } from '../context/ScheduleContext';
+import { useSchedule } from '../context/useSchedule';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -10,7 +10,7 @@ import {
   Sparkles
 } from 'lucide-react';
 
-export default function CombinationBar({ onReviewBasket }) {
+export default function CombinationBar({ onReviewCourses }) {
   const {
     combinations,
     currentComboIndex,
@@ -19,7 +19,7 @@ export default function CombinationBar({ onReviewBasket }) {
     updatePreferences,
     conflictsInfo,
     conflictDetails,
-    isScheduleStale,
+
     generateSchedule,
     generationError,
     isGenerating,
@@ -31,9 +31,12 @@ export default function CombinationBar({ onReviewBasket }) {
 
   const totalCombos = combinations.length;
   const currentCombo = totalCombos > 0 ? combinations[currentComboIndex] : null;
+  const untimedCodes = currentCombo?.sections?.filter(section =>
+    basket[section.course_code]?.untimed && section.section_no === 'SAATSIZ' && !section.slots?.length)
+    .map(section => section.course_code) || [];
 
   const applyFix = action => {
-    if (action.type === 'review_basket') return onReviewBasket();
+    if (action.type === 'review_basket') return onReviewCourses();
     if (action.type === 'relax_preferences') {
       return generateSchedule({ preferences: { ...preferences, ...Object.fromEntries(action.keys.map(k => [k, false])) } });
     }
@@ -58,11 +61,11 @@ export default function CombinationBar({ onReviewBasket }) {
 
   return (
     <div className="bg-white dark:bg-dark-surface rounded-2xl border border-slate-200 dark:border-dark-border p-3 sm:p-3.5 shadow-xs space-y-3">
-      {isScheduleStale && <div role="status" className="rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/30 p-3 text-sm text-amber-900 dark:text-amber-200 space-y-2">
-        <p className="font-semibold">Seçimler değişti — programı yeniden oluşturun.</p>
-        <p>Gösterilen sonuç önceki seçimlerinize ait. Güncellenene kadar dışa aktarma kapalıdır.</p>
-        <button className="primary-action" disabled={isGenerating || !Object.keys(basket).length} onClick={() => generateSchedule()}>Yeniden oluştur</button>
-      </div>}
+
+
+
+
+
       {generationError && <div role="alert" className="rounded-xl bg-rose-50 dark:bg-rose-950/30 p-3 text-sm text-rose-700 dark:text-rose-300">
         <p>{generationError}</p><button disabled={isGenerating} onClick={() => generateSchedule()} className="underline py-2">Tekrar dene</button>
       </div>}
@@ -114,6 +117,12 @@ export default function CombinationBar({ onReviewBasket }) {
               <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{currentCombo.days_count} Gün</span>
             </div>
           )}
+          {isGenerating && (
+            <span role="status" className="text-xs text-cankaya-blue dark:text-cankaya-gold font-medium animate-pulse flex items-center gap-1.5">
+              <span className="inline-block w-2 h-2 rounded-full bg-cankaya-blue dark:bg-cankaya-gold animate-ping" />
+              Hesaplanıyor…
+            </span>
+          )}
         </div>
 
         {/* Preferences Toggles */}
@@ -156,14 +165,20 @@ export default function CombinationBar({ onReviewBasket }) {
 
       </div>
 
+      {untimedCodes.length > 0 && (
+        <p className="text-xs text-slate-600 dark:text-dark-subtext">
+          Haftalık saati olmayan dersler: {untimedCodes.join(', ')}. AKTS toplamına dahildir.
+        </p>
+      )}
+
       {/* Conflict / Warning Notice if count is 0 */}
-      {conflictsInfo && !isScheduleStale && (
+      {conflictsInfo && (
         <div className="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-xl text-rose-800 dark:text-rose-300 text-xs flex items-start gap-2.5">
           <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
           <p className="leading-relaxed">{conflictsInfo}</p>
         </div>
       )}
-      {!isScheduleStale && conflictDetails.length > 0 && <ul className="space-y-2" aria-label="Çakışma nedenleri ve çözümler">
+      {conflictDetails.length > 0 && <ul className="space-y-2" aria-label="Çakışma nedenleri ve çözümler">
         {conflictDetails.map((detail, index) => <li key={index} className="rounded-xl border border-slate-200 dark:border-dark-border p-3 text-sm">
           <p>{detail.message}</p>
           {detail.action && <button disabled={isGenerating} onClick={() => applyFix(detail.action)} className="mt-2 rounded-lg px-3 py-2 bg-slate-100 dark:bg-dark-card font-semibold">{detail.action.label}</button>}
