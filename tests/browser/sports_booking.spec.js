@@ -145,9 +145,10 @@ test('sports booking modal opens, handles login, displays clash detection and bo
   await expect(page.getByText('Fitness Seansı 1')).toBeVisible();
   await expect(page.getByText('Fitness Seansı 2')).toBeVisible();
 
-  // Set date to a Monday (e.g. 2026-09-28) to test clash with CENG101 on Pazartesi 09:00 - 09:50
-  const dateInput = page.locator('input[type="date"]');
-  await dateInput.fill('2026-09-28');
+  // Select a Monday (2026-09-28) using the locale-independent day/month/year dropdowns
+  await page.getByLabel('Gün', { exact: true }).selectOption('28');
+  await page.getByLabel('Ay', { exact: true }).selectOption('9');
+  await page.getByLabel('Yıl', { exact: true }).selectOption('2026');
 
   // Verify clash badge on Slot 1 (09:00 - 10:00 vs CENG101 09:00 - 09:50)
   await expect(page.getByText(/Ders Çakışması: CENG101/)).toBeVisible();

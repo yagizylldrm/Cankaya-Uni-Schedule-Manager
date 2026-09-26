@@ -19,6 +19,10 @@ import {
 } from 'lucide-react';
 
 const TURKISH_DAYS = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+const TURKISH_MONTHS = [
+  'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+  'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+];
 
 function formatDateToTurkish(dateStr) {
   // Converts "YYYY-MM-DD" to "DD.MM.YYYY"
@@ -94,6 +98,31 @@ export default function SportsBookingModal() {
     const d = new Date(`${selectedDate}T00:00:00`);
     return TURKISH_DAYS[d.getDay()] || '';
   }, [selectedDate]);
+
+  const [selectedYear, selectedMonth, selectedDay] = useMemo(
+    () => selectedDate.split('-').map(Number),
+    [selectedDate]
+  );
+  const daysInSelectedMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+  const selectableYears = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 3 }, (_, index) => currentYear + index);
+  }, []);
+
+  const handleDatePartChange = (part, value) => {
+    let year = selectedYear;
+    let month = selectedMonth;
+    let day = selectedDay;
+
+    if (part === 'day') day = Number(value);
+    if (part === 'month') month = Number(value);
+    if (part === 'year') year = Number(value);
+
+    day = Math.min(day, new Date(year, month, 0).getDate());
+    setSelectedDate(
+      `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+    );
+  };
 
   // Fetch slots whenever authenticated and selectedDate changes
   const loadSlots = useCallback(async (date) => {
@@ -428,12 +457,38 @@ export default function SportsBookingModal() {
                     </button>
                   ))}
 
-                  <input
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    className="ml-auto px-2.5 py-1 text-xs rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-card text-slate-800 dark:text-dark-text focus:outline-none focus:ring-1 focus:ring-purple-500"
-                  />
+                  <div className="ml-auto flex items-center gap-1" aria-label="Tarih seçimi">
+                    <select
+                      aria-label="Gün"
+                      value={selectedDay}
+                      onChange={(e) => handleDatePartChange('day', e.target.value)}
+                      className="px-2 py-1 text-xs rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-card text-slate-800 dark:text-dark-text focus:outline-none focus:ring-1 focus:ring-purple-500"
+                    >
+                      {Array.from({ length: daysInSelectedMonth }, (_, index) => index + 1).map(day => (
+                        <option key={day} value={day}>{String(day).padStart(2, '0')}</option>
+                      ))}
+                    </select>
+                    <select
+                      aria-label="Ay"
+                      value={selectedMonth}
+                      onChange={(e) => handleDatePartChange('month', e.target.value)}
+                      className="px-2 py-1 text-xs rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-card text-slate-800 dark:text-dark-text focus:outline-none focus:ring-1 focus:ring-purple-500"
+                    >
+                      {TURKISH_MONTHS.map((month, index) => (
+                        <option key={month} value={index + 1}>{month}</option>
+                      ))}
+                    </select>
+                    <select
+                      aria-label="Yıl"
+                      value={selectedYear}
+                      onChange={(e) => handleDatePartChange('year', e.target.value)}
+                      className="px-2 py-1 text-xs rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-card text-slate-800 dark:text-dark-text focus:outline-none focus:ring-1 focus:ring-purple-500"
+                    >
+                      {selectableYears.map(year => (
+                        <option key={year} value={year}>{year}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
 
