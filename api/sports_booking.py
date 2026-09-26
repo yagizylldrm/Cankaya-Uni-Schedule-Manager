@@ -92,7 +92,10 @@ def decrypt_session_data(token: str) -> Dict[str, Any]:
 
 
 class SportsBookingService:
-    BASE_URL = "https://randevu.cankaya.edu.tr"
+    BASE_URL = os.getenv(
+        "SPORTS_BASE_URL",
+        "https://cankaya-sports-proxy.yagizhere.workers.dev"
+    ).rstrip("/")
 
     @classmethod
     def _create_session(cls, cookies: Optional[Dict[str, str]] = None) -> requests.Session:
@@ -108,7 +111,7 @@ class SportsBookingService:
     @classmethod
     def authenticate(cls, username: str, password: str) -> Dict[str, Any]:
         """
-        Authenticates against https://randevu.cankaya.edu.tr/Account/StudentLogin
+        Authenticates against the configured sports booking service.
         Extracts ASP.NET session cookies and returns an encrypted session token.
         Credentials are never stored or returned.
         """

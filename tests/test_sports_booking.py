@@ -1,3 +1,6 @@
+import os
+import subprocess
+import sys
 import unittest
 from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
@@ -13,6 +16,29 @@ client = TestClient(app)
 
 
 class SportsBookingTests(unittest.TestCase):
+    def test_default_base_url_uses_cloudflare_proxy(self):
+        self.assertEqual(
+            SportsBookingService.BASE_URL,
+            "https://cankaya-sports-proxy.yagizhere.workers.dev"
+        )
+
+    def test_base_url_can_be_overridden_with_environment_variable(self):
+        env = os.environ.copy()
+        env["SPORTS_BASE_URL"] = "https://sports.example.test/"
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "from api.sports_booking import SportsBookingService; print(SportsBookingService.BASE_URL)"
+            ],
+            capture_output=True,
+            check=True,
+            cwd=os.path.dirname(os.path.dirname(__file__)),
+            env=env,
+            text=True
+        )
+        self.assertEqual(result.stdout.strip(), "https://sports.example.test")
+
     def test_session_token_encryption_decryption(self):
         data = {
             "cookies": {".AspNet.ApplicationCookie": "cookie_xyz_123"},
@@ -80,7 +106,7 @@ class SportsBookingTests(unittest.TestCase):
         with patch("requests.Session.get") as mock_get, patch("requests.Session.post") as mock_post:
             # Mock GET to return page with CSRF token
             mock_get_res = MagicMock()
-            mock_get_res.url = "https://randevu.cankaya.edu.tr/Appointment/SeansSelection"
+            mock_get_res.url = f"{SportsBookingService.BASE_URL}/Appointment/SeansSelection"
             mock_get_res.text = '<input name="__RequestVerificationToken" type="hidden" value="CSRF_TOKEN_456" />'
             mock_get.return_value = mock_get_res
 
@@ -98,6 +124,10 @@ class SportsBookingTests(unittest.TestCase):
             self.assertEqual(kwargs["data"]["UnitId"], "4")
             self.assertEqual(kwargs["data"]["LocationId"], "8")
             self.assertEqual(kwargs["data"]["AppDate"], "28.09.2026")
+            self.assertEqual(
+                mock_post.call_args.args[0],
+                "https://cankaya-sports-proxy.yagizhere.workers.dev/Appointment/SeansSelection"
+            )
 
             self.assertEqual(len(slots), 2)
             # Slot 1
