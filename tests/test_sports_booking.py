@@ -36,6 +36,7 @@ class SportsBookingTests(unittest.TestCase):
         )
         self.assertEqual(session.headers["Accept-Language"], "tr-TR,tr;q=0.9")
         self.assertEqual(session.headers["Accept-Encoding"], "gzip, deflate")
+        self.assertEqual(session.headers["ngrok-skip-browser-warning"], "true")
         self.assertNotIn("Host", session.headers)
 
     def test_base_url_can_be_overridden_with_environment_variable(self):

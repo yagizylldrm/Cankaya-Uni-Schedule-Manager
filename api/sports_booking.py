@@ -109,6 +109,7 @@ class SportsBookingService:
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "tr-TR,tr;q=0.9",
             "Accept-Encoding": "gzip, deflate",
+            "ngrok-skip-browser-warning": "true",
         })
         if cookies:
             session.cookies.update(cookies)
