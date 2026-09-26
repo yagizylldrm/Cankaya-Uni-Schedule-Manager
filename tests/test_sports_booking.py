@@ -32,9 +32,10 @@ class SportsBookingTests(unittest.TestCase):
         )
         self.assertEqual(
             session.headers["Accept"],
-            "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
         )
-        self.assertEqual(session.headers["Accept-Language"], "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7")
+        self.assertEqual(session.headers["Accept-Language"], "tr-TR,tr;q=0.9")
+        self.assertEqual(session.headers["Accept-Encoding"], "gzip, deflate")
         self.assertNotIn("Host", session.headers)
 
     def test_base_url_can_be_overridden_with_environment_variable(self):
@@ -53,6 +54,29 @@ class SportsBookingTests(unittest.TestCase):
             text=True
         )
         self.assertEqual(result.stdout.strip(), "https://sports.example.test")
+
+    def test_login_token_error_includes_response_diagnostics(self):
+        mock_response = MagicMock()
+        mock_response.status_code = 403
+        mock_response.headers = {"Content-Type": "text/html; charset=UTF-8"}
+        mock_response.url = f"{SportsBookingService.BASE_URL}/cdn-cgi/challenge-platform"
+        mock_response.text = "<html>\n  <title>Just a moment...</title>\n  Cloudflare challenge\n</html>"
+
+        with patch("requests.Session.get", return_value=mock_response) as mock_get:
+            with self.assertRaises(RuntimeError) as context:
+                SportsBookingService.authenticate("student", "password")
+
+        mock_get.assert_called_once_with(
+            f"{SportsBookingService.BASE_URL}/Account/StudentLogin",
+            timeout=(10, 30),
+            allow_redirects=True
+        )
+        message = str(context.exception)
+        self.assertIn("HTTP 403", message)
+        self.assertIn("text/html; charset=UTF-8", message)
+        self.assertIn("/cdn-cgi/challenge-platform", message)
+        self.assertIn("Just a moment...", message)
+        self.assertIn("Cloudflare challenge", message)
 
     def test_session_token_encryption_decryption(self):
         data = {

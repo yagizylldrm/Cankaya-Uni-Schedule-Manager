@@ -5,10 +5,13 @@ import time
 import base64
 import hmac
 import hashlib
+import logging
 import secrets
 from typing import Dict, Any, Optional, Tuple, List
 import requests
 from bs4 import BeautifulSoup
+
+logger = logging.getLogger(__name__)
 
 # Secret key for encrypting and signing session tokens
 # Stored in environment variable or generated per process lifecycle
@@ -103,8 +106,9 @@ class SportsBookingService:
         session = requests.Session()
         session.headers.update({
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-            "Accept-Language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "tr-TR,tr;q=0.9",
+            "Accept-Encoding": "gzip, deflate",
         })
         if cookies:
             session.cookies.update(cookies)
@@ -124,14 +128,27 @@ class SportsBookingService:
         login_url = f"{cls.BASE_URL}/Account/StudentLogin"
 
         try:
-            get_res = session.get(login_url, timeout=cls.TIMEOUT)
+            get_res = session.get(login_url, timeout=cls.TIMEOUT, allow_redirects=True)
         except Exception as e:
             raise RuntimeError(f"Üniversite randevu sunucusuna bağlanılamadı: {e}")
 
         soup = BeautifulSoup(get_res.text, "html.parser")
         token_input = soup.find("input", {"name": "__RequestVerificationToken"})
         if not token_input or not token_input.get("value"):
-            raise RuntimeError("Giriş güvenlik belirteci (__RequestVerificationToken) alınamadı.")
+            content_type = get_res.headers.get("Content-Type", "bilinmiyor")
+            response_preview = " ".join(get_res.text[:300].split())
+            logger.warning(
+                "Sports login CSRF token missing: status=%s content_type=%s final_url=%s preview=%r",
+                get_res.status_code,
+                content_type,
+                get_res.url,
+                response_preview
+            )
+            raise RuntimeError(
+                "Giriş güvenlik belirteci (__RequestVerificationToken) alınamadı. "
+                f"HTTP {get_res.status_code}, Content-Type: {content_type}, "
+                f"Son URL: {get_res.url}, Yanıt: {response_preview}"
+            )
 
         payload = {
             "__RequestVerificationToken": token_input["value"],
