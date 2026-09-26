@@ -38,13 +38,28 @@ export default function TranscriptModal() {
 
   // Curriculum progress
   const [progress, setProgress] = useState(null);
+  const [progressLoading, setProgressLoading] = useState(false);
+  const [progressError, setProgressError] = useState('');
+  const [progressRetry, setProgressRetry] = useState(0);
 
   // Fetch progress whenever profile passedCourses changes
   useEffect(() => {
+    let cancelled = false;
+    setProgress(null);
+    setProgressError('');
+    setProgressLoading(true);
     fetchCurriculumProgress(profile.primaryDept, profile.passedCourses)
-      .then(data => setProgress(data))
-      .catch(err => console.error('İlerleme yüklenemedi:', err));
-  }, [profile.primaryDept, profile.passedCourses]);
+      .then(data => {
+        if (!cancelled) setProgress(data);
+      })
+      .catch(err => {
+        if (!cancelled) setProgressError(err.message || 'Kredi bilgisi yüklenemedi.');
+      })
+      .finally(() => {
+        if (!cancelled) setProgressLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [profile.primaryDept, profile.passedCourses, progressRetry]);
 
   if (!transcriptModalOpen) return null;
 
@@ -130,6 +145,38 @@ export default function TranscriptModal() {
   };
 
   const passedList = Object.values(profile.passedCourses || {});
+  const completedCourses = Math.max(0, Number(progress?.compulsory_passed) || 0);
+  const totalCourses = Math.max(0, Number(progress?.compulsory_total) || 0);
+  const completedCredits = progress ? Number(progress.completed_credits) : null;
+  const totalCredits = progress ? Number(progress.total_credits) : null;
+  const progressMetrics = [
+    {
+      key: 'courses',
+      label: 'Ders ilerlemesi',
+      completed: completedCourses,
+      total: totalCourses,
+      unit: 'ders',
+      strokeClass: 'text-cankaya-blue dark:text-cankaya-gold',
+    },
+    {
+      key: 'credits',
+      label: 'Kredi ilerlemesi',
+      completed: completedCredits,
+      total: totalCredits,
+      unit: 'kredi',
+      strokeClass: 'text-violet-600 dark:text-violet-400',
+    },
+  ].map(metric => {
+    const ratio = metric.total > 0 ? Math.min(metric.completed / metric.total, 1) : 0;
+    return {
+      ...metric,
+      percentage: Math.round(ratio * 100),
+      offset: 2 * Math.PI * 48 * (1 - ratio),
+      summary: `${metric.completed} / ${metric.total} ${metric.unit} tamamlandı (${Math.round(ratio * 100)}%).`,
+    };
+  });
+  const ringRadius = 48;
+  const ringCircumference = 2 * Math.PI * ringRadius;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
@@ -162,27 +209,96 @@ export default function TranscriptModal() {
         {/* Scrollable Modal Body */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
           
-          {/* Degree Progress Card if available */}
+          {/* Degree Progress Card */}
+          {progressLoading && (
+            <div role="status" className="p-3 bg-slate-50 dark:bg-dark-card/60 rounded-xl border border-slate-200 dark:border-dark-border text-slate-500 dark:text-dark-subtext">
+              Müfredat ilerlemesi yükleniyor…
+            </div>
+          )}
+
+          {!progressLoading && progressError && (
+            <div role="alert" className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-xl border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-200 flex items-center justify-between gap-3">
+              <span>Kredi bilgisi yüklenemedi. {progressError}</span>
+              <button
+                type="button"
+                onClick={() => setProgressRetry(value => value + 1)}
+                className="shrink-0 rounded-lg border border-amber-300 px-2.5 py-1 font-semibold hover:bg-amber-100 dark:border-amber-700 dark:hover:bg-amber-900/40"
+              >
+                Tekrar dene
+              </button>
+            </div>
+          )}
+
           {progress && (
             <div className="p-3 bg-slate-50 dark:bg-dark-card/60 rounded-xl border border-slate-200 dark:border-dark-border space-y-2">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center">
                 <span className="font-bold text-slate-700 dark:text-dark-text flex items-center gap-1.5">
                   <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
                   {progress.program_name || profile.primaryDept} Müfredat İlerlemesi
                 </span>
-                <span className="text-[11px] text-slate-500 dark:text-dark-subtext">
-                  {progress.compulsory_passed} / {progress.compulsory_total} Zorunlu Ders
-                </span>
               </div>
 
-              {/* Progress Bar */}
-              <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                <div 
-                  className="bg-emerald-500 h-full rounded-full transition-all duration-500"
-                  style={{ 
-                    width: `${Math.min(100, Math.round((progress.compulsory_passed / Math.max(1, progress.compulsory_total)) * 100))}%` 
-                  }}
-                />
+              <div className="grid grid-cols-1 gap-3 py-1 sm:grid-cols-2">
+                {progressMetrics.map(metric => (
+                  <figure key={metric.key} className="flex flex-col items-center rounded-xl bg-white/70 p-3 dark:bg-dark-surface/50">
+                    <figcaption className="mb-2 text-xs font-semibold text-slate-700 dark:text-dark-text">
+                      {metric.label}
+                    </figcaption>
+                    <svg
+                      width="120"
+                      height="120"
+                      viewBox="0 0 120 120"
+                      role="img"
+                      aria-label={metric.summary}
+                      className="shrink-0"
+                    >
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r={ringRadius}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="12"
+                        className="text-slate-200 dark:text-slate-700"
+                      />
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r={ringRadius}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="12"
+                        strokeLinecap="round"
+                        strokeDasharray={ringCircumference}
+                        strokeDashoffset={metric.offset}
+                        transform="rotate(-90 60 60)"
+                        className={`${metric.strokeClass} transition-[stroke-dashoffset] duration-500`}
+                      >
+                        <title>{metric.summary}</title>
+                      </circle>
+                      <text
+                        x="60"
+                        y="57"
+                        textAnchor="middle"
+                        className="fill-slate-900 text-lg font-bold dark:fill-dark-text"
+                      >
+                        {metric.percentage}%
+                      </text>
+                      <text
+                        x="60"
+                        y="75"
+                        textAnchor="middle"
+                        className="fill-slate-500 text-[10px] dark:fill-dark-subtext"
+                      >
+                        tamamlandı
+                      </text>
+                    </svg>
+                    <p className="mt-2 text-sm font-bold text-slate-800 dark:text-dark-text">
+                      {metric.completed} / {metric.total} {metric.unit}
+                    </p>
+                    <span className="sr-only">{metric.summary}</span>
+                  </figure>
+                ))}
               </div>
 
               <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-dark-subtext pt-1">

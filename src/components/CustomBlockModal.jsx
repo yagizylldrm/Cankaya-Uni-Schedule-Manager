@@ -24,7 +24,8 @@ export default function CustomBlockModal() {
     customBlockModalData,
     setCustomBlockModalData,
     setCustomBlock,
-    deleteCustomBlock
+    deleteCustomBlock,
+    notify
   } = useSchedule();
 
   if (!customBlockModalData) return null;
@@ -46,7 +47,7 @@ export default function CustomBlockModal() {
 
   const handleSave = () => {
     if (!title.trim()) {
-      alert('Lütfen bir başlık girin.');
+      notify('Lütfen bir başlık girin.');
       return;
     }
 

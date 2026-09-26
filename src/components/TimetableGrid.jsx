@@ -6,8 +6,7 @@ import { MapPin, User, Clock, Plus, AlertTriangle } from 'lucide-react';
 
 const DAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
 
-const TIME_SLOTS = [
-  "08:40 - 09:30",
+const BASE_TIME_SLOTS = [
   "09:00 - 09:50",
   "10:00 - 10:50",
   "11:00 - 11:50",
@@ -24,14 +23,14 @@ const TIME_SLOTS = [
 
 // Aesthetic color palettes for courses
 const COURSE_PALETTES = [
-  { bg: 'bg-blue-50 dark:bg-blue-950/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-950 dark:text-blue-200', tag: 'bg-blue-200/60 dark:bg-blue-800/60 text-blue-900 dark:text-blue-100' },
-  { bg: 'bg-emerald-50 dark:bg-emerald-950/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-950 dark:text-emerald-200', tag: 'bg-emerald-200/60 dark:bg-emerald-800/60 text-emerald-900 dark:text-emerald-100' },
-  { bg: 'bg-violet-50 dark:bg-violet-950/40', border: 'border-violet-300 dark:border-violet-700', text: 'text-violet-950 dark:text-violet-200', tag: 'bg-violet-200/60 dark:bg-violet-800/60 text-violet-900 dark:text-violet-100' },
-  { bg: 'bg-amber-50 dark:bg-amber-950/40', border: 'border-amber-300 dark:border-amber-700', text: 'text-amber-950 dark:text-amber-200', tag: 'bg-amber-200/60 dark:bg-amber-800/60 text-amber-900 dark:text-amber-100' },
-  { bg: 'bg-rose-50 dark:bg-rose-950/40', border: 'border-rose-300 dark:border-rose-700', text: 'text-rose-950 dark:text-rose-200', tag: 'bg-rose-200/60 dark:bg-rose-800/60 text-rose-900 dark:text-rose-100' },
-  { bg: 'bg-cyan-50 dark:bg-cyan-950/40', border: 'border-cyan-300 dark:border-cyan-700', text: 'text-cyan-950 dark:text-cyan-200', tag: 'bg-cyan-200/60 dark:bg-cyan-800/60 text-cyan-900 dark:text-cyan-100' },
-  { bg: 'bg-fuchsia-50 dark:bg-fuchsia-950/40', border: 'border-fuchsia-300 dark:border-fuchsia-700', text: 'text-fuchsia-950 dark:text-fuchsia-200', tag: 'bg-fuchsia-200/60 dark:bg-fuchsia-800/60 text-fuchsia-900 dark:text-fuchsia-100' },
-  { bg: 'bg-indigo-50 dark:bg-indigo-950/40', border: 'border-indigo-300 dark:border-indigo-700', text: 'text-indigo-950 dark:text-indigo-200', tag: 'bg-indigo-200/60 dark:bg-indigo-800/60 text-indigo-900 dark:text-indigo-100' },
+  { bg: 'bg-blue-50 dark:bg-blue-950/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-950 dark:text-blue-200', tag: 'bg-blue-200/60 dark:bg-blue-800/60 text-blue-900 dark:text-blue-100', swatch: 'bg-blue-500' },
+  { bg: 'bg-emerald-50 dark:bg-emerald-950/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-950 dark:text-emerald-200', tag: 'bg-emerald-200/60 dark:bg-emerald-800/60 text-emerald-900 dark:text-emerald-100', swatch: 'bg-emerald-500' },
+  { bg: 'bg-violet-50 dark:bg-violet-950/40', border: 'border-violet-300 dark:border-violet-700', text: 'text-violet-950 dark:text-violet-200', tag: 'bg-violet-200/60 dark:bg-violet-800/60 text-violet-900 dark:text-violet-100', swatch: 'bg-violet-500' },
+  { bg: 'bg-amber-50 dark:bg-amber-950/40', border: 'border-amber-300 dark:border-amber-700', text: 'text-amber-950 dark:text-amber-200', tag: 'bg-amber-200/60 dark:bg-amber-800/60 text-amber-900 dark:text-amber-100', swatch: 'bg-amber-500' },
+  { bg: 'bg-rose-50 dark:bg-rose-950/40', border: 'border-rose-300 dark:border-rose-700', text: 'text-rose-950 dark:text-rose-200', tag: 'bg-rose-200/60 dark:bg-rose-800/60 text-rose-900 dark:text-rose-100', swatch: 'bg-rose-500' },
+  { bg: 'bg-cyan-50 dark:bg-cyan-950/40', border: 'border-cyan-300 dark:border-cyan-700', text: 'text-cyan-950 dark:text-cyan-200', tag: 'bg-cyan-200/60 dark:bg-cyan-800/60 text-cyan-900 dark:text-cyan-100', swatch: 'bg-cyan-500' },
+  { bg: 'bg-fuchsia-50 dark:bg-fuchsia-950/40', border: 'border-fuchsia-300 dark:border-fuchsia-700', text: 'text-fuchsia-950 dark:text-fuchsia-200', tag: 'bg-fuchsia-200/60 dark:bg-fuchsia-800/60 text-fuchsia-900 dark:text-fuchsia-100', swatch: 'bg-fuchsia-500' },
+  { bg: 'bg-indigo-50 dark:bg-indigo-950/40', border: 'border-indigo-300 dark:border-indigo-700', text: 'text-indigo-950 dark:text-indigo-200', tag: 'bg-indigo-200/60 dark:bg-indigo-800/60 text-indigo-900 dark:text-indigo-100', swatch: 'bg-indigo-500' },
 ];
 
 const CUSTOM_BLOCK_COLORS = {
@@ -45,13 +44,14 @@ const CUSTOM_BLOCK_COLORS = {
 
 export default function TimetableGrid({ gridRef }) {
   const {
-    combinations,
-    currentComboIndex,
+    sortedCombinations,
+    selectedCombination,
     basket,
     customBlocks,
     setCustomBlockModalData,
     setCourseDetailModalCode,
-
+    courseColors,
+    updateCourseColor,
     isGenerating
   } = useSchedule();
   const [view, setView] = useState(() => window.matchMedia('(max-width: 767px)').matches ? 'agenda' : 'week');
@@ -61,8 +61,8 @@ export default function TimetableGrid({ gridRef }) {
   // If combinations are available, use the currently active combination.
   // Otherwise, if basket has items, show draft preview of selected sections.
   const activeSections = useMemo(() => {
-    if (combinations && combinations.length > 0 && combinations[currentComboIndex]) {
-      const previous = combinations[currentComboIndex].sections || [];
+    if (selectedCombination) {
+      const previous = selectedCombination.sections || [];
       if (!isGenerating) return previous;
 
       // Keep the existing timetable in place while updating, but apply section
@@ -82,24 +82,77 @@ export default function TimetableGrid({ gridRef }) {
     }
 
     return choosePreviewSections(basket, customBlocks);
-  }, [combinations, currentComboIndex, basket, customBlocks, isGenerating]);
+  }, [selectedCombination, basket, customBlocks, isGenerating]);
+
+  // Check if there are any weekend classes or custom blocks
+  const hasWeekendContent = useMemo(() => {
+    const weekendDays = ['Cumartesi', 'Pazar'];
+    const sectionsOnWeekend = activeSections.some(section =>
+      (section.slots || []).some(slot => weekendDays.includes(slot.day))
+    );
+    const blocksOnWeekend = Object.values(customBlocks || {}).some(block =>
+      weekendDays.includes(block.day)
+    );
+    return sectionsOnWeekend || blocksOnWeekend;
+  }, [activeSections, customBlocks]);
+
+  // Empty weekend columns are never useful in the timetable preview.
+  const visibleDays = hasWeekendContent ? DAYS : DAYS.slice(0, 5);
+
+  const TIME_SLOTS = useMemo(() => {
+    const contentStartTimes = [];
+    for (const section of activeSections) for (const slot of section.slots || []) {
+      const start = parseTimeRange(slot.time_slot)?.[0];
+      if (Number.isFinite(start)) contentStartTimes.push(start);
+    }
+    for (const block of Object.values(customBlocks || {})) {
+      const start = parseTimeRange(block.time_slot)?.[0];
+      if (Number.isFinite(start)) contentStartTimes.push(start);
+    }
+
+    const latestContentStart = contentStartTimes.length ? Math.max(...contentStartTimes) : 960;
+    const latestVisibleStart = Math.max(960, latestContentStart);
+    const startTimes = new Set(
+      BASE_TIME_SLOTS
+        .map(slot => parseTimeRange(slot)?.[0])
+        .filter(start => Number.isFinite(start) && start <= latestVisibleStart)
+    );
+    contentStartTimes.forEach(start => startTimes.add(start));
+
+    return [...startTimes].sort((a, b) => a - b).map(start => {
+      const label = minutes => `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+      return `${label(start)} - ${label(start + 50)}`;
+    });
+  }, [activeSections, customBlocks]);
 
   // Color mapping per course code
-  const courseColors = useMemo(() => {
+  const getCourseColorPalette = useMemo(() => {
     const map = {};
     const codes = Array.from(new Set(activeSections.map(s => s.course_code)));
     codes.forEach((code, idx) => {
-      map[code] = COURSE_PALETTES[idx % COURSE_PALETTES.length];
+      const paletteIndex = courseColors[code] !== undefined ? courseColors[code] : idx;
+      map[code] = COURSE_PALETTES[paletteIndex % COURSE_PALETTES.length];
     });
     return map;
-  }, [activeSections]);
+  }, [activeSections, courseColors]);
 
   // Matches a slot to a time slot label
   const matchSlotToRow = (slotTime, rowTime) => {
-    const cleaned = slotTime.replace('/', '-').trim();
-    const startHour = cleaned.split('-')[0].trim();
-    if (!startHour) return false;
-    return rowTime.startsWith(startHour) || rowTime.includes(startHour);
+    const slot = parseTimeRange(slotTime);
+    const row = parseTimeRange(rowTime);
+    return Boolean(slot && row && slot[0] === row[0]);
+  };
+  const overlapsAt = (day, rowTime) => {
+    const currentStart = parseTimeRange(rowTime)?.[0];
+    if (currentStart === undefined) return false;
+    const entries = [
+      ...activeSections.flatMap(section => (section.slots || []).filter(slot => slot.day === day).map(slot => parseTimeRange(slot.time_slot))),
+      ...Object.values(customBlocks || {}).filter(block => block.day === day).map(block => parseTimeRange(block.time_slot))
+    ].filter(Boolean);
+    const atRow = entries.filter(range => range[0] === currentStart);
+    if (!atRow.length) return false;
+    return atRow.some(range => entries.some(other =>
+      other !== range && Math.max(range[0], other[0]) < Math.min(range[1], other[1])));
   };
 
   // Build 2D grid matrix: grid[day][timeSlot] = { courses: [...], customBlock: ... }
@@ -145,7 +198,7 @@ export default function TimetableGrid({ gridRef }) {
     });
 
     return matrix;
-  }, [activeSections, customBlocks]);
+  }, [activeSections, customBlocks, TIME_SLOTS]);
 
   const agendaItems = [
     ...activeSections.flatMap(sec => (sec.slots || []).filter(s => s.day === agendaDay).map(s => ({ ...s,
@@ -157,7 +210,7 @@ export default function TimetableGrid({ gridRef }) {
   return (
     <>
     <div data-view-controls className="flex flex-wrap items-center justify-between gap-2 text-sm">
-      <p role="status">{isGenerating ? 'Program güncelleniyor…' : combinations.length ? 'Seçili program' : 'Taslak · Her ders için bir şubenin ön izlemesi'}</p>
+      <p role="status">{isGenerating ? 'Program güncelleniyor…' : sortedCombinations.length ? 'Seçili program' : 'Taslak · Her ders için bir şubenin ön izlemesi'}</p>
       <div className="flex gap-1 rounded-xl bg-white dark:bg-dark-surface p-1 border border-slate-200 dark:border-dark-border">
         <button aria-pressed={view === 'agenda'} onClick={() => setView('agenda')} className={`px-3 py-2 rounded-lg ${view === 'agenda' ? 'bg-cankaya-blue text-white' : ''}`}>Günlük</button>
         <button aria-pressed={view === 'week'} onClick={() => setView('week')} className={`px-3 py-2 rounded-lg ${view === 'week' ? 'bg-cankaya-blue text-white' : ''}`}>Haftalık</button>
@@ -190,10 +243,10 @@ export default function TimetableGrid({ gridRef }) {
       </ul>
       <button onClick={() => setCustomBlockModalData({ day: agendaDay, timeSlot: '12:00 - 12:50', currentBlock: null })} className="primary-action">Etkinlik ekle</button>
     </section>}
-    <div 
+    <div
       ref={gridRef}
       data-weekly-grid
-      className={`${view === 'week' ? 'flex' : 'hidden'} bg-white dark:bg-dark-surface rounded-2xl border border-slate-200 dark:border-dark-border shadow-xs overflow-hidden flex-col`}
+      className={`${view === 'week' ? 'flex' : 'hidden'} bg-white dark:bg-dark-surface rounded-2xl border border-slate-200 dark:border-dark-border shadow-xs overflow-hidden flex-col min-h-[600px]`}
     >
       <div data-grid-scroll className="overflow-x-auto overscroll-x-contain touch-pan-x">
         <table className="w-full table-fixed border-collapse min-w-[700px] text-left">
@@ -204,8 +257,8 @@ export default function TimetableGrid({ gridRef }) {
               <th className="w-24 p-2.5 text-center text-[11px] font-bold text-slate-500 dark:text-dark-subtext uppercase tracking-wider border-r border-slate-200 dark:border-dark-border">
                 Saat
               </th>
-              {DAYS.map(day => (
-                <th 
+              {visibleDays.map(day => (
+                <th
                   key={day} 
                   className="p-2.5 text-center text-xs font-bold text-cankaya-blue dark:text-cankaya-gold tracking-wide border-r border-slate-200 dark:border-dark-border last:border-r-0"
                 >
@@ -226,11 +279,11 @@ export default function TimetableGrid({ gridRef }) {
                 </td>
 
                 {/* Day Columns for this time slot */}
-                {DAYS.map(day => {
+                {visibleDays.map(day => {
                   const cell = gridMatrix[day]?.[timeSlot] || { courses: [], customBlock: null };
                   const courses = cell.courses;
                   const customBlock = cell.customBlock;
-                  const hasConflict = courses.length > 1 || (courses.length > 0 && customBlock);
+                  const hasConflict = overlapsAt(day, timeSlot);
 
                   return (
                     <td
@@ -279,13 +332,14 @@ export default function TimetableGrid({ gridRef }) {
 
                           {/* Courses */}
                           {courses.map((c, i) => {
-                            const palette = courseColors[c.course_code] || COURSE_PALETTES[0];
+                            const palette = getCourseColorPalette[c.course_code] || COURSE_PALETTES[0];
+                            const selectedPaletteIndex = COURSE_PALETTES.indexOf(palette);
 
                             return (
                               <div
                                 key={`${c.course_code}-${c.section_no}-${i}`}
                                 onClick={() => setCourseDetailModalCode(c.course_code)}
-                                className={`p-1.5 rounded-lg border text-xs cursor-pointer shadow-xs transition-all hover:scale-[1.02] ${palette.bg} ${palette.border} ${palette.text}`}
+                                className={`group/course p-1.5 rounded-lg border text-xs cursor-pointer shadow-xs transition-all hover:scale-[1.02] ${palette.bg} ${palette.border} ${palette.text}`}
                                 title={`${c.course_code} Sec ${c.section_no} - ${c.instructor}`}
                               >
                                 <div className="flex items-center justify-between gap-1">
@@ -306,6 +360,21 @@ export default function TimetableGrid({ gridRef }) {
                                       • {c.instructor}
                                     </span>
                                   )}
+                                </div>
+                                <div className="invisible mt-1 flex items-center gap-1 opacity-0 transition-opacity group-hover/course:visible group-hover/course:opacity-100">
+                                  {COURSE_PALETTES.map((option, paletteIndex) => (
+                                    <button
+                                      key={option.swatch}
+                                      type="button"
+                                      aria-label={`${c.course_code} rengini değiştir`}
+                                      aria-pressed={paletteIndex === selectedPaletteIndex}
+                                      onClick={event => {
+                                        event.stopPropagation();
+                                        updateCourseColor(c.course_code, paletteIndex);
+                                      }}
+                                      className={`w-3 h-3 rounded-full ${option.swatch} ${paletteIndex === selectedPaletteIndex ? 'ring-2 ring-offset-1 ring-slate-700 dark:ring-slate-200' : ''}`}
+                                    />
+                                  ))}
                                 </div>
                               </div>
                             );

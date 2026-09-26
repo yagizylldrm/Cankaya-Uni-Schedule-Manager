@@ -3,7 +3,8 @@ import { useSchedule } from '../context/useSchedule';
 import PlanTransfer from './PlanTransfer';
 import DraftManager from './DraftManager';
 import CustomBlocksManager from './CustomBlocksManager';
-import { 
+import { buildSharePayload } from '../utils/plan';
+import {
   GraduationCap, 
   Sun, 
   Moon, 
@@ -23,15 +24,24 @@ export default function Navbar({ timetableRef, onShowSchedule }) {
     theme,
     toggleTheme,
     basket,
+    preferences,
+    customBlocks,
+    selectedCombination,
+    semester,
     isGenerating,
     setTranscriptModalOpen,
     profile,
     drafts,
     canExport,
+    isScheduleStale,
+    notify,
     activeDraftId
   } = useSchedule();
 
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [includeShareActivities, setIncludeShareActivities] = useState(false);
+  const [includeShareNotes, setIncludeShareNotes] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [transferMode, setTransferMode] = useState(null);
   const [manager, setManager] = useState(null);
@@ -86,7 +96,7 @@ export default function Navbar({ timetableRef, onShowSchedule }) {
       link.href = canvas.toDataURL('image/png');
       link.click();
     } catch (err) {
-      alert(`Görsel dışa aktarılırken hata: ${err.message}`);
+      notify(`Görsel dışa aktarılırken hata: ${err.message}`);
     } finally {
       setExporting(false);
     }
@@ -102,6 +112,36 @@ export default function Navbar({ timetableRef, onShowSchedule }) {
     setIsExportMenuOpen(false);
     if (!canExport) return;
     window.print();
+  };
+
+  const openShareModal = () => {
+    setIsExportMenuOpen(false);
+    setShareModalOpen(true);
+  };
+
+  const handleShare = async () => {
+    if (!canExport) return;
+    try {
+      const encoded = buildSharePayload({
+        version: 1,
+        basket,
+        preferences,
+        customBlocks: includeShareActivities ? Object.fromEntries(Object.entries(customBlocks).map(([key, block]) =>
+          [key, { ...block, note: includeShareNotes ? block.note : '' }])) : {},
+        selectedCombination,
+        semester,
+        program: {
+          primaryDept: profile.primaryDept,
+          secondaryDept: profile.secondaryDept,
+          secondaryType: profile.secondaryType,
+        },
+      });
+      await navigator.clipboard.writeText(`${window.location.origin}/?share=${encoded}`);
+      setShareModalOpen(false);
+      notify('Paylaşım bağlantısı panoya kopyalandı.', 'success');
+    } catch (err) {
+      notify(`Paylaşım bağlantısı kopyalanamadı: ${err.message}`);
+    }
   };
 
   return (
@@ -182,8 +222,9 @@ export default function Navbar({ timetableRef, onShowSchedule }) {
             {isExportMenuOpen && (
               <>
                 <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-dark-card rounded-xl shadow-xl border border-slate-200 dark:border-dark-border py-1.5 z-50 text-sm">
+                  {isScheduleStale && <p className="px-4 py-2 text-xs text-amber-700 dark:text-amber-300">Program güncel değil; yeni sonuç bekleniyor.</p>}
                   <button onClick={() => { setTransferMode('load'); setIsExportMenuOpen(false); }} className="w-full px-4 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-800">Kayıtlı programı yükle</button>
-                  {!canExport && <p className="px-4 py-2 text-xs text-amber-700 dark:text-amber-300">{isGenerating ? 'Program güncelleniyor…' : 'Dışa aktarmak için önce bir ders ekleyin.'}</p>}
+                  {!canExport && !isScheduleStale && <p className="px-4 py-2 text-xs text-amber-700 dark:text-amber-300">{isGenerating ? 'Program güncelleniyor…' : 'Dışa aktarmak için önce bir ders ekleyin.'}</p>}
                   <button
                     onClick={handleExportPNG}
                     disabled={!canExport}
@@ -202,6 +243,17 @@ export default function Navbar({ timetableRef, onShowSchedule }) {
                   </button>
                   <button disabled={!canExport} onClick={() => { setTransferMode('calendar'); setIsExportMenuOpen(false); }} className="w-full px-4 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-800">Takvime aktar (.ics)</button>
                   <button disabled={!canExport} onClick={() => { setTransferMode('csv'); setIsExportMenuOpen(false); }} className="w-full px-4 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-800">CSV olarak indir</button>
+                  {canExport && (
+                    <div className="border-t border-slate-200 dark:border-dark-border mt-1 pt-1">
+                      <button
+                        type="button"
+                        onClick={openShareModal}
+                        className="w-full px-4 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-800"
+                      >
+                        Paylaş
+                      </button>
+                    </div>
+                  )}
                   <button
                     onClick={handlePrint}
                     disabled={!canExport}
@@ -222,6 +274,59 @@ export default function Navbar({ timetableRef, onShowSchedule }) {
     {transferMode && <PlanTransfer mode={transferMode} onClose={() => setTransferMode(null)} onRestored={onShowSchedule} />}
     {manager === 'drafts' && <DraftManager onClose={() => setManager(null)} />}
     {manager === 'blocks' && <CustomBlocksManager onClose={() => setManager(null)} />}
+    {shareModalOpen && <div role="dialog" aria-modal="true" aria-labelledby="share-modal-title" className="fixed inset-0 z-[60] bg-slate-900/60 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-dark-card rounded-2xl shadow-2xl max-w-md w-full p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 id="share-modal-title" className="text-lg font-bold text-slate-800 dark:text-dark-text">Programı Paylaş</h2>
+          <button onClick={() => setShareModalOpen(false)} aria-label="Kapat" className="rounded-lg p-2 hover:bg-slate-100 dark:hover:bg-dark-surface transition">
+            ✕
+          </button>
+        </div>
+
+        <div className="space-y-4 mb-6">
+          <label className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-dark-surface transition cursor-pointer">
+            <input
+              type="checkbox"
+              checked={includeShareActivities}
+              onChange={event => setIncludeShareActivities(event.target.checked)}
+              className="w-4 h-4"
+            />
+            <div>
+              <span className="block text-sm font-medium text-slate-700 dark:text-dark-text">Kişisel etkinlikleri dahil et</span>
+              <span className="block text-xs text-slate-500 dark:text-dark-subtext">Özel etkinlikleriniz paylaşım linkine eklenir</span>
+            </div>
+          </label>
+
+          {includeShareActivities && <label className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-dark-surface transition cursor-pointer ml-7">
+            <input
+              type="checkbox"
+              checked={includeShareNotes}
+              onChange={event => setIncludeShareNotes(event.target.checked)}
+              className="w-4 h-4"
+            />
+            <div>
+              <span className="block text-sm font-medium text-slate-700 dark:text-dark-text">Etkinlik notlarını dahil et</span>
+              <span className="block text-xs text-slate-500 dark:text-dark-subtext">Notlar da paylaşılır</span>
+            </div>
+          </label>}
+        </div>
+
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShareModalOpen(false)}
+            className="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-dark-border text-slate-700 dark:text-dark-text font-medium hover:bg-slate-50 dark:hover:bg-dark-surface transition"
+          >
+            İptal
+          </button>
+          <button
+            onClick={handleShare}
+            className="flex-1 px-4 py-2.5 rounded-xl bg-cankaya-blue text-cankaya-gold font-semibold hover:bg-cankaya-navy transition"
+          >
+            Linki Kopyala
+          </button>
+        </div>
+      </div>
+    </div>}
     </>
   );
 }

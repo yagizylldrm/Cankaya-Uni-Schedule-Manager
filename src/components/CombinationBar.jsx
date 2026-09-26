@@ -1,9 +1,9 @@
 import React from 'react';
 import { useSchedule } from '../context/useSchedule';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Sliders, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  Sliders,
   AlertTriangle,
   Calendar,
   CheckCircle2,
@@ -12,7 +12,9 @@ import {
 
 export default function CombinationBar({ onReviewCourses }) {
   const {
-    combinations,
+    sortedCombinations,
+    comboSort,
+    setComboSort,
     currentComboIndex,
     setCurrentComboIndex,
     preferences,
@@ -23,14 +25,17 @@ export default function CombinationBar({ onReviewCourses }) {
     generateSchedule,
     generationError,
     isGenerating,
+    isScheduleStale,
     basket,
+    basketTotalCredits,
+    basketTotalEcts,
     customBlocks,
     restoredPlan,
     storageError
   } = useSchedule();
 
-  const totalCombos = combinations.length;
-  const currentCombo = totalCombos > 0 ? combinations[currentComboIndex] : null;
+  const totalCombos = sortedCombinations.length;
+  const currentCombo = totalCombos > 0 ? sortedCombinations[currentComboIndex] : null;
   const untimedCodes = currentCombo?.sections?.filter(section =>
     basket[section.course_code]?.untimed && section.section_no === 'SAATSIZ' && !section.slots?.length)
     .map(section => section.course_code) || [];
@@ -69,14 +74,15 @@ export default function CombinationBar({ onReviewCourses }) {
       {generationError && <div role="alert" className="rounded-xl bg-rose-50 dark:bg-rose-950/30 p-3 text-sm text-rose-700 dark:text-rose-300">
         <p>{generationError}</p><button disabled={isGenerating} onClick={() => generateSchedule()} className="underline py-2">Tekrar dene</button>
       </div>}
+      {isScheduleStale && <p role="status" className="rounded-xl bg-amber-50 dark:bg-amber-950/30 p-3 text-sm text-amber-800 dark:text-amber-200">Gösterilen program güncel seçimlere ait değil. Yeni sonuç gelene kadar dışa aktarılamaz.</p>}
       {storageError && <p role="status" className="text-sm text-amber-700 dark:text-amber-300">{storageError}</p>}
       {restoredPlan && <p role="status" className="text-sm text-emerald-700 dark:text-emerald-300">Program dosyası yüklendi. Güncel ders verileriyle kontrol etmek için yeniden program oluşturabilirsiniz.</p>}
-      
+
       {/* Top Row: Navigation and Preferences */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-        
+
         {/* Navigation Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center bg-slate-100 dark:bg-dark-card rounded-xl p-1 border border-slate-200 dark:border-dark-border">
             <button
               onClick={handlePrev}
@@ -107,16 +113,38 @@ export default function CombinationBar({ onReviewCourses }) {
             </button>
           </div>
 
-          {/* Quick Stats for current combination */}
-          {currentCombo && (
-            <div className="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-dark-subtext bg-slate-50 dark:bg-dark-card/60 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-dark-border">
-              <span>{currentCombo.total_credits} Kredi</span>
-              <span>•</span>
-              <span>{currentCombo.total_ects} AKTS</span>
-              <span>•</span>
-              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{currentCombo.days_count} Gün</span>
-            </div>
-          )}
+          <select
+            aria-label="Kombinasyon sıralaması"
+            value={comboSort}
+            onChange={(e) => setComboSort(e.target.value)}
+            className="px-2.5 py-2 text-xs font-medium text-slate-700 dark:text-dark-text bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-xl focus:outline-none focus:ring-1 focus:ring-cankaya-blue"
+          >
+            <option value="default">Varsayılan sıra</option>
+            <option value="fewest_days">En az gün</option>
+            <option value="latest_start">En geç başlangıç</option>
+            <option value="earliest_end">En erken bitiş</option>
+          </select>
+
+          {/* Credits and ECTS for the selected combination or basket estimate */}
+          <div className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-dark-subtext bg-slate-50 dark:bg-dark-card/60 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-dark-border">
+            {currentCombo && !isScheduleStale ? (
+              <>
+                <span>{currentCombo.total_credits} Kredi</span>
+                <span>•</span>
+                <span>{currentCombo.total_ects} AKTS</span>
+                <span>•</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{currentCombo.days_count} Gün</span>
+              </>
+            ) : (
+              <>
+                <span>{basketTotalCredits} Kredi</span>
+                <span>•</span>
+                <span>{basketTotalEcts} AKTS</span>
+                <span className="text-slate-400 dark:text-dark-subtext font-normal">(Sepet toplamı)</span>
+              </>
+            )}
+          </div>
+
           {isGenerating && (
             <span role="status" className="text-xs text-cankaya-blue dark:text-cankaya-gold font-medium animate-pulse flex items-center gap-1.5">
               <span className="inline-block w-2 h-2 rounded-full bg-cankaya-blue dark:bg-cankaya-gold animate-ping" />
@@ -143,23 +171,37 @@ export default function CombinationBar({ onReviewCourses }) {
           </label>
 
           <label className="flex items-center gap-1.5 text-slate-700 dark:text-dark-text cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={preferences.free_friday}
-              onChange={(e) => updatePreferences({ free_friday: e.target.checked })}
-              className="rounded border-slate-300 dark:border-dark-border text-cankaya-blue focus:ring-cankaya-blue w-3.5 h-3.5"
-            />
-            <span>Cuma Günü Boş</span>
+            <span>Boş gün</span>
+            <select
+              aria-label="Boş gün tercihi"
+              value={Object.entries({
+                free_monday: 'Pazartesi', free_tuesday: 'Salı', free_wednesday: 'Çarşamba',
+                free_thursday: 'Perşembe', free_friday: 'Cuma'
+              }).find(([key]) => preferences[key])?.[0] || ''}
+              onChange={(e) => updatePreferences({
+                free_monday: false, free_tuesday: false, free_wednesday: false,
+                free_thursday: false, free_friday: false,
+                ...(e.target.value ? { [e.target.value]: true } : {})
+              })}
+              className="rounded-lg border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card px-2 py-1.5"
+            >
+              <option value="">Yok</option>
+              <option value="free_monday">Pazartesi</option>
+              <option value="free_tuesday">Salı</option>
+              <option value="free_wednesday">Çarşamba</option>
+              <option value="free_thursday">Perşembe</option>
+              <option value="free_friday">Cuma</option>
+            </select>
           </label>
 
           <label className="flex items-center gap-1.5 text-slate-700 dark:text-dark-text cursor-pointer select-none">
             <input
               type="checkbox"
-              checked={preferences.free_monday}
-              onChange={(e) => updatePreferences({ free_monday: e.target.checked })}
+              checked={preferences.no_lunch_break}
+              onChange={(e) => updatePreferences({ no_lunch_break: e.target.checked })}
               className="rounded border-slate-300 dark:border-dark-border text-cankaya-blue focus:ring-cankaya-blue w-3.5 h-3.5"
             />
-            <span>Pazartesi Boş</span>
+            <span>Öğle Arası Boş (12:00–14:00)</span>
           </label>
         </div>
 

@@ -54,6 +54,33 @@ class ConflictTests(unittest.TestCase):
     def test_empty_candidates_do_not_silently_drop_course(self):
         self.assertEqual(self.engine.generate_combinations({'A': [], 'B': [section('B')]}), [])
 
+    def test_every_weekday_can_be_kept_free(self):
+        preference_days = {
+            'free_monday': 'Pazartesi', 'free_tuesday': 'Salı',
+            'free_wednesday': 'Çarşamba', 'free_thursday': 'Perşembe',
+            'free_friday': 'Cuma',
+        }
+        for preference, day in preference_days.items():
+            with self.subTest(preference=preference):
+                courses = {'A': [section('A', day=day)]}
+                self.assertEqual(self.engine.generate_combinations(courses, {preference: True}), [])
+
+    def test_legacy_weekend_free_preferences_are_ignored(self):
+        for preference, day in (('free_saturday', 'Cumartesi'), ('free_sunday', 'Pazar')):
+            with self.subTest(preference=preference):
+                courses = {'A': [section('A', day=day)]}
+                self.assertEqual(len(self.engine.generate_combinations(courses, {preference: True})), 1)
+
+    def test_lunch_preference_filters_real_overlaps(self):
+        for time in ['11:40 - 12:30', '12:00 - 12:50', '13:40 - 14:20']:
+            with self.subTest(time=time):
+                courses = {'A': [section('A', time=time)]}
+                self.assertEqual(self.engine.generate_combinations(courses, {'no_lunch_break': True}), [])
+        for time in ['11:00 - 11:50', '14:00 - 14:50']:
+            with self.subTest(time=time):
+                courses = {'A': [section('A', time=time)]}
+                self.assertEqual(len(self.engine.generate_combinations(courses, {'no_lunch_break': True})), 1)
+
     def test_identical_timetables_count_once_even_with_different_instructors(self):
         first = section('A', '1')
         duplicate = section('A', '2', time='09:00/09:20')
@@ -105,20 +132,22 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(outside[0]['code'], 'CENG154')
         self.assertEqual(outside[0]['type'], 'MUFREDAT_DISI')
 
-    def test_zero_credit_course_without_weekly_hours_does_not_conflict(self):
-        detail = self.client.get('/api/courses/CENG200').json()
-        self.assertTrue(detail['untimed'])
-        self.assertEqual(detail['sections'], [])
-        response = self.client.post('/api/combinations', json={
-            'selected_courses': {'CENG111': ['1'], 'CENG105': ['1'], 'CENG200': []},
-            'compact': True,
-        }).json()
-        self.assertGreater(response['count'], 0)
-        combo = response['combinations'][0]
-        self.assertIn(['CENG200', 'SAATSIZ'], combo['section_refs'])
-        self.assertEqual(response['section_catalog']['CENG200']['SAATSIZ']['slots'], [])
-        self.assertEqual(combo['total_ects'], sum(api.dm.get_course_credits(code)[1]
-            for code in ('CENG111', 'CENG105', 'CENG200')))
+    def test_catalog_course_without_weekly_hours_does_not_conflict(self):
+        for code in ('CENG200', 'ESR103'):
+            with self.subTest(code=code):
+                detail = self.client.get(f'/api/courses/{code}').json()
+                self.assertTrue(detail['untimed'])
+                self.assertEqual(detail['sections'], [])
+                response = self.client.post('/api/combinations', json={
+                    'selected_courses': {'CENG111': ['1'], 'CENG105': ['1'], code: []},
+                    'compact': True,
+                }).json()
+                self.assertGreater(response['count'], 0)
+                combo = response['combinations'][0]
+                self.assertIn([code, 'SAATSIZ'], combo['section_refs'])
+                self.assertEqual(response['section_catalog'][code]['SAATSIZ']['slots'], [])
+                self.assertEqual(combo['total_ects'], sum(api.dm.get_course_credits(course_code)[1]
+                    for course_code in ('CENG111', 'CENG105', code)))
 
     def test_missing_schedule_for_ordinary_course_is_not_silently_accepted(self):
         unscheduled = Course('MISSING_HOURS')
@@ -129,6 +158,48 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(response['count'], 0)
         self.assertEqual(response['conflict_details'][0]['kind'], 'selection')
         self.assertIn('haftalık saat bilgisi bulunamadı', response['conflict_details'][0]['message'])
+
+    def test_curriculum_progress_reports_courses_and_credits_separately(self):
+        passed = {
+            'CENG105': {'code': 'CENG105', 'grade': 'AA'},
+            'CENG344': {'code': 'CENG344', 'grade': 'BA', 'credit': 3},
+            'CEC104': {'code': 'CEC104', 'grade': 'AA', 'credit': 3},
+        }
+        res = self.client.post('/api/curriculum/progress', json={
+            'primary_dept': 'CENG', 'passed_courses': passed,
+        })
+        self.assertEqual(res.headers.get('cache-control'), 'no-store')
+        response = res.json()
+        self.assertEqual(response['compulsory_passed'], 1)
+        self.assertEqual(response['compulsory_total'], 44)
+        self.assertEqual(response['completed_credits'], 8)
+        self.assertEqual(response['total_credits'], 143)
+        self.assertEqual(response['tech_slots_passed'], 1)
+        self.assertEqual(response['social_slots_passed'], 1)
+        self.assertTrue(response['credit_data_available'])
+
+    def test_curriculum_progress_uses_transcript_credit_for_legacy_electives(self):
+        passed = {
+            'CENG105': {'code': 'CENG105', 'grade': 'AA'},
+            'CENG999': {'code': 'CENG999', 'grade': 'AA', 'credit': 4},
+        }
+        response = self.client.post('/api/curriculum/progress', json={
+            'primary_dept': 'CENG', 'passed_courses': passed,
+        }).json()
+        self.assertEqual(response['compulsory_passed'], 1)
+        self.assertEqual(response['completed_credits'], 6)
+        self.assertEqual(response['tech_slots_passed'], 1)
+
+    def test_curriculum_progress_supports_programs_without_official_curricula(self):
+        passed = {
+            'MAN101': {'code': 'MAN101', 'grade': 'AA', 'credit': 3},
+        }
+        response = self.client.post('/api/curriculum/progress', json={
+            'primary_dept': 'UNKNOWN_PROGRAM', 'passed_courses': passed,
+        }).json()
+        self.assertEqual(response['curriculum_source'], 'legacy_fallback')
+        self.assertTrue(response['credit_data_available'])
+        self.assertGreater(response['total_credits'], 0)
 
     def test_course_detail_and_eligibility_use_selected_curriculum(self):
         client = TestClient(api.app)

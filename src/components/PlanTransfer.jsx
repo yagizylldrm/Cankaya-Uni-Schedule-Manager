@@ -1,6 +1,7 @@
 ﻿import React, { useEffect, useRef, useState } from 'react';
 import { useSchedule } from '../context/useSchedule';
-import { buildCalendar, buildCSV, createPlan, downloadFile, validatePlan } from '../utils/plan';
+import { buildCalendar, buildCSV, createPlan, downloadFile } from '../utils/plan';
+import { migratePlan } from '../utils/drafts';
 
 export default function PlanTransfer({ mode, onClose, onRestored }) {
   const schedule = useSchedule();
@@ -24,7 +25,9 @@ export default function PlanTransfer({ mode, onClose, onRestored }) {
     setReading(true);
     try {
       if (file.size > 2 * 1024 * 1024) throw new Error('Program dosyası en fazla 2 MB olabilir.');
-      setCandidate(validatePlan(JSON.parse(await file.text())));
+      const plan = migratePlan(JSON.parse(await file.text()));
+      if (!plan) throw new Error('Geçerli bir program dosyası seçin (sürüm 1).');
+      setCandidate(plan);
     } catch (err) { setError(err instanceof SyntaxError ? 'Dosya geçerli JSON içermiyor.' : err.message); }
     finally { setReading(false); }
   };

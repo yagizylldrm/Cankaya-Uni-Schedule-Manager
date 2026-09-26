@@ -9,12 +9,41 @@ export function emptyDraft(program = emptyProgram) {
     program: { ...program }, semester: { start: '', end: '' }, selectedCombination: null };
 }
 
+export function migratePlan(raw) {
+  try {
+    return validatePlan(raw);
+  } catch { /* Retry after repairing common version 1 issues. */ }
+
+  try {
+    const patched = {
+      ...raw,
+      preferences: raw?.preferences ?? {},
+      program: {
+        ...raw?.program,
+        secondaryType: ['YOK', 'CAP', 'YANDAL'].includes(raw?.program?.secondaryType)
+          ? raw.program.secondaryType
+          : 'YOK',
+      },
+    };
+    return validatePlan(patched);
+  } catch {
+    return null;
+  }
+}
+
 export function readDrafts() {
   try {
     const saved = JSON.parse(localStorage.getItem(DRAFTS_KEY));
     if (saved?.version === 1 && Array.isArray(saved.drafts) && saved.drafts.length && saved.drafts.length <= 10 &&
         saved.drafts.some(d => d.id === saved.activeId)) {
-      return { ...saved, drafts: saved.drafts.map(d => ({ id: d.id, name: d.name, plan: validatePlan(d.plan) })) };
+      const drafts = saved.drafts.map(d => {
+        const plan = migratePlan(d?.plan);
+        return plan ? { id: d.id, name: d.name, plan } : null;
+      }).filter(Boolean);
+      if (drafts.length) {
+        const activeId = drafts.some(d => d.id === saved.activeId) ? saved.activeId : drafts[0].id;
+        return { ...saved, activeId, drafts };
+      }
     }
   } catch { /* Fall back to the previous single-plan storage. */ }
   let plan = emptyDraft();

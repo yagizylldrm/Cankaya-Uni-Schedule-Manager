@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { generateCombinations, fetchCourseDetail } from '../services/api';
-import { inputSignature, validatePlan } from '../utils/plan';
+import { inputSignature, parseTimeRange, validatePlan } from '../utils/plan';
 import { refreshBasketMetadata, refreshCombinationInstructors } from '../utils/courseCatalog';
 import { ScheduleContext } from './scheduleContextValue';
 import { emptyDraft, readDrafts, DRAFTS_KEY, validateDraftName } from '../utils/drafts';
@@ -41,6 +41,22 @@ export function ScheduleProvider({ children }) {
   const toggleTheme = () => {
     setTheme(prev => (prev === 'cankaya' ? 'dark' : 'cankaya'));
   };
+
+  const [courseColors, setCourseColors] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('cankaya_course_colors') || '{}');
+    } catch {
+      return {};
+    }
+  });
+
+  const updateCourseColor = (code, paletteIndex) => {
+    setCourseColors(prev => ({ ...prev, [code]: paletteIndex }));
+  };
+
+  useEffect(() => {
+    localStorage.setItem('cankaya_course_colors', JSON.stringify(courseColors));
+  }, [courseColors]);
 
   // 2. Student Profile State
   const [profile, setProfile] = useState(() => {
@@ -96,6 +112,10 @@ export function ScheduleProvider({ children }) {
 
   // 3. Course Basket State
   const [basket, setBasket] = useState(initialDraft.basket);
+  const basketTotalCredits = Object.values(basket).reduce((sum, course) => sum + (course.credit || 0), 0);
+  const basketTotalEcts = Object.values(basket).reduce((sum, course) => sum + (course.ects || 0), 0);
+  const basketRef = useRef(basket);
+  basketRef.current = basket;
   const [catalogRefresh, setCatalogRefresh] = useState(0);
   const basketCodes = JSON.stringify(Object.keys(basket).sort());
 
@@ -124,29 +144,27 @@ export function ScheduleProvider({ children }) {
 
   const addToBasket = (courseDetail, instructor = '') => {
     const code = courseDetail.code;
-    if (basket[code]) return;
-    clearGeneratedSchedule();
+    if (basketRef.current[code]) return;
     const allSecNos = courseDetail.sections ? courseDetail.sections.map(s => String(s.section_no)) : [];
     const instructorSecNos = instructor ? (courseDetail.sections || [])
       .filter(s => s.instructor === instructor).map(s => String(s.section_no)) : [];
-    setBasket(prev => {
-      if (prev[code]) return prev; // Already in basket
-      return {
-        ...prev,
-        [code]: {
-          code: courseDetail.code,
-          name: courseDetail.name,
-          dept_code: courseDetail.dept_code,
-          credit: courseDetail.credit,
-          ects: courseDetail.ects,
-          ...(courseDetail.untimed === true ? { untimed: true } : {}),
-          type: courseDetail.type,
-          type_label: courseDetail.type_label,
-          selectedSections: instructorSecNos.length ? instructorSecNos : allSecNos,
-          allSections: courseDetail.sections || []
-        }
-      };
-    });
+    const nextCourse = {
+      code: courseDetail.code,
+      name: courseDetail.name,
+      dept_code: courseDetail.dept_code,
+      credit: courseDetail.credit,
+      ects: courseDetail.ects,
+      ...(courseDetail.untimed === true ? { untimed: true } : {}),
+      type: courseDetail.type,
+      type_label: courseDetail.type_label,
+      selectedSections: instructorSecNos.length ? instructorSecNos : allSecNos,
+      allSections: courseDetail.sections || []
+    };
+    // Two detail requests can finish before React renders the first addition.
+    // Reserve the code immediately so a repeated add cannot start a new spinner.
+    basketRef.current = { ...basketRef.current, [code]: nextCourse };
+    clearGeneratedSchedule();
+    setBasket(prev => prev[code] ? prev : { ...prev, [code]: nextCourse });
   };
 
   const removeFromBasket = (courseCode) => {
@@ -240,6 +258,40 @@ export function ScheduleProvider({ children }) {
   // Keep only the chosen combination across reloads, not the entire search result.
   const [combinations, setCombinations] = useState(() => initialDraft.selectedCombination ? [initialDraft.selectedCombination] : []);
   const [currentComboIndex, setCurrentComboIndex] = useState(0);
+  const [comboSort, setComboSortState] = useState('default');
+  const sortedCombinations = useMemo(() => {
+    if (!combinations.length || comboSort === 'default') return combinations;
+    const bounds = combination => {
+      const ranges = (combination.sections || []).flatMap(section => (section.slots || [])
+        .map(slot => parseTimeRange(slot.time_slot)).filter(Boolean));
+      return {
+        start: ranges.length ? Math.min(...ranges.map(range => range[0])) : -Infinity,
+        end: ranges.length ? Math.max(...ranges.map(range => range[1])) : Infinity,
+      };
+    };
+    const copy = [...combinations];
+    if (comboSort === 'fewest_days') copy.sort((a, b) => (a.days_count || 0) - (b.days_count || 0));
+    if (comboSort === 'latest_start') copy.sort((a, b) => bounds(b).start - bounds(a).start);
+    if (comboSort === 'earliest_end') copy.sort((a, b) => bounds(a).end - bounds(b).end);
+    return copy;
+  }, [combinations, comboSort]);
+  const setComboSort = useCallback(nextSort => {
+    const selected = sortedCombinations[currentComboIndex] || null;
+    const bounds = combination => {
+      const ranges = (combination.sections || []).flatMap(section => (section.slots || [])
+        .map(slot => parseTimeRange(slot.time_slot)).filter(Boolean));
+      return {
+        start: ranges.length ? Math.min(...ranges.map(range => range[0])) : -Infinity,
+        end: ranges.length ? Math.max(...ranges.map(range => range[1])) : Infinity,
+      };
+    };
+    const next = [...combinations];
+    if (nextSort === 'fewest_days') next.sort((a, b) => (a.days_count || 0) - (b.days_count || 0));
+    if (nextSort === 'latest_start') next.sort((a, b) => bounds(b).start - bounds(a).start);
+    if (nextSort === 'earliest_end') next.sort((a, b) => bounds(a).end - bounds(b).end);
+    setCurrentComboIndex(selected ? Math.max(0, next.indexOf(selected)) : 0);
+    setComboSortState(nextSort);
+  }, [combinations, sortedCombinations, currentComboIndex]);
   const [conflictsInfo, setConflictsInfo] = useState(null);
   const [conflictDetails, setConflictDetails] = useState([]);
   const [resultSignature, setResultSignature] = useState(() => initialDraft.selectedCombination ? inputSignature(
@@ -249,15 +301,23 @@ export function ScheduleProvider({ children }) {
   const [semester, setSemester] = useState(initialDraft.semester);
   const [restoredPlan, setRestoredPlan] = useState(false);
   const [storageError, setStorageError] = useState('');
+  const [notice, setNotice] = useState(null);
+  const notify = useCallback((message, kind = 'error') => setNotice({ message, kind, id: Date.now() }), []);
+  useEffect(() => {
+    if (!notice) return undefined;
+    const timer = setTimeout(() => setNotice(null), 5000);
+    return () => clearTimeout(timer);
+  }, [notice]);
   const requestId = useRef(0);
   const signature = inputSignature(basket, preferences, customBlocks, profile);
   const previousSchedulingSignature = useRef(signature);
   const successfulContentSignature = useRef(initialDraft.selectedCombination ? scheduleContentSignature(
     initialDraft.basket, initialDraft.customBlocks, initialDraft.program) : null);
-  const isScheduleStale = false;
+  const isScheduleStale = Boolean(combinations.length && resultSignature !== signature);
 
-  const selectedCombination = combinations[currentComboIndex] || null;
-  const canExport = Boolean(selectedCombination && !isGenerating);
+  const selectedCombination = sortedCombinations[currentComboIndex] || null;
+  const totalCombos = sortedCombinations.length;
+  const canExport = Boolean(selectedCombination && !isGenerating && !isScheduleStale);
 
   // Each plan is saved automatically; transcript and theme belong to the student, not a draft.
   useEffect(() => {
@@ -483,12 +543,16 @@ export function ScheduleProvider({ children }) {
     <ScheduleContext.Provider value={{
       theme,
       toggleTheme,
+      courseColors,
+      updateCourseColor,
       profile,
       updateProfile,
       addPassedCourse,
       removePassedCourse,
       passedCodesString,
       basket,
+      basketTotalCredits,
+      basketTotalEcts,
       addToBasket,
       removeFromBasket,
       toggleSectionSelection,
@@ -507,6 +571,10 @@ export function ScheduleProvider({ children }) {
       preferences,
       updatePreferences,
       combinations,
+      sortedCombinations,
+      comboSort,
+      setComboSort,
+      totalCombos,
       currentComboIndex,
       setCurrentComboIndex,
       conflictsInfo,
@@ -522,6 +590,9 @@ export function ScheduleProvider({ children }) {
       restorePlan,
       restoredPlan,
       storageError,
+      notice,
+      notify,
+      dismissNotice: () => setNotice(null),
       transcriptModalOpen,
       setTranscriptModalOpen,
       customBlockModalData,

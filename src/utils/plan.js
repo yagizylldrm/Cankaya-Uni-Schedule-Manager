@@ -1,5 +1,13 @@
 export const DAYS = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
-export const DEFAULT_PREFERENCES = { free_friday: false, free_monday: false, no_morning: false };
+export const DEFAULT_PREFERENCES = {
+  free_monday: false,
+  free_tuesday: false,
+  free_wednesday: false,
+  free_thursday: false,
+  free_friday: false,
+  no_morning: false,
+  no_lunch_break: false,
+};
 
 export function inputSignature(basket, preferences, customBlocks, profile) {
   const canonical = value => Array.isArray(value) ? value.map(canonical) :
@@ -26,6 +34,85 @@ export function createPlan({ basket, preferences, customBlocks, profile, selecte
     program: { primaryDept: profile.primaryDept, secondaryDept: profile.secondaryDept, secondaryType: profile.secondaryType } });
 }
 
+function compressText(text) {
+  const bytes = new TextEncoder().encode(text);
+  const input = Array.from(bytes, byte => String.fromCharCode(byte)).join('');
+  const dictionary = new Map(Array.from({ length: 256 }, (_, index) => [String.fromCharCode(index), index]));
+  const codes = [];
+  let phrase = '';
+  let nextCode = 256;
+  for (const character of input) {
+    const combined = phrase + character;
+    if (dictionary.has(combined)) phrase = combined;
+    else {
+      if (phrase) codes.push(dictionary.get(phrase));
+      if (nextCode < 65536) dictionary.set(combined, nextCode++);
+      phrase = character;
+    }
+  }
+  if (phrase) codes.push(dictionary.get(phrase));
+  return String.fromCharCode(...codes.flatMap(code => [code >> 8, code & 255]));
+}
+
+function decompressText(binary) {
+  if (binary.length % 2) throw new Error('Invalid compressed payload');
+  const codes = [];
+  for (let index = 0; index < binary.length; index += 2) {
+    codes.push((binary.charCodeAt(index) << 8) | binary.charCodeAt(index + 1));
+  }
+  if (!codes.length) throw new Error('Empty compressed payload');
+  const dictionary = new Map(Array.from({ length: 256 }, (_, index) => [index, String.fromCharCode(index)]));
+  let nextCode = 256;
+  let phrase = dictionary.get(codes[0]);
+  let output = phrase;
+  for (const code of codes.slice(1)) {
+    const entry = dictionary.get(code) ?? (code === nextCode ? phrase + phrase[0] : null);
+    if (entry == null) throw new Error('Invalid compressed payload');
+    output += entry;
+    if (nextCode < 65536) dictionary.set(nextCode++, phrase + entry[0]);
+    phrase = entry;
+  }
+  return new TextDecoder().decode(Uint8Array.from(output, character => character.charCodeAt(0)));
+}
+
+export function buildSharePayload(plan) {
+  const basket = Object.fromEntries(Object.entries(plan.basket).map(([code, course]) => [code, {
+    code: course.code,
+    selectedSections: course.selectedSections,
+  }]));
+  const envelope = { version: 1, plan: { basket, preferences: plan.preferences, customBlocks: plan.customBlocks,
+    selectedCombination: plan.selectedCombination, semester: plan.semester, program: plan.program } };
+  return btoa(compressText(JSON.stringify(envelope))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+export function parseSharePayload(encoded) {
+  try {
+    if (typeof encoded !== 'string' || encoded.length > 100000) return null;
+    const base64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+    const envelope = JSON.parse(decompressText(atob(base64 + '='.repeat((4 - base64.length % 4) % 4))));
+    if (envelope?.version !== 1 || !envelope.plan) return null;
+    const data = envelope.plan;
+    const combinationSections = Array.isArray(data.selectedCombination?.sections) ? data.selectedCombination.sections : [];
+    const basket = Object.fromEntries(Object.entries(data.basket).map(([code, course]) => {
+      const selectedSections = course.selectedSections;
+      const combinationSection = combinationSections.find(section => section.course_code === code);
+      const untimed = combinationSection?.section_no === 'SAATSIZ' && combinationSection.slots?.length === 0 &&
+        combinationSection.instructor === 'Belirsiz' && !combinationSection.classroom;
+      const allSections = untimed || !Array.isArray(selectedSections) ? [] : selectedSections.map(sectionNo => {
+        const selected = combinationSections.find(section => section.course_code === code && String(section.section_no) === sectionNo);
+        return selected ? { section_no: selected.section_no, instructor: selected.instructor,
+          classroom: selected.classroom, slots: selected.slots } : { section_no: sectionNo, instructor: '', classroom: '', slots: [] };
+      });
+      return [code, { code: course.code, name: code, dept_code: '', credit: 0, ects: 0, type: '', type_label: '',
+        ...(untimed ? { untimed: true } : {}), allSections, selectedSections }];
+    }));
+    return validatePlan({ version: 1, basket, preferences: data.preferences, customBlocks: data.customBlocks,
+      selectedCombination: data.selectedCombination, semester: data.semester, program: data.program });
+  } catch {
+    return null;
+  }
+}
+
 export function validatePlan(data) {
   const fail = () => { throw new Error('Geçerli bir program dosyası seçin (sürüm 1).'); };
   const object = v => v && typeof v === 'object' && !Array.isArray(v);
@@ -48,16 +135,15 @@ export function validatePlan(data) {
     const allSections = c.allSections.map(section);
     if (c.selectedSections.some(s => typeof s !== 'string' || !allSections.some(a => a.section_no === s))) fail();
     const untimed = c.untimed === true;
-    if (untimed && (c.credit !== 0 || allSections.length !== 0 || c.selectedSections.length !== 0)) fail();
+    if (untimed && (allSections.length !== 0 || c.selectedSections.length !== 0)) fail();
     basket[code] = { code, name: str(c.name, code), dept_code: str(c.dept_code), credit: num(c.credit), ects: num(c.ects),
       type: str(c.type), type_label: str(c.type_label), ...(untimed ? { untimed: true } : {}),
       allSections, selectedSections: [...new Set(c.selectedSections)] };
   }
   const preferences = { ...DEFAULT_PREFERENCES };
   if (!object(data.preferences)) fail();
-  for (const key of Object.keys(preferences)) {
-    if (typeof data.preferences[key] !== 'boolean') fail();
-    preferences[key] = data.preferences[key];
+  for (const key of Object.keys(DEFAULT_PREFERENCES)) {
+    if (typeof data.preferences[key] === 'boolean') preferences[key] = data.preferences[key];
   }
   if (!object(data.customBlocks) || Object.keys(data.customBlocks).length > 500) fail();
   const customBlocks = {};

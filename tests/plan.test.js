@@ -1,6 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createPlan, validatePlan, buildCalendar, buildCSV, inputSignature, parseTimeRange } from '../src/utils/plan.js';
+import {
+  createPlan,
+  validatePlan,
+  buildCalendar,
+  buildCSV,
+  inputSignature,
+  parseTimeRange,
+  buildSharePayload,
+  parseSharePayload,
+} from '../src/utils/plan.js';
 import { emptyDraft, validateDraftName } from '../src/utils/drafts.js';
 import { choosePreviewSections } from '../src/utils/previewSections.js';
 import { generateCombinations } from '../src/services/api.js';
@@ -65,19 +74,20 @@ test('saved plan round trip preserves chosen sections and drops transcript/unkno
   assert.ok(!JSON.stringify(saved).includes('passedCourses'));
 });
 
-test('untimed zero-credit courses survive save, import and CSV export', () => {
-  const internship = { code: 'CENG200', name: 'Yaz Stajı I', credit: 0, ects: 5,
+test('untimed courses survive save, import and CSV export', () => {
+  const untimed = { code: 'ESR103', name: 'Etik İlkeler ve Sosyal Sorumluluk', credit: 1, ects: 1,
     untimed: true, selectedSections: [], allSections: [] };
   const plan = createPlan({ ...state,
-    basket: { ...state.basket, CENG200: internship },
+    basket: { ...state.basket, ESR103: untimed },
     selectedCombination: { sections: [...state.selectedCombination.sections,
-      { course_code: 'CENG200', section_no: 'SAATSIZ', instructor: 'Belirsiz', classroom: '', slots: [] }] },
+      { course_code: 'ESR103', section_no: 'SAATSIZ', instructor: 'Belirsiz', classroom: '', slots: [] }] },
   });
   assert.deepEqual(validatePlan(JSON.parse(JSON.stringify(plan))), plan);
-  assert.equal(plan.selectedCombination.total_ects, 10);
-  assert.ok(buildCSV(plan).includes('"Ders","CENG200","Yaz Stajı I","SAATSIZ"'));
+  assert.equal(plan.selectedCombination.total_credits, 4);
+  assert.equal(plan.selectedCombination.total_ects, 6);
+  assert.ok(buildCSV(plan).includes('"Ders","ESR103","Etik İlkeler ve Sosyal Sorumluluk","SAATSIZ"'));
   const invalid = structuredClone(plan);
-  invalid.basket.CENG200.untimed = false;
+  invalid.basket.ESR103.untimed = false;
   assert.throws(() => validatePlan(invalid));
 });
 
@@ -181,4 +191,67 @@ test('emptyDraft creates clean default plan structure', () => {
   assert.deepEqual(draft.basket, {});
   assert.equal(draft.program.primaryDept, 'CENG');
   assert.equal(draft.selectedCombination, null);
+});
+
+test('input signature changes when a course is added to the basket', () => {
+  const basketA = { CENG101: state.basket.CENG101 };
+  const basketB = {
+    ...basketA,
+    MATH101: {
+      code: 'MATH101', name: 'Matematik', credit: 4, ects: 6,
+      selectedSections: ['1'], allSections: [{ ...section, section_no: '1' }],
+    },
+  };
+  assert.notEqual(
+    inputSignature(basketA, state.preferences, state.customBlocks, state.profile),
+    inputSignature(basketB, state.preferences, state.customBlocks, state.profile),
+  );
+});
+
+test('schedule is stale only when existing combinations belong to another signature', () => {
+  const isScheduleStale = (combinations, resultSignature, currentSignature) =>
+    Boolean(combinations.length && resultSignature !== currentSignature);
+
+  assert.equal(isScheduleStale([{ index: 0 }], 'old', 'current'), true);
+  assert.equal(isScheduleStale([{ index: 0 }], 'current', 'current'), false);
+  assert.equal(isScheduleStale([], 'old', 'current'), false);
+  assert.equal(isScheduleStale([], null, 'current'), false);
+});
+
+test('time ranges expose overlapping minutes and expand short notation', () => {
+  const first = parseTimeRange('08:40 - 09:30');
+  const second = parseTimeRange('09:00 - 09:50');
+  assert.deepEqual(first, [520, 570]);
+  assert.deepEqual(second, [540, 590]);
+  assert.equal(Math.max(first[0], second[0]) < Math.min(first[1], second[1]), true);
+  assert.deepEqual(parseTimeRange('09:00/09:20'), [540, 590]);
+});
+
+test('old plans migrate missing preference keys to false', () => {
+  const oldPlan = createPlan(state);
+  oldPlan.preferences = { free_friday: false, free_monday: false, no_morning: false };
+  const migrated = validatePlan(oldPlan);
+  assert.equal(migrated.preferences.no_lunch_break, false);
+});
+
+test('share payload round trip preserves a minimal plan except section catalog data', () => {
+  const plan = createPlan({
+    ...state,
+    basket: {},
+    customBlocks: {},
+    selectedCombination: null,
+    semester: { start: '', end: '' },
+  });
+  assert.deepEqual(parseSharePayload(buildSharePayload(plan)), plan);
+});
+
+test('fewest-days sort orders combinations by days count', () => {
+  const combinations = [
+    { index: 0, days_count: 5 },
+    { index: 1, days_count: 2 },
+    { index: 2, days_count: 4 },
+  ];
+  const sorted = [...combinations].sort((a, b) => a.days_count - b.days_count);
+  assert.deepEqual(sorted.map(combo => combo.index), [1, 2, 0]);
+  assert.deepEqual(combinations.map(combo => combo.index), [0, 1, 2]);
 });

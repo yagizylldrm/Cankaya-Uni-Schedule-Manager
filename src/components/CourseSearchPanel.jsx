@@ -23,13 +23,17 @@ export default function CourseSearchPanel() {
     toggleSectionSelection,
     selectCourseInstructor,
     passedCodesString,
-    setCourseDetailModalCode
+    setCourseDetailModalCode,
+    notify
   } = useSchedule();
 
   const [departments, setDepartments] = useState([]);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [addingCodes, setAddingCodes] = useState({});
+  const [departmentsError, setDepartmentsError] = useState('');
+  const [coursesError, setCoursesError] = useState('');
+  const [retryKey, setRetryKey] = useState(0);
 
   // Search & Filter state
   const [selectedDept, setSelectedDept] = useState('');
@@ -47,14 +51,15 @@ export default function CourseSearchPanel() {
   // Load departments once
   useEffect(() => {
     fetchDepartments()
-      .then(data => setDepartments(data))
-      .catch(err => console.error('Bölümler yüklenemedi:', err));
-  }, []);
+      .then(data => { setDepartments(data); setDepartmentsError(''); })
+      .catch(err => setDepartmentsError(err.message || 'Bölümler yüklenemedi. Bağlantınızı kontrol edip yeniden deneyin.'));
+  }, [retryKey]);
 
   // Fetch courses on filter/profile change
   useEffect(() => {
     let active = true;
     setLoading(true);
+    setCoursesError('');
 
     const timer = setTimeout(() => {
       fetchCourses({
@@ -72,14 +77,17 @@ export default function CourseSearchPanel() {
         .then(data => {
           if (active) {
             setCourses(data);
+            setCoursesError('');
             setLoading(false);
           }
         })
         .catch(err => {
-          console.error('Dersler getirilirken hata:', err);
-          if (active) setLoading(false);
+          if (active) {
+            setCoursesError(err.message || 'Dersler yüklenemedi. Bağlantınızı kontrol edip yeniden deneyin.');
+            setLoading(false);
+          }
         });
-    }, 200);
+    }, 350);
 
     return () => {
       active = false;
@@ -95,7 +103,8 @@ export default function CourseSearchPanel() {
     onlyEligible,
     profile.hidePassedCourses,
     includeOutsideCurriculum,
-    passedCodesString
+    passedCodesString,
+    retryKey
   ]);
 
   // Handle adding course to basket
@@ -111,7 +120,7 @@ export default function CourseSearchPanel() {
       });
       addToBasket(detail, instructor);
     } catch (err) {
-      alert(`Ders eklenirken hata: ${err.message}`);
+      notify(`Ders eklenirken hata: ${err.message}`);
     } finally {
       setAddingCodes(prev => {
         const next = { ...prev };
@@ -123,6 +132,9 @@ export default function CourseSearchPanel() {
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-dark-surface rounded-2xl border border-slate-200 dark:border-dark-border shadow-sm overflow-hidden">
+      {(departmentsError || coursesError) && <div role="alert" className="m-3 rounded-lg bg-rose-50 dark:bg-rose-950/30 p-3 text-sm text-rose-700 dark:text-rose-300">
+        <p>{departmentsError || coursesError}</p><button className="underline mt-1" onClick={() => setRetryKey(value => value + 1)}>Tekrar dene</button>
+      </div>}
       
       {/* 1. Student Profile (Bölüm & İkinci Dal) */}
       <div className="p-3.5 bg-slate-50/80 dark:bg-dark-card/50 border-b border-slate-200 dark:border-dark-border space-y-2.5">

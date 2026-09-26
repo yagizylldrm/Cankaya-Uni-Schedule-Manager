@@ -169,7 +169,12 @@ class SchedulerEngine:
 
             return search(0, [])
 
-        labels = {"free_friday": "Cuma günü boş", "free_monday": "Pazartesi boş", "no_morning": "Sabah dersi yok"}
+        labels = {
+            "free_monday": "Pazartesi boş", "free_tuesday": "Salı boş",
+            "free_wednesday": "Çarşamba boş", "free_thursday": "Perşembe boş",
+            "free_friday": "Cuma günü boş", "no_morning": "Sabah dersi yok",
+            "no_lunch_break": "Öğle arası boş",
+        }
         enabled = [key for key in labels if preferences.get(key)]
         # Smallest verified relaxation first, allowing combined constraints.
         for size in range(1, len(enabled) + 1):
@@ -328,27 +333,34 @@ class SchedulerEngine:
     def filter_and_rank_combinations(self, combinations, preferences):
         filtered = []
 
-        free_friday = preferences.get("free_friday", False)
-        free_monday = preferences.get("free_monday", False)
+        free_day_preferences = {
+            "free_monday": "Pazartesi", "free_tuesday": "Salı",
+            "free_wednesday": "Çarşamba", "free_thursday": "Perşembe",
+            "free_friday": "Cuma",
+        }
         no_morning = preferences.get("no_morning", False)
+        keep_lunch_free = preferences.get("no_lunch_break", False)
 
         for combo in combinations:
-            # Days occupied
             days_used = set()
             has_morning = False
+            overlaps_lunch = False
 
             for sec in combo:
                 for slot in sec.slots:
                     days_used.add(slot.day)
-                    start, _ = self.parse_time_range(slot.time_slot)
+                    start, end = self.parse_time_range(slot.time_slot)
                     if start is not None and start < 10.0:
                         has_morning = True
+                    if start is not None and end is not None and max(start, 12.0) < min(end, 14.0):
+                        overlaps_lunch = True
 
-            if free_friday and "Cuma" in days_used:
-                continue
-            if free_monday and "Pazartesi" in days_used:
+            if any(preferences.get(key, False) and day in days_used
+                   for key, day in free_day_preferences.items()):
                 continue
             if no_morning and has_morning:
+                continue
+            if keep_lunch_free and overlaps_lunch:
                 continue
 
             filtered.append(combo)

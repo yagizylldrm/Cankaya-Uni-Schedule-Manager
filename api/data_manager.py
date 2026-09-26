@@ -1299,110 +1299,235 @@ class DataManager:
         return allowed
 
     def get_curriculum_progress(self, primary_dept=None, passed_courses=None):
-        """
-        Calculates curriculum completion metrics for student's primary department:
-        - Compulsory courses: total, passed, remaining list
-        - Technical electives: required slots, passed count, remaining slots
-        - Social / free electives: required slots, passed count, remaining slots
-        """
+        """Calculates course and local-credit progress for a primary program."""
         primary = (primary_dept or self.student_profile.get("primary_dept", "CENG")).upper()
         if passed_courses is None:
-            passed_dict = self.get_passed_courses()
-        elif isinstance(passed_courses, dict):
-            passed_dict = passed_courses
+            passed_courses = self.get_passed_courses()
         elif isinstance(passed_courses, (list, set, tuple)):
-            passed_dict = {self.normalize_code(c): {"code": c, "grade": "CC"} for c in passed_courses}
-        else:
-            passed_dict = {}
+            passed_courses = {
+                self.normalize_code(c): {"code": c, "grade": "CC"}
+                for c in passed_courses
+            }
+        elif not isinstance(passed_courses, dict):
+            passed_courses = {}
 
-        norm_passed = {self.normalize_code(c) for c in passed_dict.keys()}
+        passed_records = {}
+        for key, value in passed_courses.items():
+            record = value if isinstance(value, dict) else {}
+            code = record.get("code") or key
+            norm = self.normalize_code(str(code))
+            if norm:
+                passed_records[norm] = record
+        norm_passed = set(passed_records)
+
+        def transcript_credit(code):
+            value = passed_records.get(code, {}).get("credit")
+            try:
+                number = float(value)
+            except (TypeError, ValueError):
+                return None
+            return number if number >= 0 else None
+
+        def passed_credit(code, official_credit=None):
+            if official_credit is not None:
+                try:
+                    return max(0.0, float(official_credit))
+                except (TypeError, ValueError):
+                    pass
+            parsed = transcript_credit(code)
+            if parsed is not None:
+                return parsed
+            return max(0.0, float(self.get_course_credits(code, primary_dept=primary)[0]))
+
+        def clean_number(value):
+            number = float(value)
+            return int(number) if number.is_integer() else number
 
         curriculum = self.official_curricula.get(primary)
         if not curriculum:
-            # Fallback search by key or program_name
-            for k, v in self.official_curricula.items():
-                if primary in k or primary in v.get("program_name", "").upper():
-                    curriculum = v
+            # Retain the legacy program-name lookup for older data files.
+            for key, value in self.official_curricula.items():
+                if primary in key or primary in value.get("program_name", "").upper():
+                    curriculum = value
                     break
 
         if not curriculum:
-            # Fallback to DEPARTMENT_CURRICULUM if available
             comp_codes = set()
             if primary in self.DEPARTMENT_CURRICULUM:
-                curr = self.DEPARTMENT_CURRICULUM[primary]
-                comp_codes = {self.normalize_code(c) for c in curr.get("compulsory_other", set()) | curr.get("compulsory_own", set())}
-            comp_codes.update({self.normalize_code(c) for c in self.COMMON_UNIVERSITY_COMPULSORY})
+                legacy = self.DEPARTMENT_CURRICULUM[primary]
+                comp_codes = {
+                    self.normalize_code(c)
+                    for c in legacy.get("compulsory_other", set()) |
+                    legacy.get("compulsory_own", set())
+                }
+            comp_codes.update(self.normalize_code(c) for c in self.COMMON_UNIVERSITY_COMPULSORY)
 
-            passed_comp = sorted(list(comp_codes & norm_passed))
-            remaining_comp = sorted(list(comp_codes - norm_passed))
+            passed_comp = sorted(comp_codes & norm_passed)
+            remaining_comp = sorted(comp_codes - norm_passed)
+            passed_tech = sorted(
+                c for c in norm_passed
+                if Course.extract_dept_code(c) == primary and c not in comp_codes
+            )
+            passed_social = sorted(
+                c for c in norm_passed
+                if Course.extract_dept_code(c) != primary and c not in comp_codes
+            )
+            compulsory_credits = sum(
+                self.get_course_credits(c, primary_dept=primary)[0] for c in comp_codes
+            )
+            tech_credits_total = 15.0
+            social_credits_total = 6.0
+            completed_credits = (
+                sum(passed_credit(c) for c in passed_comp) +
+                min(tech_credits_total, sum(passed_credit(c) for c in passed_tech)) +
+                min(social_credits_total, sum(passed_credit(c) for c in passed_social))
+            )
+            total_credits = float(compulsory_credits) + tech_credits_total + social_credits_total
             return {
                 "department": primary,
                 "program_name": self.DEPARTMENT_NAMES.get(primary, primary),
                 "curriculum_name": "Standart Müfredat",
+                "curriculum_source": "legacy_fallback",
+                "credit_unit": "local",
+                "credit_data_available": total_credits > 0,
                 "compulsory_total": len(comp_codes),
                 "compulsory_passed": len(passed_comp),
                 "compulsory_remaining_count": len(remaining_comp),
-                "compulsory_remaining": [{"code": c, "norm_code": c, "name": self.get_course_info(c).get("name", c)} for c in remaining_comp],
+                "compulsory_remaining": [
+                    {"code": c, "norm_code": c,
+                     "name": self.get_course_info(c).get("name", c)}
+                    for c in remaining_comp
+                ],
+                "completed_credits": clean_number(min(completed_credits, total_credits)),
+                "total_credits": clean_number(total_credits),
                 "tech_slots_total": 5,
-                "tech_slots_passed": sum(1 for c in norm_passed if Course.extract_dept_code(c) == primary and c not in comp_codes),
-                "tech_slots_remaining": max(0, 5 - sum(1 for c in norm_passed if Course.extract_dept_code(c) == primary and c not in comp_codes)),
+                "tech_slots_passed": len(passed_tech),
+                "tech_slots_remaining": max(0, 5 - len(passed_tech)),
                 "social_slots_total": 2,
-                "social_slots_passed": sum(1 for c in norm_passed if Course.extract_dept_code(c) != primary and c not in comp_codes),
-                "social_slots_remaining": max(0, 2 - sum(1 for c in norm_passed if Course.extract_dept_code(c) != primary and c not in comp_codes)),
+                "social_slots_passed": len(passed_social),
+                "social_slots_remaining": max(0, 2 - len(passed_social)),
             }
 
-        # With official Bilgi Paketi curriculum
         compulsory_courses = curriculum.get("compulsory_courses", [])
-        passed_comp = []
-        remaining_comp = []
+        compulsory_by_code = {
+            c.get("norm_code") or self.normalize_code(c.get("code", "")): c
+            for c in compulsory_courses
+        }
+        passed_comp_codes = sorted(set(compulsory_by_code) & norm_passed)
+        remaining_comp = [
+            course for code, course in compulsory_by_code.items()
+            if code not in norm_passed
+        ]
 
-        for c in compulsory_courses:
-            norm_c = c.get("norm_code") or self.normalize_code(c.get("code", ""))
-            if norm_c in norm_passed:
-                passed_comp.append(c)
-            else:
-                remaining_comp.append(c)
-
-        # Elective slots
         elective_slots = curriculum.get("elective_slots", [])
-        tech_slots_total = sum(1 for s in elective_slots if s.get("slot_category") == "TEKNIK_SECMELI")
-        social_slots_total = sum(1 for s in elective_slots if s.get("slot_category") == "SOSYAL_SECMELI")
-
-        # If elective_slots is empty, fallback to elective_count or default
+        tech_slots = [
+            slot for slot in elective_slots
+            if slot.get("slot_category") == "TEKNIK_SECMELI"
+        ]
+        social_slots = [
+            slot for slot in elective_slots
+            if slot.get("slot_category") == "SOSYAL_SECMELI"
+        ]
+        tech_slots_total = len(tech_slots)
+        social_slots_total = len(social_slots)
         if not elective_slots and curriculum.get("elective_count", 0) > 0:
-            total_el = curriculum.get("elective_count", 0)
-            tech_slots_total = max(1, total_el - 2)
-            social_slots_total = min(2, total_el)
+            elective_count = int(curriculum.get("elective_count", 0))
+            tech_slots_total = max(1, elective_count - 2)
+            social_slots_total = min(2, elective_count)
 
-        tech_codes = {self.normalize_code(c) for c in curriculum.get("technical_elective_codes", [])}
-        social_codes = {self.normalize_code(c) for c in curriculum.get("social_elective_codes", [])}
+        tech_codes = {
+            self.normalize_code(code)
+            for code in curriculum.get("technical_elective_codes", [])
+        }
+        social_codes = {
+            self.normalize_code(code)
+            for code in curriculum.get("social_elective_codes", [])
+        }
+        tech_pool = {
+            self.normalize_code(code): details
+            for code, details in curriculum.get("technical_elective_pool", {}).items()
+        }
+        social_pool = {
+            self.normalize_code(code): details
+            for code, details in curriculum.get("social_elective_pool", {}).items()
+        }
 
         passed_tech = []
         passed_social = []
+        used_codes = set(passed_comp_codes)
+        for code in sorted(norm_passed - used_codes):
+            if code in tech_codes:
+                passed_tech.append(code)
+                used_codes.add(code)
+            elif code in social_codes:
+                passed_social.append(code)
+                used_codes.add(code)
 
-        for norm_c in norm_passed:
-            if norm_c in tech_codes:
-                passed_tech.append(norm_c)
-            elif norm_c in social_codes:
-                passed_social.append(norm_c)
+        # Old curriculum electives may no longer be in the latest pool. A transcript
+        # credit lets same-department courses fill technical slots without treating
+        # an unknown course as a compulsory equivalent. Cross-department courses
+        # are not inferred as social electives because that would count unrelated
+        # or secondary-program coursework as primary-degree credit.
+        for code in sorted(norm_passed - used_codes):
+            if (transcript_credit(code) is not None and tech_slots_total and
+                    Course.extract_dept_code(code) == primary):
+                passed_tech.append(code)
+                used_codes.add(code)
 
-        tech_remaining = max(0, tech_slots_total - len(passed_tech))
-        social_remaining = max(0, social_slots_total - len(passed_social))
+        def slot_credit_total(slots, count):
+            values = []
+            for slot in slots:
+                try:
+                    values.append(max(0.0, float(slot.get("credit") or 0)))
+                except (TypeError, ValueError):
+                    values.append(0.0)
+            return sum(values) if values else 3.0 * count
+
+        compulsory_credits = sum(
+            max(0.0, float(course.get("credit") or 0))
+            for course in compulsory_courses
+        )
+        tech_credits_total = slot_credit_total(tech_slots, tech_slots_total)
+        social_credits_total = slot_credit_total(social_slots, social_slots_total)
+        total_credits = compulsory_credits + tech_credits_total + social_credits_total
+        passed_compulsory_credits = sum(
+            passed_credit(code, compulsory_by_code[code].get("credit"))
+            for code in passed_comp_codes
+        )
+        passed_tech_credits = sum(
+            passed_credit(code, tech_pool.get(code, {}).get("credit"))
+            for code in passed_tech
+        )
+        passed_social_credits = sum(
+            passed_credit(code, social_pool.get(code, {}).get("credit"))
+            for code in passed_social
+        )
+        completed_credits = min(
+            total_credits,
+            passed_compulsory_credits +
+            min(tech_credits_total, passed_tech_credits) +
+            min(social_credits_total, passed_social_credits)
+        )
 
         return {
             "department": primary,
             "program_name": curriculum.get("program_name") or self.DEPARTMENT_NAMES.get(primary, primary),
             "curriculum_name": curriculum.get("curriculum_name", ""),
+            "curriculum_source": "official",
+            "credit_unit": "local",
+            "credit_data_available": total_credits > 0,
             "compulsory_total": len(compulsory_courses),
-            "compulsory_passed": len(passed_comp),
+            "compulsory_passed": len(passed_comp_codes),
             "compulsory_remaining_count": len(remaining_comp),
             "compulsory_remaining": remaining_comp,
+            "completed_credits": clean_number(completed_credits),
+            "total_credits": clean_number(total_credits),
             "tech_slots_total": tech_slots_total,
             "tech_slots_passed": len(passed_tech),
-            "tech_slots_remaining": tech_remaining,
+            "tech_slots_remaining": max(0, tech_slots_total - len(passed_tech)),
             "social_slots_total": social_slots_total,
             "social_slots_passed": len(passed_social),
-            "social_slots_remaining": social_remaining
+            "social_slots_remaining": max(0, social_slots_total - len(passed_social)),
         }
 
 

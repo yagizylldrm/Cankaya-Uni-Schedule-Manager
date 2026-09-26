@@ -24,6 +24,10 @@ S Tr 3 0 3 5 7.5CB  G
 ''')
         self.assertEqual({c: v['grade'] for c, v in result['passed_courses'].items()},
                          {'CENG111': 'AA', 'CENG124': 'BA', 'THEA270': 'AA', 'CEC104': 'CB'})
+        self.assertEqual(result['passed_courses']['CENG111']['credit'], 4)
+        self.assertEqual(result['passed_courses']['CENG111']['ects'], 4)
+        self.assertEqual(result['passed_courses']['CENG124']['credit'], 3)
+        self.assertEqual(result['passed_courses']['CENG124']['ects'], 5)
 
     def test_exemption_failure_and_incomplete_are_separate(self):
         result = self.parse('''* PREP 150 Exemption
@@ -71,6 +75,25 @@ S
     def test_grade_before_points_in_table(self):
         result = self.parse('CENG 111 Programming I\nZ İng. 3 2 4 4 AA 16 G')
         self.assertEqual(result['passed_courses']['CENG111']['grade'], 'AA')
+        self.assertEqual(result['passed_courses']['CENG111']['credit'], 4)
+        self.assertEqual(result['passed_courses']['CENG111']['ects'], 4)
+
+    def test_missing_credit_values_are_not_invented(self):
+        result = self.parse('PREP 150 Exemption\nZ İng. - - - - -EX')
+        course = result['passed_courses']['PREP150']
+        self.assertNotIn('credit', course)
+        self.assertNotIn('ects', course)
+
+    def test_latest_attempt_replaces_credit_metadata(self):
+        result = self.parse('''CENG 111 Programming I
+Z İng. 3 2 4 5 0FF KL
+CENG 111 Programming I
+Z İng. 3 0 3 6 12BA G
+''')
+        course = result['passed_courses']['CENG111']
+        self.assertEqual(course['grade'], 'BA')
+        self.assertEqual(course['credit'], 3)
+        self.assertEqual(course['ects'], 6)
 
 
 if __name__ == '__main__':

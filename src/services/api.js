@@ -4,15 +4,27 @@
 import { uniqueTimetableCombinations } from '../utils/combinations.js';
 
 const BASE_URL = '/api';
+const OFFLINE_ERROR = 'Çevrimdışı. Ders arama ve program üretimi internet bağlantısı gerektirir.';
+
+async function apiFetch(url, options) {
+  try {
+    const response = await fetch(url, options);
+    if (response.status === 503) throw new Error(OFFLINE_ERROR);
+    return response;
+  } catch (error) {
+    if (error instanceof TypeError) throw new Error(OFFLINE_ERROR);
+    throw error;
+  }
+}
 
 export async function fetchHealth() {
-  const res = await fetch(`${BASE_URL}/health`);
+  const res = await apiFetch(`${BASE_URL}/health`);
   if (!res.ok) throw new Error('API bağlantısı kurulamadı');
   return res.json();
 }
 
 export async function fetchDepartments() {
-  const res = await fetch(`${BASE_URL}/departments`);
+  const res = await apiFetch(`${BASE_URL}/departments`);
   if (!res.ok) throw new Error('Bölümler listelenemedi');
   return res.json();
 }
@@ -41,7 +53,7 @@ export async function fetchCourses({
   if (include_outside_curriculum) params.append('include_outside_curriculum', 'true');
   if (passed_codes) params.append('passed_codes', passed_codes);
 
-  const res = await fetch(`${BASE_URL}/courses?${params.toString()}`);
+  const res = await apiFetch(`${BASE_URL}/courses?${params.toString()}`);
   if (!res.ok) throw new Error('Dersler alınırken hata oluştu');
   return res.json();
 }
@@ -58,13 +70,13 @@ export async function fetchCourseDetail(code, {
   if (secondary_type) params.append('secondary_type', secondary_type);
   if (passed_codes) params.append('passed_codes', passed_codes);
 
-  const res = await fetch(`${BASE_URL}/courses/${encodeURIComponent(code)}?${params.toString()}`);
+  const res = await apiFetch(`${BASE_URL}/courses/${encodeURIComponent(code)}?${params.toString()}`);
   if (!res.ok) throw new Error(`Ders detayı alınamadı: ${code}`);
   return res.json();
 }
 
 export async function generateCombinations(selectedCourses, preferences = {}, customBlocks = {}) {
-  const res = await fetch(`${BASE_URL}/combinations`, {
+  const res = await apiFetch(`${BASE_URL}/combinations`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -94,7 +106,7 @@ export async function generateCombinations(selectedCourses, preferences = {}, cu
 }
 
 export async function checkPrerequisites(courseCodes, passedCourses = {}) {
-  const res = await fetch(`${BASE_URL}/prerequisites/check`, {
+  const res = await apiFetch(`${BASE_URL}/prerequisites/check`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -107,7 +119,7 @@ export async function checkPrerequisites(courseCodes, passedCourses = {}) {
 }
 
 export async function parseTranscriptText(text) {
-  const res = await fetch(`${BASE_URL}/transcript/parse`, {
+  const res = await apiFetch(`${BASE_URL}/transcript/parse`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text })
@@ -123,7 +135,7 @@ export async function uploadTranscriptFile(file) {
   const formData = new FormData();
   formData.append('file', file);
 
-  const res = await fetch(`${BASE_URL}/transcript/upload`, {
+  const res = await apiFetch(`${BASE_URL}/transcript/upload`, {
     method: 'POST',
     body: formData
   });
@@ -135,14 +147,29 @@ export async function uploadTranscriptFile(file) {
 }
 
 export async function fetchCurriculumProgress(primaryDept, passedCourses = {}) {
-  const res = await fetch(`${BASE_URL}/curriculum/progress`, {
+  const res = await apiFetch(`${BASE_URL}/curriculum/progress`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    cache: 'no-store',
     body: JSON.stringify({
       primary_dept: primaryDept,
       passed_courses: passedCourses
     })
   });
   if (!res.ok) throw new Error('Müfredat ilerleme bilgisi alınamadı');
-  return res.json();
+
+  const data = await res.json();
+  const completedCredits = Number(data.completed_credits);
+  const totalCredits = Number(data.total_credits);
+  const compulsoryPassed = Number(data.compulsory_passed);
+  const compulsoryTotal = Number(data.compulsory_total);
+  const valid = data.credit_data_available !== false &&
+    Number.isFinite(completedCredits) && completedCredits >= 0 &&
+    Number.isFinite(totalCredits) && totalCredits > 0 && completedCredits <= totalCredits &&
+    Number.isFinite(compulsoryPassed) && compulsoryPassed >= 0 &&
+    Number.isFinite(compulsoryTotal) && compulsoryTotal >= 0 && compulsoryPassed <= compulsoryTotal;
+  if (!valid) {
+    throw new Error('Kredi bilgisi güncel API yanıtında bulunamadı');
+  }
+  return data;
 }

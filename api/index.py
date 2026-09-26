@@ -13,7 +13,7 @@ BASE_DIR = os.path.dirname(CURRENT_DIR)
 if BASE_DIR not in sys.path:
     sys.path.insert(1, BASE_DIR)
 
-from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form, Body, Request
+from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form, Body, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -294,9 +294,9 @@ def get_course_detail(
 
 
 def is_untimed_course(course):
-    """Only verified zero-credit courses without meetings may omit section choices."""
-    details = dm.KNOWN_COURSE_DETAILS.get(dm.normalize_code(course.code), {})
-    return not course.sections and details.get("credit") == 0
+    """Verified catalog courses without meetings may omit section choices."""
+    details = dm.KNOWN_COURSE_DETAILS.get(dm.normalize_code(course.code))
+    return not course.sections and details is not None
 
 
 @router.post("/combinations")
@@ -325,8 +325,8 @@ def generate_schedule_combinations(req: CombinationsRequest):
         selected_sections = []
         if not sec_nos:
             if is_untimed_course(course):
-                # A registration-only course contributes ECTS without occupying
-                # any weekly time. Keep it in every combination as an empty slot.
+                # A verified course without weekly meetings contributes credits/ECTS
+                # without occupying time. Keep it in every combination as an empty slot.
                 selected_sections.append(Section(course.code, "SAATSIZ", slots=[]))
             elif not course.sections:
                 invalid_selections.append(f"{code}: bu ders için şube veya haftalık saat bilgisi bulunamadı.")
@@ -488,8 +488,9 @@ async def upload_transcript_file(file: UploadFile = File(...)):
 
 
 @router.post("/curriculum/progress")
-def get_curriculum_progress(req: CurriculumProgressRequest):
+def get_curriculum_progress(req: CurriculumProgressRequest, response: Response):
     """Calculates curriculum progress for primary major and passed courses."""
+    response.headers["Cache-Control"] = "no-store"
     progress = dm.get_curriculum_progress(
         primary_dept=req.primary_dept,
         passed_courses=req.passed_courses

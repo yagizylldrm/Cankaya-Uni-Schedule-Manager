@@ -247,7 +247,11 @@ class TranscriptParser:
         # PDF extraction can concatenate grade points and grades: 10.5BA, 0FF.
         grade_pattern = re.compile(r"(?<![^\W\d_])(" + grades + r")(?![^\W\d_])", re.IGNORECASE)
         # e-Devlet table rows: status, language, T, U, credits, ECTS, points/grade.
-        numeric_row = re.compile(r"^[ZS]\s+\S+\s+(?:[\d.,]+|-)(?:\s+(?:[\d.,]+|-)){3}\s+", re.IGNORECASE)
+        numeric_row = re.compile(
+            r"^[ZS]\s+\S+\s+([\d.,]+|-)\s+([\d.,]+|-)\s+"
+            r"([\d.,]+|-)\s+([\d.,]+|-)\s+",
+            re.IGNORECASE
+        )
         boundaries = re.compile(r"^(?:DNO\s*:|GNO\s*:|\(GPA\)|\(CGPA\)|\d{4}-\d{4}\b|Not Baremi|K\u0131saltmalar|A\u00e7\u0131klamalar|Explanations|\d+\s+\d+/)", re.IGNORECASE)
         matches = list(code_pattern.finditer(clean_text))
         detected_courses = {}
@@ -258,6 +262,7 @@ class TranscriptParser:
             title = block[0].strip() if block else ''
             found = None
             fallback = None
+            numeric_values = None
             has_numeric_row = False
             for row_index, raw_line in enumerate(block):
                 line = raw_line.strip()
@@ -266,6 +271,7 @@ class TranscriptParser:
                 numeric = numeric_row.match(line)
                 if numeric:
                     has_numeric_row = True
+                    numeric_values = numeric.groups()
                     found = grade_pattern.search(line, numeric.end())
                     # An ungraded numeric row must never borrow a later grade.
                     break
@@ -285,8 +291,17 @@ class TranscriptParser:
                 title = block[0].strip()[:fallback.start()].strip()
             if found:
                 grade = found[1].upper()
-                # Later transcript attempts replace earlier grades for the same code.
-                detected_courses[code] = {'code': code, 'grade': grade, 'name': title or code}
+                course_info = {'code': code, 'grade': grade, 'name': title or code}
+                if numeric_values:
+                    for field, raw_value in (("credit", numeric_values[2]),
+                                             ("ects", numeric_values[3])):
+                        if raw_value != '-':
+                            try:
+                                course_info[field] = float(raw_value.replace(',', '.'))
+                            except ValueError:
+                                pass
+                # Later transcript attempts replace earlier grades and credit data.
+                detected_courses[code] = course_info
 
         # Categorize into passed vs failed
         for code, info in detected_courses.items():
