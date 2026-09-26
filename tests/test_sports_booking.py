@@ -2,12 +2,20 @@ import os
 import subprocess
 import sys
 import unittest
+import json
 from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 
 from api.index import app
 from api.sports_booking import (
     SportsBookingService,
+    SportsError,
+    SportsInputError,
+    SportsAuthenticationError,
+    SportsSessionExpiredError,
+    SportsSessionInvalidError,
+    SportsUpstreamError,
+    SportsParseError,
     encrypt_session_data,
     decrypt_session_data
 )
@@ -16,11 +24,10 @@ client = TestClient(app)
 
 
 class SportsBookingTests(unittest.TestCase):
-    def test_default_base_url_uses_cloudflare_proxy(self):
-        self.assertEqual(
-            SportsBookingService.BASE_URL,
-            "https://cankaya-sports-proxy.yagizhere.workers.dev"
-        )
+    def test_default_base_url_uses_standard_origin(self):
+        url = SportsBookingService.get_base_url()
+        self.assertTrue(url.startswith("https://"))
+        self.assertNotIn("cankaya-sports-proxy.yagizhere.workers.dev", url)
 
     def test_session_uses_browser_headers_without_overriding_host(self):
         session = SportsBookingService._create_session()
@@ -46,7 +53,7 @@ class SportsBookingTests(unittest.TestCase):
             [
                 sys.executable,
                 "-c",
-                "from api.sports_booking import SportsBookingService; print(SportsBookingService.BASE_URL)"
+                "from api.sports_booking import SportsBookingService; print(SportsBookingService.get_base_url())"
             ],
             capture_output=True,
             check=True,
@@ -56,19 +63,126 @@ class SportsBookingTests(unittest.TestCase):
         )
         self.assertEqual(result.stdout.strip(), "https://sports.example.test")
 
-    def test_login_token_error_includes_response_diagnostics(self):
+    def test_base_url_validation_in_production(self):
+        env = os.environ.copy()
+        env["VERCEL"] = "1"
+        env.pop("SPORTS_BASE_URL", None)
+
+        # Missing SPORTS_BASE_URL in production raises error
+        res_missing = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "from api.sports_booking import SportsBookingService; SportsBookingService.get_base_url()"
+            ],
+            capture_output=True,
+            cwd=os.path.dirname(os.path.dirname(__file__)),
+            env=env,
+            text=True
+        )
+        self.assertNotEqual(res_missing.returncode, 0)
+        self.assertIn("SPORTS_BASE_URL", res_missing.stderr)
+
+        # Non-HTTPS URL in production raises error
+        env["SPORTS_BASE_URL"] = "http://insecure-tunnel.ngrok-free.app"
+        res_http = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "from api.sports_booking import SportsBookingService; SportsBookingService.get_base_url()"
+            ],
+            capture_output=True,
+            cwd=os.path.dirname(os.path.dirname(__file__)),
+            env=env,
+            text=True
+        )
+        self.assertNotEqual(res_http.returncode, 0)
+
+        # Path in origin in production raises error
+        env["SPORTS_BASE_URL"] = "https://my-tunnel.ngrok-free.app/some/path"
+        res_path = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "from api.sports_booking import SportsBookingService; SportsBookingService.get_base_url()"
+            ],
+            capture_output=True,
+            cwd=os.path.dirname(os.path.dirname(__file__)),
+            env=env,
+            text=True
+        )
+        self.assertNotEqual(res_path.returncode, 0)
+
+    def test_session_secret_enforced_in_production(self):
+        env = os.environ.copy()
+        env["VERCEL"] = "1"
+        env.pop("SPORTS_SESSION_SECRET", None)
+
+        res = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "from api.sports_booking import _get_secret_key; _get_secret_key()"
+            ],
+            capture_output=True,
+            cwd=os.path.dirname(os.path.dirname(__file__)),
+            env=env,
+            text=True
+        )
+        self.assertNotEqual(res.returncode, 0)
+        self.assertIn("SPORTS_SESSION_SECRET", res.stderr)
+
+    def test_cross_process_secret_consistency(self):
+        secret = "super_secret_key_for_testing_1234567890_at_least_32_chars"
+        env = os.environ.copy()
+        env["SPORTS_SESSION_SECRET"] = secret
+
+        # Process 1 creates token
+        res1 = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "from api.sports_booking import encrypt_session_data; print(encrypt_session_data({'user': 'proc1'}))"
+            ],
+            capture_output=True,
+            check=True,
+            cwd=os.path.dirname(os.path.dirname(__file__)),
+            env=env,
+            text=True
+        )
+        token = res1.stdout.strip()
+
+        # Process 2 decrypts token
+        res2 = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                f"from api.sports_booking import decrypt_session_data; import json; print(json.dumps(decrypt_session_data('{token}')))"
+            ],
+            capture_output=True,
+            check=True,
+            cwd=os.path.dirname(os.path.dirname(__file__)),
+            env=env,
+            text=True
+        )
+        data = json.loads(res2.stdout.strip())
+        self.assertEqual(data["user"], "proc1")
+
+    def test_login_upstream_error_includes_response_diagnostics(self):
         mock_response = MagicMock()
         mock_response.status_code = 403
         mock_response.headers = {"Content-Type": "text/html; charset=UTF-8"}
-        mock_response.url = f"{SportsBookingService.BASE_URL}/cdn-cgi/challenge-platform"
+        base_url = SportsBookingService.get_base_url()
+        mock_response.url = f"{base_url}/cdn-cgi/challenge-platform"
         mock_response.text = "<html>\n  <title>Just a moment...</title>\n  Cloudflare challenge\n</html>"
+        mock_response.history = []
 
         with patch("requests.Session.get", return_value=mock_response) as mock_get:
-            with self.assertRaises(RuntimeError) as context:
+            with self.assertRaises(SportsUpstreamError) as context:
                 SportsBookingService.authenticate("student", "password")
 
         mock_get.assert_called_once_with(
-            f"{SportsBookingService.BASE_URL}/Account/StudentLogin",
+            f"{base_url}/Account/StudentLogin",
             timeout=(10, 30),
             allow_redirects=True
         )
@@ -77,7 +191,6 @@ class SportsBookingTests(unittest.TestCase):
         self.assertIn("text/html; charset=UTF-8", message)
         self.assertIn("/cdn-cgi/challenge-platform", message)
         self.assertIn("Just a moment...", message)
-        self.assertIn("Cloudflare challenge", message)
 
     def test_session_token_encryption_decryption(self):
         data = {
@@ -97,15 +210,38 @@ class SportsBookingTests(unittest.TestCase):
     def test_session_token_tampering_rejected(self):
         data = {"user": "alice"}
         token = encrypt_session_data(data)
-        tampered = ("B" if token[10] != "B" else "C") + token[1:]
-        with self.assertRaises(ValueError):
+        # Deterministically alter a character inside the ciphertext/tag
+        tampered_char = "Z" if token[10] != "Z" else "Y"
+        tampered = token[:10] + tampered_char + token[11:]
+        with self.assertRaises(SportsSessionInvalidError):
             decrypt_session_data(tampered)
 
     def test_session_token_expired_rejected(self):
         data = {"user": "bob"}
         token = encrypt_session_data(data, ttl_seconds=-10)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(SportsSessionExpiredError):
             decrypt_session_data(token)
+
+    def test_input_validation(self):
+        # Invalid date format
+        with self.assertRaises(SportsInputError):
+            SportsBookingService._validate_date("2026-09-28")
+        with self.assertRaises(SportsInputError):
+            SportsBookingService._validate_date("32.09.2026")
+        self.assertEqual(SportsBookingService._validate_date("28.09.2026"), "28.09.2026")
+
+        # Invalid numeric IDs
+        with self.assertRaises(SportsInputError):
+            SportsBookingService._validate_numeric_id("abc", "Birim ID")
+        with self.assertRaises(SportsInputError):
+            SportsBookingService._validate_numeric_id("../hack", "Seans ID")
+        self.assertEqual(SportsBookingService._validate_numeric_id("101", "Seans ID"), "101")
+
+        # Invalid login inputs
+        with self.assertRaises(SportsInputError):
+            SportsBookingService.authenticate("", "pass")
+        with self.assertRaises(SportsInputError):
+            SportsBookingService.authenticate("user", "")
 
     def test_get_available_slots_html_parsing(self):
         mock_html = """
@@ -142,22 +278,23 @@ class SportsBookingTests(unittest.TestCase):
         </html>
         """
         token = encrypt_session_data({"cookies": {".AspNet.ApplicationCookie": "abc"}})
+        base_url = SportsBookingService.get_base_url()
 
         with patch("requests.Session.get") as mock_get, patch("requests.Session.post") as mock_post:
-            # Mock GET to return page with CSRF token
             mock_get_res = MagicMock()
-            mock_get_res.url = f"{SportsBookingService.BASE_URL}/Appointment/SeansSelection"
+            mock_get_res.url = f"{base_url}/Appointment/SeansSelection"
             mock_get_res.text = '<input name="__RequestVerificationToken" type="hidden" value="CSRF_TOKEN_456" />'
+            mock_get_res.history = []
             mock_get.return_value = mock_get_res
 
-            # Mock POST to return slots table
             mock_post_res = MagicMock()
+            mock_post_res.url = f"{base_url}/Appointment/SeansSelection"
             mock_post_res.text = mock_html
+            mock_post_res.history = []
             mock_post.return_value = mock_post_res
 
             slots = SportsBookingService.get_available_slots(token, "28.09.2026", unit_id="4", location_id="8")
 
-            # Verify POST payload sent CSRF token and parameters correctly
             mock_post.assert_called_once()
             _, kwargs = mock_post.call_args
             self.assertEqual(kwargs["data"]["__RequestVerificationToken"], "CSRF_TOKEN_456")
@@ -165,32 +302,44 @@ class SportsBookingTests(unittest.TestCase):
             self.assertEqual(kwargs["data"]["LocationId"], "8")
             self.assertEqual(kwargs["data"]["AppDate"], "28.09.2026")
             self.assertEqual(kwargs["timeout"], (10, 30))
-            self.assertEqual(
-                mock_post.call_args.args[0],
-                "https://cankaya-sports-proxy.yagizhere.workers.dev/Appointment/SeansSelection"
-            )
 
             self.assertEqual(len(slots), 2)
-            # Slot 1
             self.assertEqual(slots[0]["seans_id"], "101")
             self.assertEqual(slots[0]["time_slot"], "09:00 - 10:00")
             self.assertEqual(slots[0]["occupied"], 14)
             self.assertEqual(slots[0]["capacity"], 25)
             self.assertFalse(slots[0]["is_full"])
 
-            # Slot 2 (full)
             self.assertIsNone(slots[1]["seans_id"])
             self.assertEqual(slots[1]["time_slot"], "10:00 - 11:00")
             self.assertEqual(slots[1]["occupied"], 25)
             self.assertEqual(slots[1]["capacity"], 25)
             self.assertTrue(slots[1]["is_full"])
 
+    def test_get_available_slots_empty_records(self):
+        empty_html = """
+        <html><body><div class="alert alert-info">Seçilen kriterlere uygun kayıt bulunamadı.</div></body></html>
+        """
+        token = encrypt_session_data({"cookies": {".AspNet.ApplicationCookie": "abc"}})
+        base_url = SportsBookingService.get_base_url()
+
+        with patch("requests.Session.get") as mock_get, patch("requests.Session.post") as mock_post:
+            mock_get_res = MagicMock(url=f"{base_url}/Appointment/SeansSelection", history=[])
+            mock_get_res.text = '<input name="__RequestVerificationToken" type="hidden" value="CSRF_123" />'
+            mock_get.return_value = mock_get_res
+
+            mock_post_res = MagicMock(url=f"{base_url}/Appointment/SeansSelection", history=[], text=empty_html)
+            mock_post.return_value = mock_post_res
+
+            slots = SportsBookingService.get_available_slots(token, "28.09.2026")
+            self.assertEqual(slots, [])
+
     def test_book_slot_success_and_failure(self):
         token = encrypt_session_data({"cookies": {".AspNet.ApplicationCookie": "abc"}})
 
         with patch("requests.Session.get") as mock_get:
-            # Success case
-            mock_res_success = MagicMock()
+            mock_res_success = MagicMock(history=[])
+            mock_res_success.url = "https://randevu.cankaya.edu.tr/Appointment/SeansSelected/101"
             mock_res_success.text = "<div>Randevu başvurunuz alınmıştır. Teşekkür ederiz.</div>"
             mock_get.return_value = mock_res_success
 
@@ -198,8 +347,8 @@ class SportsBookingTests(unittest.TestCase):
             self.assertTrue(result["success"])
             self.assertIn("başarıyla", result["message"].lower())
 
-            # Failure case
-            mock_res_fail = MagicMock()
+            mock_res_fail = MagicMock(history=[])
+            mock_res_fail.url = "https://randevu.cankaya.edu.tr/Appointment/SeansSelected/102"
             mock_res_fail.text = "<div class='alert alert-danger'>Seçilen seansın kontenjanı dolmuştur.</div>"
             mock_get.return_value = mock_res_fail
 
@@ -207,16 +356,53 @@ class SportsBookingTests(unittest.TestCase):
             self.assertFalse(result_fail["success"])
             self.assertIn("kontenjan", result_fail["message"].lower())
 
-    def test_fastapi_sports_login_api_failure(self):
-        # Calling login with invalid credentials should return 400 or 502 gracefully
-        res = client.post("/api/sports/login", json={"username": "invalid_user", "password": "wrong_password"})
-        self.assertIn(res.status_code, [400, 502])
-        self.assertIn("detail", res.json())
+    def test_unsafe_external_redirect_blocked(self):
+        token = encrypt_session_data({"cookies": {".AspNet.ApplicationCookie": "abc"}})
+        with patch("requests.Session.get") as mock_get:
+            redirect_item = MagicMock()
+            redirect_item.headers = {"Location": "https://malicious-domain.com/steal-cookie"}
+            mock_res = MagicMock()
+            mock_res.history = [redirect_item]
+            mock_get.return_value = mock_res
+
+            with self.assertRaises(SportsUpstreamError):
+                SportsBookingService.book_slot(token, "101")
+
+    def test_fastapi_sports_login_api_failure_mocked(self):
+        with patch.object(
+            SportsBookingService,
+            "authenticate",
+            side_effect=SportsAuthenticationError("Kullanıcı adı veya şifre hatalı.")
+        ):
+            res = client.post("/api/sports/login", json={"username": "test_user", "password": "wrong_password"})
+            self.assertEqual(res.status_code, 401)
+            data = res.json()
+            self.assertEqual(data["detail"]["code"], "INVALID_CREDENTIALS")
+            self.assertEqual(data["detail"]["message"], "Kullanıcı adı veya şifre hatalı.")
+            self.assertIn("no-store", res.headers.get("cache-control", "").lower())
 
     def test_fastapi_sports_slots_api_invalid_token(self):
-        res = client.post("/api/sports/slots", json={"token": "invalid_token_123", "date": "28.09.2026"})
+        res = client.post("/api/sports/slots", json={"token": "invalid_token_12345", "date": "28.09.2026"})
         self.assertEqual(res.status_code, 401)
-        self.assertIn("detail", res.json())
+        data = res.json()
+        self.assertEqual(data["detail"]["code"], "SESSION_INVALID")
+        self.assertIn("no-store", res.headers.get("cache-control", "").lower())
+
+    def test_fastapi_concurrent_booking_lock(self):
+        token = encrypt_session_data({"cookies": {".AspNet.ApplicationCookie": "abc"}})
+
+        # Inject fake lock for this token
+        import hashlib
+        from api.index import _BOOKING_LOCKS
+        token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
+        _BOOKING_LOCKS.add(token_hash)
+
+        try:
+            res = client.post("/api/sports/book", json={"token": token, "seans_id": "101"})
+            self.assertEqual(res.status_code, 409)
+            self.assertEqual(res.json()["detail"]["code"], "CONCURRENT_BOOKING")
+        finally:
+            _BOOKING_LOCKS.discard(token_hash)
 
 
 if __name__ == '__main__':

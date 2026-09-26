@@ -13,15 +13,21 @@ BASE_DIR = os.path.dirname(CURRENT_DIR)
 if BASE_DIR not in sys.path:
     sys.path.insert(1, BASE_DIR)
 
+import time
+import logging
+import hashlib
+from collections import defaultdict
 from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form, Body, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
 
 from data_manager import DataManager, Course, Section, ScheduleSlot
 from scheduler_engine import SchedulerEngine
 from prerequisite_manager import PrerequisiteManager
 from transcript_parser import TranscriptParser
-from sports_booking import SportsBookingService
+from sports_booking import SportsBookingService, SportsError
 
 app = FastAPI(
     title="Çankaya Üniversitesi Schedule Manager API",
@@ -37,14 +43,55 @@ async def vercel_path_normalizer(request: Request, call_next):
         request.scope["path"] = matched
     return await call_next(request)
 
-# Enable CORS for local development and Vercel domains
+# Force no-cache on all sports endpoints
+@app.middleware("http")
+async def sports_cache_control_middleware(request: Request, call_next):
+    response = await call_next(request)
+    if "sports" in request.url.path:
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+    return response
+
+# CORS configuration
+allowed_origins_env = os.environ.get("ALLOWED_ORIGINS")
+if allowed_origins_env:
+    allow_origins = [o.strip() for o in allowed_origins_env.split(",") if o.strip()]
+else:
+    allow_origins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "https://cankaya-uni-schedule-manager.vercel.app",
+    ]
+
+is_prod = bool(os.environ.get("VERCEL") or os.environ.get("ENVIRONMENT") == "production")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=allow_origins if is_prod else ["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# Rate limiting and concurrency controls
+_IP_REQUEST_TIMES: Dict[str, List[float]] = defaultdict(list)
+_BOOKING_LOCKS = set()
+
+def _check_rate_limit(request: Request, action: str, limit: int = 30, window: int = 60):
+    client_ip = request.client.host if request.client else "unknown"
+    now = time.time()
+    key = f"{client_ip}:{action}"
+    history = [t for t in _IP_REQUEST_TIMES[key] if now - t < window]
+    if len(history) >= limit:
+        raise HTTPException(
+            status_code=429,
+            detail={"code": "RATE_LIMIT_EXCEEDED", "message": "Çok fazla istek gönderildi. Lütfen biraz bekleyin."},
+            headers={"Retry-After": str(window)}
+        )
+    history.append(now)
+    _IP_REQUEST_TIMES[key] = history
 
 # Initialize singletons
 dm = DataManager()
@@ -74,18 +121,18 @@ class CurriculumProgressRequest(BaseModel):
     passed_courses: Dict[str, Any] = {}
 
 class SportsLoginRequest(BaseModel):
-    username: str
-    password: str
+    username: str = Field(..., min_length=1, max_length=64)
+    password: str = Field(..., min_length=1, max_length=128)
 
 class SportsSlotsRequest(BaseModel):
-    token: str
-    date: str
-    unit_id: Optional[str] = "4"
-    location_id: Optional[str] = "8"
+    token: str = Field(..., min_length=10, max_length=4096)
+    date: str = Field(..., min_length=8, max_length=12)
+    unit_id: Optional[str] = Field("4", max_length=10)
+    location_id: Optional[str] = Field("8", max_length=10)
 
 class SportsBookRequest(BaseModel):
-    token: str
-    seans_id: str
+    token: str = Field(..., min_length=10, max_length=4096)
+    seans_id: str = Field(..., min_length=1, max_length=10)
 
 
 # --- Endpoints on Router ---
@@ -514,22 +561,31 @@ def get_curriculum_progress(req: CurriculumProgressRequest, response: Response):
 
 
 @router.post("/sports/login")
-def sports_login(req: SportsLoginRequest, response: Response):
+def sports_login(req: SportsLoginRequest, request: Request, response: Response):
     """Authenticates student on randevu.cankaya.edu.tr and returns encrypted session token."""
     response.headers["Cache-Control"] = "no-store"
+    _check_rate_limit(request, "login", limit=10, window=60)
     try:
         res = SportsBookingService.authenticate(req.username, req.password)
         return res
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except SportsError as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail={"code": e.code, "message": e.message}
+        )
     except Exception as e:
-        raise HTTPException(status_code=502, detail=str(e))
+        logger.exception("Sports login unexpected failure")
+        raise HTTPException(
+            status_code=502,
+            detail={"code": "UPSTREAM_ERROR", "message": "Giriş servisine bağlanılamadı. Lütfen tekrar deneyin."}
+        )
 
 
 @router.post("/sports/slots")
-def sports_slots(req: SportsSlotsRequest, response: Response):
+def sports_slots(req: SportsSlotsRequest, request: Request, response: Response):
     """Fetches available sports time slots for selected date."""
     response.headers["Cache-Control"] = "no-store"
+    _check_rate_limit(request, "slots", limit=30, window=60)
     try:
         slots = SportsBookingService.get_available_slots(
             session_token=req.token,
@@ -538,26 +594,52 @@ def sports_slots(req: SportsSlotsRequest, response: Response):
             location_id=req.location_id or "8"
         )
         return {"success": True, "date": req.date, "slots": slots}
-    except ValueError as e:
-        raise HTTPException(status_code=401, detail=str(e))
+    except SportsError as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail={"code": e.code, "message": e.message}
+        )
     except Exception as e:
-        raise HTTPException(status_code=502, detail=str(e))
+        logger.exception("Sports slots unexpected failure")
+        raise HTTPException(
+            status_code=502,
+            detail={"code": "UPSTREAM_ERROR", "message": "Seans listesi alınamadı."}
+        )
 
 
 @router.post("/sports/book")
-def sports_book(req: SportsBookRequest, response: Response):
+def sports_book(req: SportsBookRequest, request: Request, response: Response):
     """Books a sports session via randevu.cankaya.edu.tr."""
     response.headers["Cache-Control"] = "no-store"
+    _check_rate_limit(request, "book", limit=10, window=60)
+
+    token_hash = hashlib.sha256(req.token.encode("utf-8")).hexdigest()
+    if token_hash in _BOOKING_LOCKS:
+        raise HTTPException(
+            status_code=409,
+            detail={"code": "CONCURRENT_BOOKING", "message": "Şu anda devam eden bir randevu alma işleminiz var. Lütfen bekleyin."}
+        )
+
+    _BOOKING_LOCKS.add(token_hash)
     try:
         res = SportsBookingService.book_slot(
             session_token=req.token,
             seans_id=req.seans_id
         )
         return res
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except SportsError as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail={"code": e.code, "message": e.message}
+        )
     except Exception as e:
-        raise HTTPException(status_code=502, detail=str(e))
+        logger.exception("Sports booking unexpected failure")
+        raise HTTPException(
+            status_code=502,
+            detail={"code": "UPSTREAM_ERROR", "message": "Randevu alma işlemi tamamlanamadı."}
+        )
+    finally:
+        _BOOKING_LOCKS.discard(token_hash)
 
 
 from fastapi.responses import FileResponse

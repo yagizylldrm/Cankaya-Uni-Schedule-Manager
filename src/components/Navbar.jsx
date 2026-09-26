@@ -31,6 +31,7 @@ export default function Navbar({ timetableRef, onShowSchedule }) {
     semester,
     isGenerating,
     setTranscriptModalOpen,
+    sportsModalOpen,
     setSportsModalOpen,
     profile,
     drafts,
@@ -209,7 +210,10 @@ export default function Navbar({ timetableRef, onShowSchedule }) {
           </button>
 
           <button
+            id="sports-modal-trigger"
             onClick={() => setSportsModalOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={sportsModalOpen}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg text-slate-700 dark:text-dark-text bg-slate-100 dark:bg-dark-card hover:bg-slate-200 dark:hover:bg-slate-700/50 border border-slate-200 dark:border-dark-border transition"
             title="Çankaya Üniversitesi Spor Tesisi Randevu Sistemi (randevu.cankaya.edu.tr)"
           >

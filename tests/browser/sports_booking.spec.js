@@ -59,7 +59,10 @@ const mockSlots = [
   }
 ];
 
-async function setupSportsPage(page) {
+async function setupSportsPage(page, { slotsOverride = null, bookOverride = null } = {}) {
+  // Fix browser time to a known Monday (2026-09-28)
+  await page.clock.setFixedTime(new Date('2026-09-28T09:00:00Z'));
+
   await page.route('**/api/**', async (route) => {
     const url = new URL(route.request().url());
 
@@ -73,8 +76,8 @@ async function setupSportsPage(page) {
       const data = route.request().postDataJSON();
       if (data.username === 'invalid') {
         await route.fulfill({
-          status: 400,
-          json: { detail: 'Kullanıcı adı veya şifre hatalı.' }
+          status: 401,
+          json: { detail: { code: 'INVALID_CREDENTIALS', message: 'Kullanıcı adı veya şifre hatalı.' } }
         });
       } else {
         await route.fulfill({
@@ -87,20 +90,28 @@ async function setupSportsPage(page) {
         });
       }
     } else if (url.pathname === '/api/sports/slots') {
-      await route.fulfill({
-        json: {
-          success: true,
-          date: '28.09.2026',
-          slots: mockSlots
-        }
-      });
+      if (slotsOverride) {
+        await slotsOverride(route);
+      } else {
+        await route.fulfill({
+          json: {
+            success: true,
+            date: '28.09.2026',
+            slots: mockSlots
+          }
+        });
+      }
     } else if (url.pathname === '/api/sports/book') {
-      await route.fulfill({
-        json: {
-          success: true,
-          message: 'Randevunuz başarıyla oluşturuldu!'
-        }
-      });
+      if (bookOverride) {
+        await bookOverride(route);
+      } else {
+        await route.fulfill({
+          json: {
+            success: true,
+            message: 'Randevunuz başarıyla oluşturuldu!'
+          }
+        });
+      }
     } else {
       await route.fulfill({ json: {} });
     }
@@ -109,7 +120,21 @@ async function setupSportsPage(page) {
   await page.goto('/');
 }
 
-test('sports booking modal opens, handles login, displays clash detection and books slot', async ({ page }) => {
+async function loginToSportsModal(page, username = '202111001', password = 'correctpass') {
+  const sportsBtn = page.getByRole('button', { name: 'Spor Randevusu' });
+  await expect(sportsBtn).toBeVisible();
+  await sportsBtn.click();
+
+  await expect(page.getByRole('heading', { name: 'Spor Tesisi Randevu Sistemi' })).toBeVisible();
+  await page.locator('#sports-username').fill(username);
+  await page.locator('#sports-password').fill(password);
+  await page.getByRole('button', { name: 'Güvenli Giriş Yap' }).click();
+
+  await expect(page.getByText('Ahmet Yılmaz')).toBeVisible();
+  await expect(page.getByText('Oturum Aktif')).toBeVisible();
+}
+
+test('sports booking modal full flow: truthful security notice, login failure/success, clash detection, booking, timetable integration', async ({ page }) => {
   await setupSportsPage(page);
 
   // 1. Add course to basket to create timetable
@@ -121,19 +146,24 @@ test('sports booking modal opens, handles login, displays clash detection and bo
   await expect(sportsBtn).toBeVisible();
   await sportsBtn.click();
 
-  // 3. Modal opens with title and security notice
+  // 3. Modal opens with title and truthful security notice (no "Sıfır Güvenlik Riski")
   await expect(page.getByRole('heading', { name: 'Spor Tesisi Randevu Sistemi' })).toBeVisible();
-  await expect(page.getByText('Sıfır Güvenlik Riski & Şifresiz Mimari')).toBeVisible();
+  await expect(page.getByText('Güvenlik & Gizlilik Bilgilendirmesi')).toBeVisible();
+  await expect(page.getByText(/Öğrenci şifreniz hiçbir zaman veritabanında veya tarayıcı yerel depolamasında/)).toBeVisible();
+  await expect(page.getByText('Sıfır Güvenlik Riski & Şifresiz Mimari')).not.toBeVisible();
 
   // 4. Test login failure
-  await page.fill('input[placeholder="Örn: 202111001/c2111001"]', 'invalid');
-  await page.fill('input[placeholder="Randevu sistemi şifreniz"]', 'wrongpass');
+  await page.locator('#sports-username').fill('invalid');
+  await page.locator('#sports-password').fill('wrongpass');
   await page.getByRole('button', { name: 'Güvenli Giriş Yap' }).click();
-  await expect(page.getByText('Kullanıcı adı veya şifre hatalı.')).toBeVisible();
+  await expect(page.getByRole('alert')).toContainText('Kullanıcı adı veya şifre hatalı.');
+
+  // Password should be cleared after failure
+  await expect(page.locator('#sports-password')).toHaveValue('');
 
   // 5. Test login success
-  await page.fill('input[placeholder="Örn: 202111001/c2111001"]', '202111001');
-  await page.fill('input[placeholder="Randevu sistemi şifreniz"]', 'correctpass');
+  await page.locator('#sports-username').fill('202111001');
+  await page.locator('#sports-password').fill('correctpass');
   await page.getByRole('button', { name: 'Güvenli Giriş Yap' }).click();
 
   // 6. Authenticated dashboard appears
@@ -145,16 +175,16 @@ test('sports booking modal opens, handles login, displays clash detection and bo
   await expect(page.getByText('Fitness Seansı 1')).toBeVisible();
   await expect(page.getByText('Fitness Seansı 2')).toBeVisible();
 
-  // Select a Monday (2026-09-28) using the locale-independent day/month/year dropdowns
-  await page.getByLabel('Gün', { exact: true }).selectOption('28');
-  await page.getByLabel('Ay', { exact: true }).selectOption('9');
-  await page.getByLabel('Yıl', { exact: true }).selectOption('2026');
-
   // Verify clash badge on Slot 1 (09:00 - 10:00 vs CENG101 09:00 - 09:50)
   await expect(page.getByText(/Ders Çakışması: CENG101/)).toBeVisible();
 
   // Verify suitable badge on Slot 2 (11:00 - 12:00)
   await expect(page.getByText('Ders programınız uygun')).toBeVisible();
+
+  // Verify progressbar a11y attributes
+  const progressBars = page.getByRole('progressbar');
+  await expect(progressBars.first()).toHaveAttribute('aria-valuenow', '15');
+  await expect(progressBars.first()).toHaveAttribute('aria-valuemax', '25');
 
   // 8. Book Slot 2
   const bookButtons = page.getByRole('button', { name: 'Randevu Al' });
@@ -175,4 +205,238 @@ test('sports booking modal opens, handles login, displays clash detection and bo
 
   // The custom block should now be rendered on the timetable
   await expect(page.getByText('Spor / Fitness')).toBeVisible();
+});
+
+test('session lifecycle: modal close and reopen preserves session in memory, explicit logout clears session', async ({ page }) => {
+  await setupSportsPage(page);
+  await loginToSportsModal(page);
+
+  // Close modal via Kapat button
+  await page.getByLabel('Kapat', { exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Spor Tesisi Randevu Sistemi' })).not.toBeVisible();
+
+  // Reopen modal: session should still be active in React memory!
+  await page.getByRole('button', { name: 'Spor Randevusu' }).click();
+  await expect(page.getByText('Ahmet Yılmaz')).toBeVisible();
+  await expect(page.getByText('Oturum Aktif')).toBeVisible();
+
+  // Now click explicit "Çıkış Yap"
+  await page.getByRole('button', { name: 'Çıkış Yap' }).click();
+
+  // Should return to login form
+  await expect(page.getByRole('button', { name: 'Güvenli Giriş Yap' })).toBeVisible();
+  await expect(page.getByText('Ahmet Yılmaz')).not.toBeVisible();
+});
+
+test('race condition defense: out-of-order date responses only show the latest requested date', async ({ page }) => {
+  let dateRequestOrder = [];
+
+  await setupSportsPage(page, {
+    slotsOverride: async (route) => {
+      const data = route.request().postDataJSON();
+      const date = data.date;
+      dateRequestOrder.push(date);
+
+      if (date === '28.09.2026') {
+        // Delay first date response by 300ms
+        await new Promise((r) => setTimeout(r, 300));
+        await route.fulfill({
+          json: {
+            success: true,
+            date: '28.09.2026',
+            slots: [
+              {
+                seans_id: '101',
+                seans_adi: 'Eski Tarih Seansı',
+                baslangic: '09:00',
+                bitis: '10:00',
+                time_slot: '09:00 - 10:00',
+                doluluk: '1 / 25',
+                occupied: 1,
+                capacity: 25,
+                is_full: false
+              }
+            ]
+          }
+        });
+      } else {
+        // Fast response for second date
+        await route.fulfill({
+          json: {
+            success: true,
+            date: '29.09.2026',
+            slots: [
+              {
+                seans_id: '201',
+                seans_adi: 'Yeni Tarih Seansı',
+                baslangic: '14:00',
+                bitis: '15:00',
+                time_slot: '14:00 - 15:00',
+                doluluk: '5 / 25',
+                occupied: 5,
+                capacity: 25,
+                is_full: false
+              }
+            ]
+          }
+        });
+      }
+    }
+  });
+
+  await loginToSportsModal(page);
+
+  // Click "Yarın" quickly to trigger second request
+  await page.getByRole('button', { name: 'Yarın' }).click();
+
+  // Wait for load to settle
+  await expect(page.getByText('Yeni Tarih Seansı')).toBeVisible();
+
+  // Wait extra time to ensure old response does NOT overwrite new slots
+  await page.waitForTimeout(400);
+  await expect(page.getByText('Yeni Tarih Seansı')).toBeVisible();
+  await expect(page.getByText('Eski Tarih Seansı')).not.toBeVisible();
+});
+
+test('slot error display and retry functionality', async ({ page }) => {
+  let attempt = 0;
+
+  await setupSportsPage(page, {
+    slotsOverride: async (route) => {
+      attempt++;
+      if (attempt === 1) {
+        await route.fulfill({
+          status: 502,
+          json: { detail: { code: 'UPSTREAM_ERROR', message: 'Üniversite sunucusuna bağlanılamadı.' } }
+        });
+      } else {
+        await route.fulfill({
+          json: {
+            success: true,
+            date: '28.09.2026',
+            slots: mockSlots
+          }
+        });
+      }
+    }
+  });
+
+  await loginToSportsModal(page);
+
+  // Error alert should be displayed with retry button
+  await expect(page.getByRole('alert')).toContainText('Üniversite sunucusuna bağlanılamadı.');
+  const retryBtn = page.getByRole('button', { name: 'Tekrar Dene' });
+  await expect(retryBtn).toBeVisible();
+
+  // Click retry
+  await retryBtn.click();
+
+  // Slots should load successfully
+  await expect(page.getByText('Fitness Seansı 1')).toBeVisible();
+  await expect(page.getByRole('alert')).not.toBeVisible();
+});
+
+test('concurrency defense: booking lock prevents double booking requests', async ({ page }) => {
+  let bookCount = 0;
+
+  await setupSportsPage(page, {
+    bookOverride: async (route) => {
+      bookCount++;
+      await new Promise((r) => setTimeout(r, 200));
+      await route.fulfill({
+        json: {
+          success: true,
+          message: 'Randevunuz başarıyla oluşturuldu!'
+        }
+      });
+    }
+  });
+
+  await loginToSportsModal(page);
+
+  const bookBtn = page.getByRole('button', { name: 'Randevu Al' }).first();
+  await bookBtn.dblclick();
+
+  await expect(page.getByText('Randevu Alındı')).toBeVisible();
+  // Exactly 1 booking request was sent despite rapid double click
+  expect(bookCount).toBe(1);
+});
+
+test('session expiry 401 code automatically logs user out', async ({ page }) => {
+  let callCount = 0;
+  await setupSportsPage(page, {
+    slotsOverride: async (route) => {
+      callCount++;
+      if (callCount === 1) {
+        // Initial load during login succeeds
+        await route.fulfill({
+          json: {
+            success: true,
+            date: '28.09.2026',
+            slots: mockSlots
+          }
+        });
+      } else {
+        // Subsequent fetch returns 401 expired
+        await route.fulfill({
+          status: 401,
+          json: { detail: { code: 'SESSION_EXPIRED', message: 'Oturum süreniz doldu.' } }
+        });
+      }
+    }
+  });
+
+  await loginToSportsModal(page);
+
+  // Trigger date change to trigger slot fetch that returns 401
+  await page.getByRole('button', { name: 'Yarın' }).click();
+
+  // Should return to login view
+  await expect(page.getByRole('button', { name: 'Güvenli Giriş Yap' })).toBeVisible();
+});
+
+test('accessibility & dialog keyboard ergonomics: Escape key closes, focus restored to navbar trigger', async ({ page }) => {
+  await setupSportsPage(page);
+
+  const sportsTrigger = page.getByRole('button', { name: 'Spor Randevusu' });
+  await expect(sportsTrigger).toHaveAttribute('aria-haspopup', 'dialog');
+  await expect(sportsTrigger).toHaveAttribute('aria-expanded', 'false');
+
+  await sportsTrigger.click();
+  await expect(sportsTrigger).toHaveAttribute('aria-expanded', 'true');
+
+  const dialog = page.locator('dialog[aria-labelledby="sports-modal-title"]');
+  await expect(dialog).toBeVisible();
+
+  // Press Escape
+  await page.keyboard.press('Escape');
+  await expect(dialog).not.toBeVisible();
+
+  // Focus restored to trigger
+  await expect(sportsTrigger).toBeFocused();
+  await expect(sportsTrigger).toHaveAttribute('aria-expanded', 'false');
+});
+
+test('mobile viewport 390x844: touch target sizes >= 44px and no horizontal overflow', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await setupSportsPage(page);
+
+  const sportsBtn = page.getByRole('button', { name: 'Spor' });
+  await sportsBtn.click();
+
+  // Check login button height
+  const loginSubmitBtn = page.getByRole('button', { name: 'Güvenli Giriş Yap' });
+  const box = await loginSubmitBtn.boundingBox();
+  expect(box.height).toBeGreaterThanOrEqual(44);
+
+  // Check inputs have font-size >= 16px to prevent iOS auto-zoom
+  const usernameInput = page.locator('#sports-username');
+  const fontSize = await usernameInput.evaluate((el) => window.getComputedStyle(el).fontSize);
+  expect(parseFloat(fontSize)).toBeGreaterThanOrEqual(16);
+
+  // Check no horizontal scroll/overflow on dialog
+  const dialog = page.locator('dialog[aria-labelledby="sports-modal-title"]');
+  const scrollWidth = await dialog.evaluate((el) => el.scrollWidth);
+  const clientWidth = await dialog.evaluate((el) => el.clientWidth);
+  expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 2);
 });
