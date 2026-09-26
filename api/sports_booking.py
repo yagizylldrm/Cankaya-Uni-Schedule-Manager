@@ -211,9 +211,9 @@ class SportsBookingService(metaclass=_SportsBookingMeta):
     def _create_session(cls, cookies: Optional[Dict[str, str]] = None) -> requests.Session:
         session = requests.Session()
         session.headers.update({
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Accept-Language": "tr-TR,tr;q=0.9",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+            "Accept-Language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7",
             "Accept-Encoding": "gzip, deflate",
             "ngrok-skip-browser-warning": "true",
         })
@@ -311,7 +311,16 @@ class SportsBookingService(metaclass=_SportsBookingMeta):
         }
 
         try:
-            post_res = session.post(login_url, data=payload, timeout=cls.TIMEOUT, allow_redirects=True)
+            post_res = session.post(
+                login_url,
+                data=payload,
+                headers={
+                    "Origin": base_url,
+                    "Referer": f"{base_url}/Account/StudentLogin",
+                },
+                timeout=cls.TIMEOUT,
+                allow_redirects=True,
+            )
             cls._validate_redirects(post_res, base_url)
         except requests.RequestException as e:
             logger.warning("Login POST failed: %s", type(e).__name__)

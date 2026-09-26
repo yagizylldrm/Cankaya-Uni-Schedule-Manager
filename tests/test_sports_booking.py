@@ -35,13 +35,16 @@ class SportsBookingTests(unittest.TestCase):
         self.assertEqual(SportsBookingService.TIMEOUT, (10, 30))
         self.assertEqual(
             session.headers["User-Agent"],
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
         )
         self.assertEqual(
             session.headers["Accept"],
-            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
         )
-        self.assertEqual(session.headers["Accept-Language"], "tr-TR,tr;q=0.9")
+        self.assertEqual(
+            session.headers["Accept-Language"],
+            "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7"
+        )
         self.assertEqual(session.headers["Accept-Encoding"], "gzip, deflate")
         self.assertEqual(session.headers["ngrok-skip-browser-warning"], "true")
         self.assertNotIn("Host", session.headers)
@@ -191,6 +194,44 @@ class SportsBookingTests(unittest.TestCase):
         self.assertIn("text/html; charset=UTF-8", message)
         self.assertIn("/cdn-cgi/challenge-platform", message)
         self.assertIn("Just a moment...", message)
+
+    def test_login_post_uses_origin_and_referer_headers(self):
+        base_url = SportsBookingService.get_base_url()
+        login_url = f"{base_url}/Account/StudentLogin"
+
+        get_response = MagicMock()
+        get_response.status_code = 200
+        get_response.headers = {"Content-Type": "text/html; charset=UTF-8"}
+        get_response.url = login_url
+        get_response.history = []
+        get_response.text = (
+            '<form><input name="__RequestVerificationToken" '
+            'type="hidden" value="CSRF_TOKEN" /></form>'
+        )
+
+        post_response = MagicMock()
+        post_response.status_code = 302
+        post_response.url = f"{base_url}/Appointment/Index"
+        post_response.history = []
+        post_response.text = "<html>Authenticated</html>"
+
+        session = SportsBookingService._create_session()
+        session.cookies.set(".AspNet.ApplicationCookie", "auth_cookie")
+
+        with patch.object(
+            SportsBookingService, "_create_session", return_value=session
+        ), patch.object(
+            session, "get", return_value=get_response
+        ), patch.object(
+            session, "post", return_value=post_response
+        ) as mock_post:
+            SportsBookingService.authenticate("student", "password")
+
+        _, kwargs = mock_post.call_args
+        self.assertEqual(kwargs["headers"]["Origin"], base_url)
+        self.assertEqual(kwargs["headers"]["Referer"], login_url)
+        self.assertEqual(kwargs["timeout"], (10, 30))
+        self.assertTrue(kwargs["allow_redirects"])
 
     def test_session_token_encryption_decryption(self):
         data = {
