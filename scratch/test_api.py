@@ -2,8 +2,13 @@ import urllib.request
 import ssl
 import json
 
+import sys
+import os
+sys.path.insert(0, os.path.dirname(__file__))
+from ogbs_auth import get_ogbs_token
+
 ctx = ssl._create_unverified_context()
-token = "REDACTED_OGBS_TOKEN"
+token = get_ogbs_token()
 base_url = "https://ogbs.cankaya.edu.tr/Api/InformationPack"
 
 def get_api(endpoint, params=None):

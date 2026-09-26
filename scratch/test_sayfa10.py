@@ -1,7 +1,12 @@
 import requests
 import json
 
-token = "Bearer REDACTED_OGBS_TOKEN"
+import os
+import sys
+sys.path.insert(0, os.path.dirname(__file__))
+from ogbs_auth import get_ogbs_auth_header
+
+token = get_ogbs_auth_header()
 headers = {
     "Authorization": token,
     "Content-Type": "application/json"
