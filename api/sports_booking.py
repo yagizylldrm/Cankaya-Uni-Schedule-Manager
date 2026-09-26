@@ -96,12 +96,14 @@ class SportsBookingService:
         "SPORTS_BASE_URL",
         "https://cankaya-sports-proxy.yagizhere.workers.dev"
     ).rstrip("/")
+    TIMEOUT = (10, 30)
 
     @classmethod
     def _create_session(cls, cookies: Optional[Dict[str, str]] = None) -> requests.Session:
         session = requests.Session()
         session.headers.update({
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
             "Accept-Language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7",
         })
         if cookies:
@@ -122,7 +124,7 @@ class SportsBookingService:
         login_url = f"{cls.BASE_URL}/Account/StudentLogin"
 
         try:
-            get_res = session.get(login_url, timeout=15)
+            get_res = session.get(login_url, timeout=cls.TIMEOUT)
         except Exception as e:
             raise RuntimeError(f"Üniversite randevu sunucusuna bağlanılamadı: {e}")
 
@@ -138,7 +140,7 @@ class SportsBookingService:
         }
 
         try:
-            post_res = session.post(login_url, data=payload, timeout=15, allow_redirects=True)
+            post_res = session.post(login_url, data=payload, timeout=cls.TIMEOUT, allow_redirects=True)
         except Exception as e:
             raise RuntimeError(f"Giriş isteği gönderilirken hata oluştu: {e}")
 
@@ -208,7 +210,7 @@ class SportsBookingService:
 
         # 1. Fetch SeansSelection page to obtain __RequestVerificationToken
         try:
-            get_res = session.get(page_url, timeout=15)
+            get_res = session.get(page_url, timeout=cls.TIMEOUT)
         except Exception as e:
             raise RuntimeError(f"Seans seçim sayfasına erişilemedi: {e}")
 
@@ -229,7 +231,7 @@ class SportsBookingService:
         }
 
         try:
-            post_res = session.post(page_url, data=payload, timeout=15)
+            post_res = session.post(page_url, data=payload, timeout=cls.TIMEOUT)
         except Exception as e:
             raise RuntimeError(f"Seans listesi alınamadı: {e}")
 
@@ -319,7 +321,7 @@ class SportsBookingService:
 
         endpoint = f"{cls.BASE_URL}/Appointment/SeansSelected/{seans_id}"
         try:
-            res = session.get(endpoint, timeout=15)
+            res = session.get(endpoint, timeout=cls.TIMEOUT)
         except Exception as e:
             raise RuntimeError(f"Randevu alma isteği başarısız oldu: {e}")
 

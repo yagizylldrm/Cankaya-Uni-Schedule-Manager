@@ -22,6 +22,21 @@ class SportsBookingTests(unittest.TestCase):
             "https://cankaya-sports-proxy.yagizhere.workers.dev"
         )
 
+    def test_session_uses_browser_headers_without_overriding_host(self):
+        session = SportsBookingService._create_session()
+
+        self.assertEqual(SportsBookingService.TIMEOUT, (10, 30))
+        self.assertEqual(
+            session.headers["User-Agent"],
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+        )
+        self.assertEqual(
+            session.headers["Accept"],
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+        )
+        self.assertEqual(session.headers["Accept-Language"], "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7")
+        self.assertNotIn("Host", session.headers)
+
     def test_base_url_can_be_overridden_with_environment_variable(self):
         env = os.environ.copy()
         env["SPORTS_BASE_URL"] = "https://sports.example.test/"
@@ -124,6 +139,7 @@ class SportsBookingTests(unittest.TestCase):
             self.assertEqual(kwargs["data"]["UnitId"], "4")
             self.assertEqual(kwargs["data"]["LocationId"], "8")
             self.assertEqual(kwargs["data"]["AppDate"], "28.09.2026")
+            self.assertEqual(kwargs["timeout"], (10, 30))
             self.assertEqual(
                 mock_post.call_args.args[0],
                 "https://cankaya-sports-proxy.yagizhere.workers.dev/Appointment/SeansSelection"
