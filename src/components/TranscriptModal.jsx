@@ -179,9 +179,9 @@ export default function TranscriptModal() {
   const ringCircumference = 2 * Math.PI * ringRadius;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+    <div role="dialog" aria-modal="true" aria-labelledby="transcript-modal-title" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
       <div className="w-full max-w-2xl max-h-[90vh] bg-white dark:bg-dark-surface rounded-2xl shadow-2xl border border-slate-200 dark:border-dark-border overflow-hidden flex flex-col">
-        
+
         {/* Header */}
         <div className="p-4 bg-slate-50 dark:bg-dark-card border-b border-slate-200 dark:border-dark-border flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -189,7 +189,7 @@ export default function TranscriptModal() {
               <BookOpen className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-dark-text">
+              <h3 id="transcript-modal-title" className="text-sm font-bold text-slate-900 dark:text-dark-text">
                 Transkript & Ön Koşul Yönetimi
               </h3>
               <p className="text-xs text-slate-500 dark:text-dark-subtext">
@@ -200,6 +200,7 @@ export default function TranscriptModal() {
 
           <button
             onClick={() => setTranscriptModalOpen(false)}
+            aria-label="Kapat"
             className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg"
           >
             <X className="w-5 h-5" />
