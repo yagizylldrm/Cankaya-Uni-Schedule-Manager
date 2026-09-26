@@ -12,10 +12,11 @@ import {
 
   Download, 
   Check, 
-  Image as ImageIcon, 
+  Image as ImageIcon,
   FileJson,
   Printer,
-  Layers
+  Layers,
+  Dumbbell
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
@@ -30,6 +31,7 @@ export default function Navbar({ timetableRef, onShowSchedule }) {
     semester,
     isGenerating,
     setTranscriptModalOpen,
+    setSportsModalOpen,
     profile,
     drafts,
     canExport,
@@ -204,6 +206,16 @@ export default function Navbar({ timetableRef, onShowSchedule }) {
                 {passedCount}
               </span>
             )}
+          </button>
+
+          <button
+            onClick={() => setSportsModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg text-slate-700 dark:text-dark-text bg-slate-100 dark:bg-dark-card hover:bg-slate-200 dark:hover:bg-slate-700/50 border border-slate-200 dark:border-dark-border transition"
+            title="Çankaya Üniversitesi Spor Tesisi Randevu Sistemi (randevu.cankaya.edu.tr)"
+          >
+            <Dumbbell className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            <span className="hidden md:inline">Spor Randevusu</span>
+            <span className="md:hidden">Spor</span>
           </button>
 
           {/* Export Dropdown */}

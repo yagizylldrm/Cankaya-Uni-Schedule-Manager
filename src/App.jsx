@@ -9,6 +9,7 @@ import TimetableGrid from './components/TimetableGrid';
 import CustomBlockModal from './components/CustomBlockModal';
 import TranscriptModal from './components/TranscriptModal';
 import CourseDetailModal from './components/CourseDetailModal';
+import SportsBookingModal from './components/SportsBookingModal';
 import { Search, Calendar } from 'lucide-react';
 
 function AppContent() {
@@ -18,6 +19,7 @@ function AppContent() {
     selectedCombination,
     customBlockModalData,
     transcriptModalOpen,
+    sportsModalOpen,
     notice,
     dismissNotice,
     notify,
@@ -165,6 +167,7 @@ function AppContent() {
       {/* Global Modals */}
       {customBlockModalData && <CustomBlockModal key={`${customBlockModalData.day}:${customBlockModalData.timeSlot}`} />}
       {transcriptModalOpen && <TranscriptModal />}
+      {sportsModalOpen && <SportsBookingModal />}
       <CourseDetailModal />
       {notice && <div role={notice.kind === 'error' ? 'alert' : 'status'} className={`fixed bottom-4 left-4 right-4 sm:left-auto sm:w-96 z-[80] rounded-xl border p-4 shadow-xl bg-white dark:bg-dark-surface ${notice.kind === 'error' ? 'border-rose-400 text-rose-700 dark:text-rose-300' : 'border-emerald-400 text-emerald-700 dark:text-emerald-300'}`}>
         <div className="flex items-start justify-between gap-3"><span>{notice.message}</span><button onClick={dismissNotice} aria-label="Bildirimi kapat">✕</button></div>

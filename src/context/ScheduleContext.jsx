@@ -533,8 +533,16 @@ export function ScheduleProvider({ children }) {
 
   // 7. Modals
   const [transcriptModalOpen, setTranscriptModalOpen] = useState(false);
+  const [sportsModalOpen, setSportsModalOpen] = useState(false);
+  const [sportsSessionToken, setSportsSessionToken] = useState(null);
+  const [sportsUser, setSportsUser] = useState(null);
   const [customBlockModalData, setCustomBlockModalData] = useState(null); // { day, timeSlot, currentBlock }
   const [courseDetailModalCode, setCourseDetailModalCode] = useState(null);
+
+  const logoutSports = useCallback(() => {
+    setSportsSessionToken(null);
+    setSportsUser(null);
+  }, []);
 
   // Helper for passed course codes string
   const passedCodesString = Object.keys(profile.passedCourses || {}).join(',');
@@ -595,6 +603,13 @@ export function ScheduleProvider({ children }) {
       dismissNotice: () => setNotice(null),
       transcriptModalOpen,
       setTranscriptModalOpen,
+      sportsModalOpen,
+      setSportsModalOpen,
+      sportsSessionToken,
+      setSportsSessionToken,
+      sportsUser,
+      setSportsUser,
+      logoutSports,
       customBlockModalData,
       setCustomBlockModalData,
       courseDetailModalCode,

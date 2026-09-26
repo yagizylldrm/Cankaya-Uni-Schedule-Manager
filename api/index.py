@@ -21,6 +21,7 @@ from data_manager import DataManager, Course, Section, ScheduleSlot
 from scheduler_engine import SchedulerEngine
 from prerequisite_manager import PrerequisiteManager
 from transcript_parser import TranscriptParser
+from sports_booking import SportsBookingService
 
 app = FastAPI(
     title="Çankaya Üniversitesi Schedule Manager API",
@@ -71,6 +72,20 @@ class TranscriptTextRequest(BaseModel):
 class CurriculumProgressRequest(BaseModel):
     primary_dept: str = "CENG"
     passed_courses: Dict[str, Any] = {}
+
+class SportsLoginRequest(BaseModel):
+    username: str
+    password: str
+
+class SportsSlotsRequest(BaseModel):
+    token: str
+    date: str
+    unit_id: Optional[str] = "4"
+    location_id: Optional[str] = "8"
+
+class SportsBookRequest(BaseModel):
+    token: str
+    seans_id: str
 
 
 # --- Endpoints on Router ---
@@ -496,6 +511,53 @@ def get_curriculum_progress(req: CurriculumProgressRequest, response: Response):
         passed_courses=req.passed_courses
     )
     return progress
+
+
+@router.post("/sports/login")
+def sports_login(req: SportsLoginRequest, response: Response):
+    """Authenticates student on randevu.cankaya.edu.tr and returns encrypted session token."""
+    response.headers["Cache-Control"] = "no-store"
+    try:
+        res = SportsBookingService.authenticate(req.username, req.password)
+        return res
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=str(e))
+
+
+@router.post("/sports/slots")
+def sports_slots(req: SportsSlotsRequest, response: Response):
+    """Fetches available sports time slots for selected date."""
+    response.headers["Cache-Control"] = "no-store"
+    try:
+        slots = SportsBookingService.get_available_slots(
+            session_token=req.token,
+            date_str=req.date,
+            unit_id=req.unit_id or "4",
+            location_id=req.location_id or "8"
+        )
+        return {"success": True, "date": req.date, "slots": slots}
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=str(e))
+
+
+@router.post("/sports/book")
+def sports_book(req: SportsBookRequest, response: Response):
+    """Books a sports session via randevu.cankaya.edu.tr."""
+    response.headers["Cache-Control"] = "no-store"
+    try:
+        res = SportsBookingService.book_slot(
+            session_token=req.token,
+            seans_id=req.seans_id
+        )
+        return res
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=str(e))
 
 
 from fastapi.responses import FileResponse
