@@ -7,6 +7,7 @@ from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 
 from api.index import app
+from api import index as api_index
 from api.sports_booking import (
     SportsBookingService,
     SportsError,
@@ -410,17 +411,63 @@ class SportsBookingTests(unittest.TestCase):
                 SportsBookingService.book_slot(token, "101")
 
     def test_fastapi_sports_login_api_failure_mocked(self):
+        service = api_index.SportsBookingService
+        base_url = service.get_base_url()
+        login_url = f"{base_url}/Account/StudentLogin"
+
+        get_response = MagicMock()
+        get_response.status_code = 200
+        get_response.headers = {"Content-Type": "text/html; charset=UTF-8"}
+        get_response.url = login_url
+        get_response.history = []
+        get_response.text = (
+            '<form action="/Account/StudentLogin" method="post">'
+            '<input name="__RequestVerificationToken" type="hidden" '
+            'value="CSRF_TOKEN" />'
+            '</form>'
+        )
+
+        post_response = MagicMock()
+        post_response.status_code = 200
+        post_response.headers = {"Content-Type": "text/html; charset=UTF-8"}
+        post_response.url = login_url
+        post_response.history = []
+        post_response.text = (
+            '<form action="/Account/StudentLogin" method="post">'
+            '<div class="validation-summary-errors">InvalidUserName</div>'
+            '</form>'
+        )
+
+        session = service._create_session()
         with patch.object(
-            SportsBookingService,
-            "authenticate",
-            side_effect=SportsAuthenticationError("Kullanıcı adı veya şifre hatalı.")
-        ):
-            res = client.post("/api/sports/login", json={"username": "test_user", "password": "wrong_password"})
-            self.assertEqual(res.status_code, 401)
-            data = res.json()
-            self.assertEqual(data["detail"]["code"], "INVALID_CREDENTIALS")
-            self.assertEqual(data["detail"]["message"], "Kullanıcı adı veya şifre hatalı.")
-            self.assertIn("no-store", res.headers.get("cache-control", "").lower())
+            service, "_create_session", return_value=session
+        ), patch.object(
+            session, "get", return_value=get_response
+        ) as mock_get, patch.object(
+            session, "post", return_value=post_response
+        ) as mock_post:
+            res = client.post(
+                "/api/sports/login",
+                json={"username": "test_user", "password": "wrong_password"},
+            )
+
+        mock_get.assert_called_once_with(
+            login_url,
+            timeout=service.TIMEOUT,
+            allow_redirects=True,
+        )
+        mock_post.assert_called_once()
+        _, post_kwargs = mock_post.call_args
+        self.assertEqual(post_kwargs["data"]["__RequestVerificationToken"], "CSRF_TOKEN")
+        self.assertEqual(post_kwargs["data"]["UserName"], "test_user")
+        self.assertEqual(post_kwargs["headers"]["Origin"], base_url)
+        self.assertEqual(post_kwargs["headers"]["Referer"], login_url)
+
+        self.assertEqual(res.status_code, 401)
+        data = res.json()
+        self.assertEqual(data["detail"]["code"], "INVALID_CREDENTIALS")
+        self.assertEqual(data["detail"]["message"], "Kullanıcı adı veya şifre hatalı.")
+        self.assertIn("no-store", res.headers.get("cache-control", "").lower())
 
     def test_fastapi_sports_slots_api_invalid_token(self):
         res = client.post("/api/sports/slots", json={"token": "invalid_token_12345", "date": "28.09.2026"})
