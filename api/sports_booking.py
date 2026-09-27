@@ -8,11 +8,14 @@ import hashlib
 import logging
 import secrets
 import re
+import threading
 from datetime import datetime
 import urllib.parse
 from typing import Dict, Any, Optional, Tuple, List, Set
 import requests
 from bs4 import BeautifulSoup
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +33,24 @@ class SportsError(ValueError):
 class SportsInputError(SportsError):
     def __init__(self, message: str):
         super().__init__("INVALID_INPUT", message, status_code=400)
+
+
+class SportsEncryptedPasswordError(SportsError):
+    def __init__(self):
+        super().__init__(
+            "INVALID_ENCRYPTED_PASSWORD",
+            "Şifreli giriş verisi işlenemedi. Lütfen tekrar deneyin.",
+            status_code=400,
+        )
+
+
+class SportsLoginKeyStaleError(SportsError):
+    def __init__(self):
+        super().__init__(
+            "LOGIN_KEY_STALE",
+            "Şifreleme anahtarı yenilendi. Giriş isteği tekrar hazırlanacak.",
+            status_code=409,
+        )
 
 
 class SportsAuthenticationError(SportsError):
@@ -55,6 +76,100 @@ class SportsUpstreamError(SportsError):
 class SportsParseError(SportsError):
     def __init__(self, message: str = "Randevu verisi işlenirken beklenmeyen bir yanıt alındı."):
         super().__init__("PARSE_ERROR", message, status_code=502)
+
+
+# --- Cryptographic Login Key Management ---
+
+_LOGIN_RSA_BITS = 2048
+_LOGIN_RSA_CIPHERTEXT_BYTES = _LOGIN_RSA_BITS // 8
+_LOGIN_RSA_MAX_PLAINTEXT_BYTES = _LOGIN_RSA_CIPHERTEXT_BYTES - (2 * 32) - 2
+_LOGIN_KEY_LOCK = threading.Lock()
+_LOGIN_PRIVATE_KEY = None
+_LOGIN_PUBLIC_KEY_PEM: Optional[str] = None
+_LOGIN_KEY_ID: Optional[str] = None
+_LOGIN_KEY_PID: Optional[int] = None
+
+
+def initialize_sports_login_keypair() -> None:
+    """Create one process-local RSA key pair and rotate it after a fork."""
+    global _LOGIN_PRIVATE_KEY
+    global _LOGIN_PUBLIC_KEY_PEM
+    global _LOGIN_KEY_ID
+    global _LOGIN_KEY_PID
+
+    current_pid = os.getpid()
+    if _LOGIN_PRIVATE_KEY is not None and _LOGIN_KEY_PID == current_pid:
+        return
+
+    with _LOGIN_KEY_LOCK:
+        if _LOGIN_PRIVATE_KEY is not None and _LOGIN_KEY_PID == current_pid:
+            return
+
+        private_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=_LOGIN_RSA_BITS,
+        )
+        public_key = private_key.public_key()
+        public_der = public_key.public_bytes(
+            encoding=serialization.Encoding.DER,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+        public_pem = public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        ).decode("ascii")
+
+        _LOGIN_PRIVATE_KEY = private_key
+        _LOGIN_PUBLIC_KEY_PEM = public_pem
+        _LOGIN_KEY_ID = base64.urlsafe_b64encode(
+            hashlib.sha256(public_der).digest()
+        ).rstrip(b"=").decode("ascii")
+        _LOGIN_KEY_PID = current_pid
+
+
+def get_sports_login_public_key() -> Dict[str, Any]:
+    initialize_sports_login_keypair()
+    return {
+        "key_id": _LOGIN_KEY_ID,
+        "public_key_pem": _LOGIN_PUBLIC_KEY_PEM,
+        "algorithm": "RSA-OAEP",
+        "hash": "SHA-256",
+        "max_plaintext_bytes": _LOGIN_RSA_MAX_PLAINTEXT_BYTES,
+    }
+
+
+def decrypt_sports_login_password(key_id: str, encrypted_password: str) -> str:
+    initialize_sports_login_keypair()
+
+    if not hmac.compare_digest(key_id, _LOGIN_KEY_ID or ""):
+        raise SportsLoginKeyStaleError()
+
+    try:
+        if not encrypted_password or len(encrypted_password) > 512:
+            raise ValueError("invalid ciphertext length")
+        ciphertext = base64.b64decode(encrypted_password, validate=True)
+        if len(ciphertext) != _LOGIN_RSA_CIPHERTEXT_BYTES:
+            raise ValueError("invalid ciphertext size")
+
+        plaintext_bytes = _LOGIN_PRIVATE_KEY.decrypt(
+            ciphertext,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None,
+            ),
+        )
+        password = plaintext_bytes.decode("utf-8")
+        if not password or len(password) > 128:
+            raise ValueError("invalid password length")
+        return password
+    except SportsError:
+        raise
+    except Exception:
+        raise SportsEncryptedPasswordError()
+
+
+initialize_sports_login_keypair()
 
 
 # --- Cryptographic Session Token Management ---

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { constants, generateKeyPairSync, privateDecrypt } from 'node:crypto';
 
 const mockCourse = {
   code: 'CENG101',
@@ -59,7 +60,19 @@ const mockSlots = [
   }
 ];
 
-async function setupSportsPage(page, { slotsOverride = null, bookOverride = null } = {}) {
+async function setupSportsPage(page, {
+  slotsOverride = null,
+  bookOverride = null,
+  publicKeyOverride = null,
+  loginOverride = null
+} = {}) {
+  const { publicKey, privateKey } = generateKeyPairSync('rsa', {
+    modulusLength: 2048,
+    publicKeyEncoding: { type: 'spki', format: 'pem' },
+    privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
+  });
+  const keyId = 'playwright-sports-login-key';
+
   // Fix browser time to a known Monday (2026-09-28)
   await page.clock.setFixedTime(new Date('2026-09-28T09:00:00Z'));
 
@@ -72,9 +85,36 @@ async function setupSportsPage(page, { slotsOverride = null, bookOverride = null
       await route.fulfill({ json: [mockCourse] });
     } else if (url.pathname === '/api/combinations') {
       await route.fulfill({ json: { count: 1, combinations: mockCombos } });
+    } else if (url.pathname === '/api/sports-booking/public-key') {
+      if (publicKeyOverride) {
+        await publicKeyOverride(route, { publicKey, privateKey, keyId });
+      } else {
+        await route.fulfill({
+          json: {
+            key_id: keyId,
+            public_key_pem: publicKey,
+            algorithm: 'RSA-OAEP',
+            hash: 'SHA-256',
+            max_plaintext_bytes: 190
+          }
+        });
+      }
     } else if (url.pathname === '/api/sports/login') {
       const data = route.request().postDataJSON();
-      if (data.username === 'invalid') {
+      expect(data).not.toHaveProperty('password');
+      expect(data.key_id).toBe(keyId);
+      const password = privateDecrypt(
+        {
+          key: privateKey,
+          padding: constants.RSA_PKCS1_OAEP_PADDING,
+          oaepHash: 'sha256'
+        },
+        Buffer.from(data.encrypted_password, 'base64')
+      ).toString('utf8');
+
+      if (loginOverride) {
+        await loginOverride(route, { data, password });
+      } else if (data.username === 'invalid' || password === 'wrongpass') {
         await route.fulfill({
           status: 401,
           json: { detail: { code: 'INVALID_CREDENTIALS', message: 'Kullanıcı adı veya şifre hatalı.' } }
@@ -149,7 +189,8 @@ test('sports booking modal full flow: truthful security notice, login failure/su
   // 3. Modal opens with title and truthful security notice (no "Sıfır Güvenlik Riski")
   await expect(page.getByRole('heading', { name: 'Spor Tesisi Randevu Sistemi' })).toBeVisible();
   await expect(page.getByText('Güvenlik & Gizlilik Bilgilendirmesi')).toBeVisible();
-  await expect(page.getByText(/Öğrenci şifreniz hiçbir zaman veritabanında veya tarayıcı yerel depolamasında/)).toBeVisible();
+  await expect(page.getByText(/gönderilmeden önce tarayıcınızda uygulama sunucusunun geçici RSA anahtarıyla şifrelenir/)).toBeVisible();
+  await expect(page.getByText(/bu nedenle yöntem uçtan uca şifreleme değildir/)).toBeVisible();
   await expect(page.getByText('Sıfır Güvenlik Riski & Şifresiz Mimari')).not.toBeVisible();
 
   // 4. Test login failure
@@ -205,6 +246,81 @@ test('sports booking modal full flow: truthful security notice, login failure/su
 
   // The custom block should now be rendered on the timetable
   await expect(page.getByText('Spor / Fitness')).toBeVisible();
+});
+
+test('public key failure clears password and never posts login', async ({ page }) => {
+  let loginPosts = 0;
+  await setupSportsPage(page, {
+    publicKeyOverride: async (route) => route.fulfill({
+      json: {
+        key_id: 'broken-key',
+        public_key_pem: 'not-a-pem',
+        algorithm: 'RSA-OAEP',
+        hash: 'SHA-256',
+        max_plaintext_bytes: 190
+      }
+    }),
+    loginOverride: async (route) => {
+      loginPosts += 1;
+      await route.fulfill({ status: 500, json: {} });
+    }
+  });
+
+  await page.getByRole('button', { name: 'Spor Randevusu' }).click();
+  await page.locator('#sports-username').fill('student');
+  await page.locator('#sports-password').fill('secret-password');
+  await page.getByRole('button', { name: 'Güvenli Giriş Yap' }).click();
+
+  await expect(page.getByRole('alert')).toContainText('şifreleme anahtarı');
+  await expect(page.locator('#sports-password')).toHaveValue('');
+  expect(loginPosts).toBe(0);
+});
+
+test('stale login key is refreshed exactly once before authentication', async ({ page }) => {
+  let keyGets = 0;
+  let loginPosts = 0;
+  await setupSportsPage(page, {
+    publicKeyOverride: async (route, { publicKey, keyId }) => {
+      keyGets += 1;
+      await route.fulfill({
+        json: {
+          key_id: keyId,
+          public_key_pem: publicKey,
+          algorithm: 'RSA-OAEP',
+          hash: 'SHA-256',
+          max_plaintext_bytes: 190
+        }
+      });
+    },
+    loginOverride: async (route, { data, password }) => {
+      loginPosts += 1;
+      expect(password).toBe('secret-password');
+      if (loginPosts === 1) {
+        await route.fulfill({
+          status: 409,
+          json: {
+            detail: {
+              code: 'LOGIN_KEY_STALE',
+              message: 'Şifreleme anahtarı yenilendi.'
+            }
+          }
+        });
+        return;
+      }
+      await route.fulfill({
+        json: {
+          success: true,
+          token: 'mock_encrypted_session_token_xyz',
+          student_name: 'Ahmet Yılmaz',
+          username: data.username
+        }
+      });
+    }
+  });
+
+  await loginToSportsModal(page, 'student', 'secret-password');
+  expect(keyGets).toBe(2);
+  expect(loginPosts).toBe(2);
 });
 
 test('session lifecycle: modal close and reopen preserves session in memory, explicit logout clears session', async ({ page }) => {

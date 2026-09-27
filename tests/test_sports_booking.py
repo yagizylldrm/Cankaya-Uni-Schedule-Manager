@@ -1,3 +1,5 @@
+import base64
+import hashlib
 import os
 import subprocess
 import sys
@@ -5,6 +7,8 @@ import unittest
 import json
 from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 from api.index import app
 from api import index as api_index
@@ -17,14 +21,188 @@ from api.sports_booking import (
     SportsSessionInvalidError,
     SportsUpstreamError,
     SportsParseError,
+    decrypt_sports_login_password,
     encrypt_session_data,
-    decrypt_session_data
+    decrypt_session_data,
+    get_sports_login_public_key,
 )
 
 client = TestClient(app)
 
 
+def encrypt_login_bytes(plaintext, key_payload=None):
+    payload = key_payload or get_sports_login_public_key()
+    public_key = serialization.load_pem_public_key(
+        payload["public_key_pem"].encode("ascii")
+    )
+    ciphertext = public_key.encrypt(
+        plaintext,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None,
+        ),
+    )
+    return {
+        "key_id": payload["key_id"],
+        "encrypted_password": base64.b64encode(ciphertext).decode("ascii"),
+    }
+
+
+def encrypt_login_password(password, key_payload=None):
+    return encrypt_login_bytes(password.encode("utf-8"), key_payload)
+
+
 class SportsBookingTests(unittest.TestCase):
+    def test_sports_module_identity_is_canonical(self):
+        self.assertIs(api_index.SportsBookingService, SportsBookingService)
+        self.assertIs(api_index.SportsError, SportsError)
+
+    def test_login_public_key_contract_and_round_trip(self):
+        payload = get_sports_login_public_key()
+        repeated = get_sports_login_public_key()
+
+        self.assertEqual(payload, repeated)
+        self.assertEqual(payload["algorithm"], "RSA-OAEP")
+        self.assertEqual(payload["hash"], "SHA-256")
+        self.assertEqual(payload["max_plaintext_bytes"], 190)
+        self.assertNotIn("private", json.dumps(payload).lower())
+
+        public_key = serialization.load_pem_public_key(
+            payload["public_key_pem"].encode("ascii")
+        )
+        self.assertEqual(public_key.key_size, 2048)
+        self.assertEqual(public_key.public_numbers().e, 65537)
+        public_der = public_key.public_bytes(
+            serialization.Encoding.DER,
+            serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+        expected_id = base64.urlsafe_b64encode(
+            hashlib.sha256(public_der).digest()
+        ).rstrip(b"=").decode("ascii")
+        self.assertEqual(payload["key_id"], expected_id)
+
+        encrypted = encrypt_login_password("güvenli-şifre", payload)
+        self.assertEqual(
+            decrypt_sports_login_password(
+                encrypted["key_id"], encrypted["encrypted_password"]
+            ),
+            "güvenli-şifre",
+        )
+
+    def test_login_public_key_endpoint_is_not_cached(self):
+        res = client.get("/api/sports-booking/public-key")
+
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data["algorithm"], "RSA-OAEP")
+        self.assertIn("BEGIN PUBLIC KEY", data["public_key_pem"])
+        self.assertNotIn("PRIVATE KEY", res.text)
+        self.assertIn("no-store", res.headers.get("cache-control", "").lower())
+        self.assertEqual(res.headers.get("pragma"), "no-cache")
+
+    def test_encrypted_login_passes_plaintext_only_to_service(self):
+        encrypted = encrypt_login_password("correct-password")
+        service_response = {
+            "success": True,
+            "token": "encrypted_session_token",
+            "student_name": "Test Student",
+            "username": "student",
+        }
+
+        with patch.object(
+            api_index.SportsBookingService,
+            "authenticate",
+            return_value=service_response,
+        ) as authenticate:
+            res = client.post(
+                "/api/sports/login",
+                json={"username": "student", **encrypted},
+            )
+
+        self.assertEqual(res.status_code, 200)
+        authenticate.assert_called_once_with("student", "correct-password")
+        self.assertNotIn("password", res.json())
+
+    def test_encrypted_login_rejects_stale_and_invalid_ciphertext(self):
+        service = api_index.SportsBookingService
+        valid = encrypt_login_password("correct-password")
+
+        with patch.object(service, "authenticate") as authenticate:
+            stale_res = client.post(
+                "/api/sports/login",
+                json={
+                    "username": "student",
+                    "key_id": "x" * 43,
+                    "encrypted_password": valid["encrypted_password"],
+                },
+            )
+            invalid_res = client.post(
+                "/api/sports/login",
+                json={
+                    "username": "student",
+                    "key_id": valid["key_id"],
+                    "encrypted_password": "A" * 344,
+                },
+            )
+
+        authenticate.assert_not_called()
+        self.assertEqual(stale_res.status_code, 409)
+        self.assertEqual(stale_res.json()["detail"]["code"], "LOGIN_KEY_STALE")
+        self.assertEqual(invalid_res.status_code, 400)
+        self.assertEqual(
+            invalid_res.json()["detail"]["code"],
+            "INVALID_ENCRYPTED_PASSWORD",
+        )
+
+    def test_encrypted_login_rejects_all_invalid_plaintexts_generically(self):
+        payload = get_sports_login_public_key()
+        foreign_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        foreign_ciphertext = foreign_key.public_key().encrypt(
+            b"correct-password",
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None,
+            ),
+        )
+        invalid_payloads = [
+            {
+                "key_id": payload["key_id"],
+                "encrypted_password": base64.b64encode(foreign_ciphertext).decode("ascii"),
+            },
+            encrypt_login_bytes(b"\xff", payload),
+            encrypt_login_password("", payload),
+            encrypt_login_password("a" * 129, payload),
+        ]
+
+        with patch.object(api_index.SportsBookingService, "authenticate") as authenticate:
+            responses = [
+                client.post(
+                    "/api/sports/login",
+                    json={"username": "student", **invalid},
+                )
+                for invalid in invalid_payloads
+            ]
+
+        authenticate.assert_not_called()
+        for response in responses:
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(
+                response.json()["detail"]["code"],
+                "INVALID_ENCRYPTED_PASSWORD",
+            )
+
+    def test_plaintext_login_contract_is_rejected(self):
+        with patch.object(api_index.SportsBookingService, "authenticate") as authenticate:
+            res = client.post(
+                "/api/sports/login",
+                json={"username": "student", "password": "plaintext"},
+            )
+
+        authenticate.assert_not_called()
+        self.assertEqual(res.status_code, 422)
+
     def test_default_base_url_uses_standard_origin(self):
         url = SportsBookingService.get_base_url()
         self.assertTrue(url.startswith("https://"))
@@ -446,9 +624,10 @@ class SportsBookingTests(unittest.TestCase):
         ) as mock_get, patch.object(
             session, "post", return_value=post_response
         ) as mock_post:
+            encrypted = encrypt_login_password("wrong_password")
             res = client.post(
                 "/api/sports/login",
-                json={"username": "test_user", "password": "wrong_password"},
+                json={"username": "test_user", **encrypted},
             )
 
         mock_get.assert_called_once_with(

@@ -13,6 +13,223 @@ import {
 import { emptyDraft, validateDraftName } from '../src/utils/drafts.js';
 import { choosePreviewSections } from '../src/utils/previewSections.js';
 import { generateCombinations } from '../src/services/api.js';
+import {
+  SportsApiError,
+  encryptPassword,
+  loginSports,
+} from '../src/services/sportsApi.js';
+
+function bytesToPem(bytes) {
+  const base64 = Buffer.from(bytes).toString('base64');
+  const lines = base64.match(/.{1,64}/g).join('\n');
+  return `-----BEGIN PUBLIC KEY-----\n${lines}\n-----END PUBLIC KEY-----\n`;
+}
+
+async function createLoginKey(keyId = 'test-key') {
+  const keyPair = await globalThis.crypto.subtle.generateKey(
+    {
+      name: 'RSA-OAEP',
+      modulusLength: 2048,
+      publicExponent: new Uint8Array([1, 0, 1]),
+      hash: 'SHA-256'
+    },
+    true,
+    ['encrypt', 'decrypt']
+  );
+  const spki = await globalThis.crypto.subtle.exportKey('spki', keyPair.publicKey);
+  return {
+    keyId,
+    keyPair,
+    pem: bytesToPem(new Uint8Array(spki))
+  };
+}
+
+async function decryptLoginCiphertext(key, ciphertext) {
+  const plaintext = await globalThis.crypto.subtle.decrypt(
+    { name: 'RSA-OAEP' },
+    key,
+    Buffer.from(ciphertext, 'base64')
+  );
+  return new TextDecoder().decode(plaintext);
+}
+
+test('sports password encryption uses SPKI RSA-OAEP SHA-256', async () => {
+  const key = await createLoginKey();
+  const ciphertext = await encryptPassword('güvenli-şifre', key.pem);
+
+  assert.notEqual(ciphertext, 'güvenli-şifre');
+  assert.equal(
+    await decryptLoginCiphertext(key.keyPair.privateKey, ciphertext),
+    'güvenli-şifre'
+  );
+});
+
+test('sports login fetches a key and never sends plaintext password', async () => {
+  const originalFetch = globalThis.fetch;
+  const key = await createLoginKey('key-one');
+  const requests = [];
+  globalThis.fetch = async (url, options) => {
+    requests.push({ url, options });
+    if (options.method === 'GET') {
+      return {
+        ok: true,
+        json: async () => ({
+          key_id: key.keyId,
+          public_key_pem: key.pem,
+          algorithm: 'RSA-OAEP',
+          hash: 'SHA-256',
+          max_plaintext_bytes: 190
+        })
+      };
+    }
+    return {
+      ok: true,
+      json: async () => ({ token: 'session-token', username: 'student' })
+    };
+  };
+
+  try {
+    await loginSports('student', 'secret-password');
+    assert.equal(requests.length, 2);
+    assert.equal(requests[0].url, '/api/sports-booking/public-key');
+    assert.equal(requests[0].options.method, 'GET');
+    assert.equal(requests[0].options.body, undefined);
+    const loginBody = JSON.parse(requests[1].options.body);
+    assert.equal(loginBody.username, 'student');
+    assert.equal(loginBody.key_id, key.keyId);
+    assert.equal(Object.hasOwn(loginBody, 'password'), false);
+    assert.equal(
+      await decryptLoginCiphertext(key.keyPair.privateKey, loginBody.encrypted_password),
+      'secret-password'
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('sports login retries exactly once after a stale worker key', async () => {
+  const originalFetch = globalThis.fetch;
+  const keys = [await createLoginKey('key-one'), await createLoginKey('key-two')];
+  let getCount = 0;
+  let postCount = 0;
+  globalThis.fetch = async (_url, options) => {
+    if (options.method === 'GET') {
+      const key = keys[getCount++];
+      return {
+        ok: true,
+        json: async () => ({
+          key_id: key.keyId,
+          public_key_pem: key.pem,
+          algorithm: 'RSA-OAEP',
+          hash: 'SHA-256',
+          max_plaintext_bytes: 190
+        })
+      };
+    }
+
+    postCount += 1;
+    if (postCount === 1) {
+      return {
+        ok: false,
+        status: 409,
+        json: async () => ({
+          detail: { code: 'LOGIN_KEY_STALE', message: 'Anahtar yenilendi.' }
+        })
+      };
+    }
+    const body = JSON.parse(options.body);
+    assert.equal(body.key_id, 'key-two');
+    assert.equal(
+      await decryptLoginCiphertext(keys[1].keyPair.privateKey, body.encrypted_password),
+      'secret-password'
+    );
+    return {
+      ok: true,
+      json: async () => ({ token: 'session-token', username: 'student' })
+    };
+  };
+
+  try {
+    await loginSports('student', 'secret-password');
+    assert.equal(getCount, 2);
+    assert.equal(postCount, 2);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('sports login fails closed after a second stale worker key', async () => {
+  const originalFetch = globalThis.fetch;
+  const keys = [await createLoginKey('key-one'), await createLoginKey('key-two')];
+  let getCount = 0;
+  let postCount = 0;
+  globalThis.fetch = async (_url, options) => {
+    if (options.method === 'GET') {
+      const key = keys[getCount++];
+      return {
+        ok: true,
+        json: async () => ({
+          key_id: key.keyId,
+          public_key_pem: key.pem,
+          algorithm: 'RSA-OAEP',
+          hash: 'SHA-256',
+          max_plaintext_bytes: 190
+        })
+      };
+    }
+
+    postCount += 1;
+    return {
+      ok: false,
+      status: 409,
+      json: async () => ({
+        detail: { code: 'LOGIN_KEY_STALE', message: 'Anahtar yenilendi.' }
+      })
+    };
+  };
+
+  try {
+    await assert.rejects(
+      loginSports('student', 'secret-password'),
+      err => err instanceof SportsApiError &&
+        err.code === 'LOGIN_KEY_UNAVAILABLE'
+    );
+    assert.equal(getCount, 2);
+    assert.equal(postCount, 2);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('sports login rejects oversized passwords before a login POST', async () => {
+  const originalFetch = globalThis.fetch;
+  const key = await createLoginKey();
+  let postCount = 0;
+  globalThis.fetch = async (_url, options) => {
+    if (options.method === 'POST') postCount += 1;
+    return {
+      ok: true,
+      json: async () => ({
+        key_id: key.keyId,
+        public_key_pem: key.pem,
+        algorithm: 'RSA-OAEP',
+        hash: 'SHA-256',
+        max_plaintext_bytes: 190
+      })
+    };
+  };
+
+  try {
+    await assert.rejects(
+      loginSports('student', 'ş'.repeat(100)),
+      err => err instanceof SportsApiError &&
+        err.code === 'PASSWORD_TOO_LONG_FOR_ENCRYPTION'
+    );
+    assert.equal(postCount, 0);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
 
 test('API combinations count distinct weekly timetables after hydration', async () => {
   const originalFetch = globalThis.fetch;

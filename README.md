@@ -73,9 +73,11 @@ Uygulama, Çankaya Üniversitesi Spor Merkezi (`randevu.cankaya.edu.tr`) seansla
 [ Çankaya Randevu Portalı (randevu.cankaya.edu.tr) ]
 ```
 
-- **Sıfır Kalıcı Depolama:** Öğrenci numarası ve şifresi hiçbir zaman veritabanında, sunucu loglarında, `localStorage` veya `sessionStorage` içinde saklanmaz. Şifre, kimlik doğrulama isteği tamamlandığı anda React form state'inden temizlenir.
-- **Bellek-İçi Oturum:** Başarılı giriş sonrasında üretilen şifreli oturum belirteci (`AES-GCM`) yalnızca React sekme belleğinde tutulur. Modalı kapatmak oturumu sonlandırmaz; explicit **"Çıkış Yap"** butonuna basıldığında veya sayfa yenilendiğinde oturum bellekten anında silinir.
-- **Tünel & Log Redaksiyonu:** Vercel backend'i doğrudan kampüs sunucusuna erişemediğinde istekler kullanıcının yönettiği ngrok tüneli üzerinden yönlendirilir. Ngrok inspection arayüzünde istek/yanıt gövdeleri, parolalar, çerezler ve `Set-Cookie` başlıkları kesinlikle loglanmamalıdır.
+- **Tarayıcı → Backend RSA Koruması:** Her giriş denemesinde backend RAM'inde tutulan geçici RSA-2048 public key alınır; şifre tarayıcıda RSA-OAEP/SHA-256 ile şifrelenir ve login JSON'unda plaintext parola gönderilmez. Private key diske, veritabanına, ortam değişkenine veya istemciye yazılmaz. Doğrudan RSA-OAEP kullanımı nedeniyle parola UTF-8 kodlamasında en fazla 190 byte olabilir; daha uzun değerler login isteği gönderilmeden reddedilir.
+- **Güven Sınırı:** Bu yöntem uçtan uca şifreleme değildir. Backend şifreyi giriş işlemi sırasında RAM'de çözer ve üniversitenin beklediği forma koyarak HTTPS üzerinden iletir. `SPORTS_BASE_URL` ngrok ise ngrok TLS sonlandırma noktası bu form gövdesini işleyebilir/görebilir; inspection ve body/header loglama kapalı tutulmalıdır.
+- **Sıfır Kalıcı Depolama:** Öğrenci numarası ve şifresi veritabanında, `localStorage` veya `sessionStorage` içinde saklanmaz. Şifre, kimlik doğrulama denemesi tamamlandığında React form state'inden temizlenir.
+- **Bellek-İçi Oturum:** Başarılı giriş sonrasında üretilen şifreli oturum belirteci yalnızca React sekme belleğinde tutulur. Modalı kapatmak oturumu sonlandırmaz; explicit **"Çıkış Yap"** butonuna basıldığında veya sayfa yenilendiğinde oturum bellekten silinir.
+- **Worker Anahtar Rotasyonu:** RSA anahtarı process/worker ömrü boyunca RAM'de kalır ve yeniden başlatmada değişir. Public-key ve login istekleri farklı serverless instance'lara düşerse `key_id` uyuşmazlığı algılanır ve yalnız bir kez yeni anahtarla denenir; ikinci uyuşmazlıkta plaintext fallback yapılmadan giriş güvenli biçimde durdurulur. Çok-instance ortamında kesin başarı için sticky routing veya paylaşılan/KMS anahtar mimarisi gerekir.
 - **Önbellek Engelleme:** Tüm `/api/sports/*` uç noktaları `Cache-Control: no-store, no-cache, must-revalidate` başlıklarıyla korunarak ara proxy'lerde ve tarayıcıda hassas yanıtların önbelleğe alınması engellenir.
 - **Eşzamanlı İstek Koruması & Hız Sınırı:** Hızlı çift tıklamaları ve yarış durumlarını önlemek için sunucu tarafında oturum bazlı kilitler (`_BOOKING_LOCKS`) ve istemci tarafında `bookingLockRef` ile `AbortController` istek iptalleri kullanılır.
 
@@ -84,7 +86,7 @@ Uygulama, Çankaya Üniversitesi Spor Merkezi (`randevu.cankaya.edu.tr`) seansla
 | Değişken | Açıklama | Ortam |
 |---|---|---|
 | `SPORTS_BASE_URL` | Üniversite randevu portalına erişim sağlayan ngrok HTTPS adresi (örn. `https://xyz.ngrok-free.app`). Yol (`/path`) veya sorgu parametresi içermeyen tek bir HTTPS origin'i olmalıdır. | Üretimde Zorunlu |
-| `SPORTS_SESSION_SECRET` | Oturum tokenlarını AES-GCM ile şifrelemek ve imzalamak için en az 32 karakterlik yüksek entropili gizli anahtar. | Üretimde Zorunlu |
+| `SPORTS_SESSION_SECRET` | Oturum belirteçlerini şifrelemek ve HMAC-SHA256 ile bütünlüğünü doğrulamak için en az 32 karakterlik yüksek entropili gizli anahtar. | Üretimde Zorunlu |
 | `OGBS_API_TOKEN` | Üniversite ders detaylarını yenileme scriptleri (`scratch/`) için kullanılan Bearer token. Git'e veya ortama commit edilmez. | İsteğe Bağlı (Yalnız Veri Scriptleri) |
 
 ---

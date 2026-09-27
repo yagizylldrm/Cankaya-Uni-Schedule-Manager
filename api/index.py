@@ -19,7 +19,7 @@ import hashlib
 from collections import defaultdict
 from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form, Body, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,12 @@ from data_manager import DataManager, Course, Section, ScheduleSlot
 from scheduler_engine import SchedulerEngine
 from prerequisite_manager import PrerequisiteManager
 from transcript_parser import TranscriptParser
-from sports_booking import SportsBookingService, SportsError
+from api.sports_booking import (
+    SportsBookingService,
+    SportsError,
+    decrypt_sports_login_password,
+    get_sports_login_public_key,
+)
 
 app = FastAPI(
     title="Çankaya Üniversitesi Schedule Manager API",
@@ -121,8 +126,11 @@ class CurriculumProgressRequest(BaseModel):
     passed_courses: Dict[str, Any] = {}
 
 class SportsLoginRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     username: str = Field(..., min_length=1, max_length=64)
-    password: str = Field(..., min_length=1, max_length=128)
+    key_id: str = Field(..., min_length=43, max_length=64)
+    encrypted_password: str = Field(..., min_length=344, max_length=344)
 
 class SportsSlotsRequest(BaseModel):
     token: str = Field(..., min_length=10, max_length=4096)
@@ -560,25 +568,39 @@ def get_curriculum_progress(req: CurriculumProgressRequest, response: Response):
     return progress
 
 
+@router.get("/sports-booking/public-key")
+def sports_login_public_key(response: Response):
+    """Returns the process-local public key used to protect login passwords."""
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    return get_sports_login_public_key()
+
+
 @router.post("/sports/login")
 def sports_login(req: SportsLoginRequest, request: Request, response: Response):
     """Authenticates student on randevu.cankaya.edu.tr and returns encrypted session token."""
     response.headers["Cache-Control"] = "no-store"
     _check_rate_limit(request, "login", limit=10, window=60)
+    password = None
     try:
-        res = SportsBookingService.authenticate(req.username, req.password)
-        return res
+        password = decrypt_sports_login_password(
+            req.key_id,
+            req.encrypted_password,
+        )
+        return SportsBookingService.authenticate(req.username, password)
     except SportsError as e:
         raise HTTPException(
             status_code=e.status_code,
             detail={"code": e.code, "message": e.message}
         )
-    except Exception as e:
+    except Exception:
         logger.exception("Sports login unexpected failure")
         raise HTTPException(
             status_code=502,
             detail={"code": "UPSTREAM_ERROR", "message": "Giriş servisine bağlanılamadı. Lütfen tekrar deneyin."}
         )
+    finally:
+        password = None
 
 
 @router.post("/sports/slots")

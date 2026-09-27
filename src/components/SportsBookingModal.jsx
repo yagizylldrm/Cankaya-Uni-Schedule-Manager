@@ -402,7 +402,7 @@ export default function SportsBookingModal() {
                   Güvenlik & Gizlilik Bilgilendirmesi
                 </p>
                 <p className="leading-relaxed text-[11px] text-purple-800/90 dark:text-purple-300/90">
-                  Öğrenci şifreniz hiçbir zaman veritabanında veya tarayıcı yerel depolamasında (localStorage) saklanmaz. Giriş isteğiniz doğrudan uygulama sunucusu ve güvenli ngrok tüneli üzerinden üniversite randevu sistemine iletilerek şifreli bir geçici oturum başlatılır. Şifreniz formdan anında silinir; geçici oturum anahtarı ise yalnızca tarayıcı sekmesi belleğinde tutulur. Modalı kapatmak oturumu sonlandırmaz; çıkış yapmak için &ldquo;Çıkış Yap&rdquo; butonunu kullanabilir veya sayfayı yenileyebilirsiniz.
+                  Şifreniz gönderilmeden önce tarayıcınızda uygulama sunucusunun geçici RSA anahtarıyla şifrelenir. Sunucu şifreyi yalnızca giriş işlemi sırasında RAM&apos;de çözer ve üniversitenin randevu sistemine HTTPS üzerinden iletir. Yapılandırılmışsa bu bağlantı ngrok üzerinden geçer ve ngrok TLS sonlandırma noktası istek içeriğini işleyebilir; bu nedenle yöntem uçtan uca şifreleme değildir. Şifreniz veritabanına, localStorage veya sessionStorage&apos;a yazılmaz ve giriş denemesi bitince formdan silinir. Geçici oturum anahtarı yalnızca tarayıcı sekmesi belleğinde tutulur; modalı kapatmak oturumu sonlandırmaz.
                 </p>
               </div>
             </div>
@@ -425,6 +425,7 @@ export default function SportsBookingModal() {
                   type="text"
                   required
                   autoComplete="username"
+                  maxLength={64}
                   placeholder="Örn: 202111001/c2111001"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -442,6 +443,7 @@ export default function SportsBookingModal() {
                   type="password"
                   required
                   autoComplete="current-password"
+                  maxLength={128}
                   placeholder="Randevu sistemi şifreniz"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
