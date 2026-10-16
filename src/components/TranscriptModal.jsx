@@ -69,6 +69,11 @@ export default function TranscriptModal() {
       return;
     }
 
+    if (pasteText.length > 500000) {
+      setErrorMsg('Transkript metni çok uzun (en fazla 500.000 karakter).');
+      return;
+    }
+
     setLoading(true);
     setErrorMsg('');
     setSuccessMsg('');
@@ -87,6 +92,11 @@ export default function TranscriptModal() {
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMsg('Dosya boyutu çok büyük. Lütfen en fazla 5 MB boyutunda bir dosya yükleyin.');
+      return;
+    }
 
     setLoading(true);
     setErrorMsg('');
@@ -322,7 +332,7 @@ export default function TranscriptModal() {
               </label>{' '}
               veya buraya sürükleyin
             </div>
-            <p className="text-[11px] text-ink-muted">PDF, TXT, HTML veya JSON transkript dosyaları desteklenir</p>
+            <p className="text-[11px] text-ink-muted">PDF, TXT, HTML veya JSON transkript dosyaları desteklenir (en fazla 5 MB)</p>
           </div>
         )}
 

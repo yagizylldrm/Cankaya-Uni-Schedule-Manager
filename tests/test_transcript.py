@@ -95,6 +95,44 @@ Z İng. 3 0 3 6 12BA G
         self.assertEqual(course['credit'], 3)
         self.assertEqual(course['ects'], 6)
 
+    def test_extract_text_from_pdf_page_and_char_limits(self):
+        from unittest.mock import MagicMock, patch
+        import tempfile
+        from pathlib import Path
+
+        # Create dummy file
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
+            f.write(b"%PDF-1.4 dummy")
+            tmp_path = f.name
+
+        try:
+            # Mock pypdf reader with 25 pages
+            mock_reader = MagicMock()
+            mock_pages = []
+            for i in range(25):
+                page = MagicMock()
+                page.extract_text.return_value = f"Page {i} content. "
+                mock_pages.append(page)
+            mock_reader.pages = mock_pages
+
+            with patch("pypdf.PdfReader", return_value=mock_reader):
+                text = TranscriptParser.extract_text_from_pdf(tmp_path, max_pages=20, max_chars=500000)
+                # Should only extract 20 pages
+                self.assertIn("Page 19 content.", text)
+                self.assertNotIn("Page 20 content.", text)
+
+            # Test max_chars truncation
+            mock_reader2 = MagicMock()
+            mock_page = MagicMock()
+            mock_page.extract_text.return_value = "A" * 1000
+            mock_reader2.pages = [mock_page]
+
+            with patch("pypdf.PdfReader", return_value=mock_reader2):
+                text2 = TranscriptParser.extract_text_from_pdf(tmp_path, max_pages=20, max_chars=50)
+                self.assertEqual(len(text2), 50)
+        finally:
+            Path(tmp_path).unlink(missing_ok=True)
+
 
 if __name__ == '__main__':
     unittest.main()

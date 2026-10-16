@@ -64,7 +64,7 @@ class TranscriptParser:
     }
 
     @classmethod
-    def parse_file(cls, file_path):
+    def parse_file(cls, file_path, max_pages: int = 20, max_chars: int = 500000):
         """Extracts text from file (.pdf, .txt, .html, .json) and parses it."""
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"Dosya bulunamadı: {file_path}")
@@ -72,31 +72,33 @@ class TranscriptParser:
         ext = os.path.splitext(file_path)[1].lower()
 
         if ext == ".pdf":
-            raw_text = cls.extract_text_from_pdf(file_path)
+            raw_text = cls.extract_text_from_pdf(file_path, max_pages=max_pages, max_chars=max_chars)
         else:
             try:
                 with open(file_path, 'r', encoding='utf-8') as f:
-                    raw_text = f.read()
+                    raw_text = f.read(max_chars)
             except UnicodeDecodeError:
                 with open(file_path, 'r', encoding='latin-1') as f:
-                    raw_text = f.read()
+                    raw_text = f.read(max_chars)
 
         return cls.parse_text(raw_text)
 
     @classmethod
-    def extract_text_from_pdf(cls, pdf_path):
+    def extract_text_from_pdf(cls, pdf_path, max_pages: int = 20, max_chars: int = 500000):
         """Extracts text from a PDF file using pypdf if available, or regex text stream fallback."""
         text = ""
         # 1. Try pypdf if installed
         try:
             import pypdf
             reader = pypdf.PdfReader(pdf_path)
-            for page in reader.pages:
+            for page in reader.pages[:max_pages]:
                 t = page.extract_text()
                 if t:
                     text += t + "\n"
+                    if len(text) >= max_chars:
+                        return text[:max_chars]
             if text.strip():
-                return text
+                return text[:max_chars]
         except Exception:
             pass
 
@@ -104,12 +106,14 @@ class TranscriptParser:
         try:
             import PyPDF2
             reader = PyPDF2.PdfReader(pdf_path)
-            for page in reader.pages:
+            for page in reader.pages[:max_pages]:
                 t = page.extract_text()
                 if t:
                     text += t + "\n"
+                    if len(text) >= max_chars:
+                        return text[:max_chars]
             if text.strip():
-                return text
+                return text[:max_chars]
         except Exception:
             pass
 
@@ -146,7 +150,7 @@ class TranscriptParser:
         except Exception as e:
             print(f"PDF extraction error: {e}")
 
-        return text
+        return text[:max_chars]
 
     @staticmethod
     def normalize_turkish_str(s):

@@ -304,6 +304,31 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(hydrated, full['combinations'][0]['sections'])
         self.assertEqual(compact['combinations'][0]['total_credits'], full['combinations'][0]['total_credits'])
 
+    def test_transcript_upload_validates_file_size_and_extension(self):
+        # 1. Invalid extension
+        res_ext = self.client.post(
+            "/api/transcript/upload",
+            files={"file": ("transcript.exe", b"binarycontent", "application/octet-stream")}
+        )
+        self.assertEqual(res_ext.status_code, 400)
+        self.assertIn("Desteklenmeyen dosya türü", res_ext.json()["detail"])
+
+        # 2. File size exceeding 5 MB
+        large_content = b"A" * (5 * 1024 * 1024 + 1)
+        res_size = self.client.post(
+            "/api/transcript/upload",
+            files={"file": ("transcript.txt", large_content, "text/plain")}
+        )
+        self.assertEqual(res_size.status_code, 400)
+        self.assertIn("5 MB", res_size.json()["detail"])
+
+        # 3. Missing / empty filename (FastAPI/Starlette can reject with 422 or endpoint rejects with 400)
+        res_none = self.client.post(
+            "/api/transcript/upload",
+            files={"file": ("", b"some text", "text/plain")}
+        )
+        self.assertIn(res_none.status_code, (400, 422))
+
 
 if __name__ == '__main__':
     unittest.main()

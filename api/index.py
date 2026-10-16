@@ -568,23 +568,45 @@ def parse_transcript_text(req: TranscriptTextRequest):
     if not req.text.strip():
         raise HTTPException(status_code=400, detail="Transkript metni boş olamaz.")
 
-    parsed = TranscriptParser.parse_text(req.text)
+    if len(req.text) > 500000:
+        raise HTTPException(status_code=400, detail="Transkript metni çok uzun (en fazla 500.000 karakter).")
+
+    parsed = TranscriptParser.parse_text(req.text[:500000])
     return parsed
+
+
+ALLOWED_TRANSCRIPT_EXTENSIONS = {".pdf", ".txt", ".html", ".htm", ".json"}
+MAX_TRANSCRIPT_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
 
 
 @router.post("/transcript/upload")
 async def upload_transcript_file(file: UploadFile = File(...)):
-    """Uploads and parses a transcript file (.pdf, .txt, .html, .json)."""
-    contents = await file.read()
-    filename = file.filename.lower()
+    """Uploads and parses a transcript file (.pdf, .txt, .html, .json) with defensive limits."""
+    filename = (file.filename or "").strip()
+    if not filename:
+        raise HTTPException(status_code=400, detail="Dosya adı belirtilmedi.")
 
-    if filename.endswith(".pdf"):
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in ALLOWED_TRANSCRIPT_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Desteklenmeyen dosya türü ({ext or 'uzantısız'}). Yalnızca PDF, TXT, HTML veya JSON dosyaları yüklenebilir."
+        )
+
+    contents = await file.read()
+    if len(contents) > MAX_TRANSCRIPT_FILE_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail="Dosya boyutu çok büyük. Lütfen en fazla 5 MB boyutunda bir dosya yükleyin."
+        )
+
+    if ext == ".pdf":
         import tempfile
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
             tmp.write(contents)
             tmp_path = tmp.name
         try:
-            parsed = TranscriptParser.parse_file(tmp_path)
+            parsed = TranscriptParser.parse_file(tmp_path, max_pages=20, max_chars=500000)
             return parsed
         finally:
             try:
@@ -596,7 +618,7 @@ async def upload_transcript_file(file: UploadFile = File(...)):
             raw_text = contents.decode("utf-8")
         except UnicodeDecodeError:
             raw_text = contents.decode("latin-1")
-        parsed = TranscriptParser.parse_text(raw_text)
+        parsed = TranscriptParser.parse_text(raw_text[:500000])
         return parsed
 
 
