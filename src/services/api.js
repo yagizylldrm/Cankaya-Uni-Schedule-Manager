@@ -75,7 +75,7 @@ export async function fetchCourseDetail(code, {
   return res.json();
 }
 
-export async function generateCombinations(selectedCourses, preferences = {}, customBlocks = {}) {
+export async function generateCombinations(selectedCourses, preferences = {}, customBlocks = {}, primaryDept = 'CENG') {
   const res = await apiFetch(`${BASE_URL}/combinations`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -83,7 +83,8 @@ export async function generateCombinations(selectedCourses, preferences = {}, cu
       selected_courses: selectedCourses,
       preferences,
       custom_blocks: customBlocks,
-      compact: true
+      compact: true,
+      primary_dept: primaryDept
     })
   });
   if (!res.ok) throw new Error('Kombinasyon üretilirken hata oluştu');

@@ -462,7 +462,7 @@ export function ScheduleProvider({ children }) {
     setIsGenerating(true);
     try {
       const selected = Object.fromEntries(Object.entries(basket).map(([code, c]) => [code, c.selectedSections || []]));
-      const res = await generateCombinations(selected, nextPreferences, nextBlocks);
+      const res = await generateCombinations(selected, nextPreferences, nextBlocks, profile.primaryDept || 'CENG');
       if (id !== requestId.current) return;
       setIsTruncated(Boolean(res.truncated));
       setIsTimeExceeded(Boolean(res.time_exceeded));

@@ -158,6 +158,7 @@ class CombinationsRequest(BaseModel):
     preferences: Optional[Dict[str, bool]] = None  # { "free_friday": False, "free_monday": False, "no_morning": False }
     custom_blocks: Optional[Dict[str, Dict[str, Any]]] = None
     compact: bool = False
+    primary_dept: Optional[str] = 'CENG'
 
 class PrereqCheckRequest(BaseModel):
     course_codes: List[str]
@@ -500,7 +501,7 @@ def generate_schedule_combinations(req: CombinationsRequest):
                 "Lütfen farklı şubeler seçmeyi veya filtre tercihlerinizi esnetmeyi deneyin."
             )
 
-    credits = {code: dm.get_course_credits(code) for code in target_dict}
+    credits = {code: dm.get_course_credits(code, primary_dept=req.primary_dept) for code in target_dict}
     total_credit = sum(value[0] for value in credits.values())
     total_ects = sum(value[1] for value in credits.values())
     section_payloads = {

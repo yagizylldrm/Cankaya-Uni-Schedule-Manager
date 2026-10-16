@@ -16,23 +16,31 @@ import { generateCombinations } from '../src/services/api.js';
 
 test('API combinations count distinct weekly timetables after hydration', async () => {
   const originalFetch = globalThis.fetch;
+  let sentBody = null;
   const sections = {
     '1': { course_code: 'EE205', section_no: '1', slots: [{ day: 'Cuma', time_slot: '09:00/09:20' }] },
     '2': { course_code: 'EE205', section_no: '2', slots: [{ day: 'Cuma', time_slot: '09:00 - 09:50' }] },
     '3': { course_code: 'EE205', section_no: '3', slots: [{ day: 'Salı', time_slot: '15:00/15:20' }] },
   };
-  globalThis.fetch = async () => ({ ok: true, json: async () => ({
-    count: 3,
-    truncated: true,
-    time_exceeded: false,
-    section_catalog: { EE205: sections },
-    combinations: ['1', '2', '3'].map((number, index) => ({ index, section_refs: [['EE205', number]] }))
-  }) });
+  globalThis.fetch = async (url, options) => {
+    if (options?.body) sentBody = JSON.parse(options.body);
+    return {
+      ok: true,
+      json: async () => ({
+        count: 3,
+        truncated: true,
+        time_exceeded: false,
+        section_catalog: { EE205: sections },
+        combinations: ['1', '2', '3'].map((number, index) => ({ index, section_refs: [['EE205', number]] }))
+      })
+    };
+  };
   try {
-    const result = await generateCombinations({ EE205: ['1', '2', '3'] });
+    const result = await generateCombinations({ EE205: ['1', '2', '3'] }, {}, {}, 'MSE');
     assert.equal(result.count, 2);
     assert.equal(result.truncated, true);
     assert.equal(result.time_exceeded, false);
+    assert.equal(sentBody.primary_dept, 'MSE');
     assert.deepEqual(result.combinations.map(combo => combo.sections[0].section_no), ['1', '3']);
     assert.deepEqual(result.combinations.map(combo => combo.index), [0, 1]);
   } finally {

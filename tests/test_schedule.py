@@ -383,6 +383,25 @@ class ApiTests(unittest.TestCase):
                 self.assertTrue(res['truncated'])
                 self.assertFalse(res['time_exceeded'])
 
+    def test_combinations_api_computes_credits_using_primary_dept(self):
+        # ME203 has 5.0 ECTS in ME and 6.0 ECTS in MSE according to cankaya_course_details.json
+        me_course = Course('ME203')
+        me_course.sections = {'1': section('ME203', '1')}
+        with patch.object(api.dm, 'courses', {'ME203': me_course}):
+            res_me = self.client.post('/api/combinations', json={
+                'selected_courses': {'ME203': ['1']},
+                'primary_dept': 'ME'
+            }).json()
+            res_mse = self.client.post('/api/combinations', json={
+                'selected_courses': {'ME203': ['1']},
+                'primary_dept': 'MSE'
+            }).json()
+
+        self.assertEqual(res_me['count'], 1)
+        self.assertEqual(res_mse['count'], 1)
+        self.assertEqual(res_me['combinations'][0]['total_ects'], 5.0)
+        self.assertEqual(res_mse['combinations'][0]['total_ects'], 6.0)
+
 
 if __name__ == '__main__':
     unittest.main()
