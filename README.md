@@ -77,7 +77,8 @@ Uygulama, Çankaya Üniversitesi Spor Merkezi (`randevu.cankaya.edu.tr`) seansla
 - **Bellek-İçi Oturum:** Başarılı giriş sonrasında üretilen şifreli oturum belirteci (`AES-GCM`) yalnızca React sekme belleğinde tutulur. Modalı kapatmak oturumu sonlandırmaz; explicit **"Çıkış Yap"** butonuna basıldığında veya sayfa yenilendiğinde oturum bellekten anında silinir.
 - **Tünel & Log Redaksiyonu:** Vercel backend'i doğrudan kampüs sunucusuna erişemediğinde istekler kullanıcının yönettiği ngrok tüneli üzerinden yönlendirilir. Ngrok inspection arayüzünde istek/yanıt gövdeleri, parolalar, çerezler ve `Set-Cookie` başlıkları kesinlikle loglanmamalıdır.
 - **Önbellek Engelleme:** Tüm `/api/sports/*` uç noktaları `Cache-Control: no-store, no-cache, must-revalidate` başlıklarıyla korunarak ara proxy'lerde ve tarayıcıda hassas yanıtların önbelleğe alınması engellenir.
-- **Eşzamanlı İstek Koruması & Hız Sınırı:** Hızlı çift tıklamaları ve yarış durumlarını önlemek için sunucu tarafında oturum bazlı kilitler (`_BOOKING_LOCKS`) ve istemci tarafında `bookingLockRef` ile `AbortController` istek iptalleri kullanılır.
+- **Eşzamanlı İstek Koruması & Hız Sınırı:** Hızlı çift tıklamaları ve yarış durumlarını önlemek için sunucu tarafında oturum bazlı kilitler (`_BOOKING_LOCKS`) ve istemci tarafında `bookingLockRef` ile `AbortController` istek iptalleri kullanılır. Backend tarafında IP ve endpoint bazlı kayan pencere (sliding-window) hız sınırlayıcı (`RateLimiter`) devrededir; sunucusuz (serverless) mimaride her fonksiyon örneği kendi yerel hız sınırlamasını tutar.
+- **Geçmiş Profil Gizliliği:** Deponun kök dizininde yer alan `student_profile.json` dosyası `.gitignore` kapsamındadır. Eğer geçmiş git commit geçmişinde kişisel profil/not verileri yer alıyorsa, geçmişi temizlemek için `git filter-repo --invert-paths --path student_profile.json` aracı önerilir.
 
 ### 🔑 Ortam Değişkenleri
 
