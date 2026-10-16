@@ -174,3 +174,31 @@ export async function fetchCurriculumProgress(primaryDept, passedCourses = {}) {
   }
   return data;
 }
+
+export async function askAiAssistant({
+  prompt,
+  provider = 'gemini',
+  apiKey = '',
+  combinations = [],
+  preferences = {},
+  customBlocks = {}
+}) {
+  const res = await apiFetch(`${BASE_URL}/ai/assistant`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      prompt,
+      provider,
+      api_key: apiKey || undefined,
+      combinations,
+      preferences,
+      custom_blocks: customBlocks
+    })
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || 'Yapay zeka asistanı yanıt veremedi');
+  }
+  return res.json();
+}
+

@@ -186,6 +186,14 @@ class SportsBookRequest(BaseModel):
     token: str = Field(..., min_length=10, max_length=4096)
     seans_id: str = Field(..., min_length=1, max_length=10)
 
+class AIAssistantRequest(BaseModel):
+    prompt: str = Field(..., min_length=1, max_length=2000)
+    provider: Optional[str] = "gemini"  # "gemini" or "groq"
+    api_key: Optional[str] = None
+    combinations: List[Dict[str, Any]] = []
+    preferences: Optional[Dict[str, bool]] = None
+    custom_blocks: Optional[Dict[str, Dict[str, Any]]] = None
+
 
 # --- Endpoints on Router ---
 
@@ -718,6 +726,153 @@ def sports_book(req: SportsBookRequest, request: Request, response: Response):
         )
     finally:
         _BOOKING_LOCKS.discard(token_hash)
+
+
+@router.post("/ai/assistant")
+def ai_schedule_assistant(req: AIAssistantRequest, request: Request):
+    """
+    AI Schedule Assistant endpoint.
+    Accepts user prompt and current timetable context, calling Gemini or Groq API to analyze
+    and recommend the most suitable combination index along with suggested preferences and reasoning.
+    """
+    _check_rate_limit(request, "ai_assistant", limit=20, window=60)
+
+    # Determine provider and API key
+    provider = (req.provider or "gemini").lower().strip()
+    api_key = (req.api_key or "").strip()
+    if not api_key:
+        if provider == "groq":
+            api_key = os.environ.get("GROQ_API_KEY", "").strip()
+        else:
+            api_key = os.environ.get("GEMINI_API_KEY", "").strip()
+
+    if not api_key:
+        raise HTTPException(
+            status_code=400,
+            detail=f"API anahtarı bulunamadı. Lütfen {provider.capitalize()} API anahtarı sağlayın veya sunucu ortamında tanımlayın."
+        )
+
+    # Compact combination representation for LLM context
+    combos_summary = []
+    for c in req.combinations[:30]:  # Cap to first 30 combinations for token efficiency
+        idx = c.get("index", 0)
+        days = c.get("days_count", 0)
+        sections_info = []
+        for s in c.get("sections", []):
+            if isinstance(s, dict):
+                code = s.get("course_code", "")
+                sec_no = s.get("section_no", "")
+                slots = [f"{slot.get('day')}:{slot.get('time_slot')}" for slot in s.get("slots", []) if isinstance(slot, dict)]
+                sections_info.append(f"{code}(şube {sec_no}): {', '.join(slots)}")
+            elif isinstance(s, (list, tuple)) and len(s) >= 2:
+                sections_info.append(f"{s[0]}(şube {s[1]})")
+        combos_summary.append({
+            "index": idx,
+            "days_count": days,
+            "sections": sections_info
+        })
+
+    system_instruction = (
+        "Sen Çankaya Üniversitesi Ders Programı Yöneticisi için uzman bir akademik planlama asistanısın. "
+        "Kullanıcının doğal dilde belirttiği istekleri (örn: 'Pazartesi boş olsun', 'haftada 3 gün geleyim', "
+        "'öğleden sonra olsun', 'sabah erken ders olmasın', 'en az boşluklu olsun') analiz et. "
+        "Mevcut kombinasyonlar arasından kullanıcının isteğine en uygun olan kombinasyonun 'recommended_index' değerini seç. "
+        "Yanıtını sadece ve sadece geçerli bir JSON nesnesi olarak döndür. JSON formatı: "
+        "{\n"
+        '  "recommended_index": 0,\n'
+        '  "explanation": "Neden bu programı seçtiğinin kısa, anlaşılır ve samimi Türkçe açıklaması.",\n'
+        '  "suggested_preferences": {\n'
+        '    "free_monday": true/false,\n'
+        '    "free_friday": true/false,\n'
+        '    "no_morning": true/false,\n'
+        '    "no_lunch_break": true/false\n'
+        "  }\n"
+        "}"
+    )
+
+    user_content = (
+        f"Kullanıcı Talebi: {req.prompt}\n"
+        f"Mevcut Tercihler: {json.dumps(req.preferences or {}, ensure_ascii=False)}\n"
+        f"Mevcut Program Alternatifleri ({len(combos_summary)} adet):\n"
+        f"{json.dumps(combos_summary, ensure_ascii=False, indent=1)}"
+    )
+
+    import requests
+
+    try:
+        if provider == "groq":
+            groq_url = "https://api.groq.com/openai/v1/chat/completions"
+            headers = {
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            }
+            body = {
+                "model": "llama-3.3-70b-versatile",
+                "messages": [
+                    {"role": "system", "content": system_instruction},
+                    {"role": "user", "content": user_content}
+                ],
+                "response_format": {"type": "json_object"},
+                "temperature": 0.2
+            }
+            resp = requests.post(groq_url, headers=headers, json=body, timeout=20)
+            if resp.status_code != 200:
+                logger.error("Groq API error: %s", resp.text)
+                raise HTTPException(status_code=502, detail="Groq API yanıt vermedi veya anahtar geçersiz.")
+            resp_data = resp.json()
+            raw_text = resp_data["choices"][0]["message"]["content"]
+        else:
+            # Default: Google Gemini REST API (gemini-2.5-flash or gemini-1.5-flash)
+            gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+            headers = {"Content-Type": "application/json"}
+            body = {
+                "contents": [
+                    {
+                        "parts": [
+                            {"text": f"{system_instruction}\n\n{user_content}"}
+                        ]
+                    }
+                ],
+                "generationConfig": {
+                    "response_mime_type": "application/json",
+                    "temperature": 0.2
+                }
+            }
+            resp = requests.post(gemini_url, headers=headers, json=body, timeout=20)
+            if resp.status_code != 200:
+                # Fallback to gemini-1.5-flash if 2.5-flash is not available for this key
+                gemini_fallback_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+                resp = requests.post(gemini_fallback_url, headers=headers, json=body, timeout=20)
+
+            if resp.status_code != 200:
+                logger.error("Gemini API error: %s", resp.text)
+                raise HTTPException(status_code=502, detail="Gemini API yanıt vermedi veya anahtar geçersiz.")
+
+            resp_data = resp.json()
+            raw_text = resp_data["candidates"][0]["content"]["parts"][0]["text"]
+
+        # Parse JSON from model output
+        # Strip markdown fences if present
+        clean_text = raw_text.strip()
+        if clean_text.startswith("```json"):
+            clean_text = clean_text[7:]
+        if clean_text.startswith("```"):
+            clean_text = clean_text[3:]
+        if clean_text.endswith("```"):
+            clean_text = clean_text[:-3]
+        result = json.loads(clean_text.strip())
+
+        return {
+            "status": "ok",
+            "recommended_index": result.get("recommended_index", 0),
+            "explanation": result.get("explanation", "Talebinize en uygun alternatif belirlendi."),
+            "suggested_preferences": result.get("suggested_preferences", {})
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("AI assistant invocation error")
+        raise HTTPException(status_code=500, detail=f"AI asistan yanıtı işlenirken bir hata oluştu: {str(e)}")
 
 
 from fastapi.responses import FileResponse

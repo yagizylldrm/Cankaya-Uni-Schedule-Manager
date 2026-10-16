@@ -22,6 +22,7 @@
 - **📊 CSV Dışa Aktarma**: Kaydet / Yükle menüsünden seçili programın ders, şube, gün, başlangıç/bitiş saati, öğretim elemanı, derslik ve kredi bilgileri CSV olarak indirilebilir. Türkçe karakterler korunur; kişisel etkinlikler isteğe bağlıdır, transkript ve notlar aktarılmaz.
 - **📱 Mobil Günlük Görünüm**: İlk kullanımda bölüm ve ders seçimi rehberi; günlük ajanda, haftalık görünüm ve etkinlik ekleme.
 - **🔎 Çakışma Açıklamaları**: Çakışan ders/şube ve saat bilgileri; çözüm sağlayacak doğrulanmış tercih veya etkinlik değişiklikleri tek tıkla uygulanabilir. Karmaşık durumlarda sepeti incelemek önerilir.
+- **🤖 Yapay Zeka Program Asistanı (Gemini & Groq)**: Doğal dildeki taleplerinizi (örn. *"Pazartesi boş olsun"*, *"Sabah erken ders istemiyorum"*, *"Haftada 3 gün geleyim"*) analiz eder, mevcut kombinasyonlar arasından en uygun programı seçer, nedenini açıklar ve tek tıkla takvime uygular. Ücretsiz Google Gemini veya Groq API anahtarlarıyla çalışır.
 
 ---
 

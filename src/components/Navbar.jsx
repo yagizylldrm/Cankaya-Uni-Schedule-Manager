@@ -4,6 +4,7 @@ import PlanTransfer from './PlanTransfer';
 import DraftManager from './DraftManager';
 import CustomBlocksManager from './CustomBlocksManager';
 import AppDialog from './AppDialog';
+import AIAssistantModal from './AIAssistantModal';
 import { buildSharePayload } from '../utils/plan';
 import {
   Sun,
@@ -21,7 +22,9 @@ import {
   FileSpreadsheet,
   CheckCircle2,
   RefreshCw,
-  AlertCircle
+  AlertCircle,
+  Sparkles,
+  Bot
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
@@ -58,6 +61,7 @@ export default function Navbar({
   const [exporting, setExporting] = useState(false);
   const [transferMode, setTransferMode] = useState(null);
   const [manager, setManager] = useState(null);
+  const [aiModalOpen, setAiModalOpen] = useState(false);
   const toolsMenuRef = useRef(null);
   const toolsTriggerRef = useRef(null);
 
@@ -248,6 +252,19 @@ export default function Navbar({
               )}
             </button>
 
+            {/* AI Program Assistant (Desktop) */}
+            <button
+              type="button"
+              onClick={() => setAiModalOpen(true)}
+              aria-label="Yapay Zeka Asistanı"
+              title="Yapay Zeka ile Doğal Dilde Program Seç"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg text-ink bg-brand hover:bg-brand-hover shadow-xs transition-colors"
+            >
+              <Sparkles className="w-4 h-4 text-ink" />
+              <span className="hidden md:inline">Yapay Zeka Asistanı</span>
+              <span className="md:hidden">Asistan</span>
+            </button>
+
             {/* Transcript Quick Link (Desktop) */}
             <button
               type="button"
@@ -309,6 +326,17 @@ export default function Navbar({
 
                   {/* Program Management */}
                   <div className="py-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAiModalOpen(true);
+                        setIsToolsOpen(false);
+                      }}
+                      className="w-full px-4 py-2 text-left flex items-center gap-2.5 hover:bg-surface-muted text-ink font-medium"
+                    >
+                      <Sparkles className="w-4 h-4 text-brand" />
+                      <span>Yapay Zeka Program Asistanı</span>
+                    </button>
                     <button
                       type="button"
                       onClick={() => {
@@ -409,6 +437,12 @@ export default function Navbar({
       </header>
 
       {/* Dialogs */}
+      {aiModalOpen && (
+        <AIAssistantModal
+          isOpen={true}
+          onClose={() => setAiModalOpen(false)}
+        />
+      )}
       {transferMode && (
         <PlanTransfer
           mode={transferMode}
@@ -500,9 +534,26 @@ export default function Navbar({
             {/* Management Group */}
             <div className="space-y-2">
               <p className="text-xs font-semibold text-ink-muted uppercase tracking-wider">
-                Yönetim & Kayıtlar
+                Yönetim & Akıllı Araçlar
               </p>
               <div className="space-y-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onCloseMobileTools?.();
+                    setAiModalOpen(true);
+                  }}
+                  className="w-full min-h-[44px] px-3.5 py-2.5 text-left flex items-center justify-between rounded-xl bg-brand hover:bg-brand-hover text-ink font-semibold transition shadow-xs"
+                >
+                  <span className="flex items-center gap-2.5">
+                    <Sparkles className="w-4 h-4 text-ink" />
+                    <span>Yapay Zeka Asistanı</span>
+                  </span>
+                  <span className="px-2 py-0.5 bg-ink text-surface rounded-full text-xs font-bold">
+                    Doğal Dil
+                  </span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => {
