@@ -270,6 +270,20 @@ class ApiTests(unittest.TestCase):
         self.assertIn('text/html', response.headers['content-type'])
         self.assertIn('Schedule Manager', response.text)
 
+    def test_encoded_traversal_falls_back_to_spa_index(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            dist = root / 'dist'
+            dist.mkdir()
+            (dist / 'index.html').write_text('SPA INDEX', encoding='utf-8')
+            (root / 'private.txt').write_text('PRIVATE DATA', encoding='utf-8')
+            with patch.object(api, 'DIST_DIR', str(dist)):
+                response = self.client.get('/%2e%2e/private.txt')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.text, 'SPA INDEX')
+        self.assertNotIn('PRIVATE DATA', response.text)
+
     def test_bad_selection_never_returns_partial_schedule(self):
         for selected in [{'A': [], 'B': ['1']}, {'A': ['9'], 'B': ['1']}, {'MISSING': ['1'], 'B': ['1']}]:
             with patch.object(api.dm, 'courses', {'A': self.a, 'B': self.b}):

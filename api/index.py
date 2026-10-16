@@ -2,6 +2,7 @@ import sys
 import os
 import re
 import json
+from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 # Ensure current dir and project root are in sys.path
@@ -675,12 +676,13 @@ def catch_all(full_path: str):
     if full_path.startswith("api/") or full_path == "api":
         raise HTTPException(status_code=404, detail=f"API route not found: {full_path}")
 
-    target = os.path.join(DIST_DIR, full_path)
-    if full_path and os.path.isfile(target):
+    dist_path = Path(DIST_DIR).resolve()
+    target = (dist_path / full_path).resolve()
+    if full_path and target.is_relative_to(dist_path) and target.is_file():
         return FileResponse(target)
 
-    index_path = os.path.join(DIST_DIR, "index.html")
-    if os.path.isfile(index_path):
+    index_path = dist_path / "index.html"
+    if index_path.is_file():
         return FileResponse(index_path)
 
     return {
