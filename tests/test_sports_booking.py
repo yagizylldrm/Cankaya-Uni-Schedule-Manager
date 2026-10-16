@@ -544,5 +544,54 @@ class SportsBookingTests(unittest.TestCase):
             _BOOKING_LOCKS.discard(token_hash)
 
 
+    def test_rate_limiter_extracts_client_ip_with_headers_and_limits(self):
+        from api.index import _check_rate_limit, _rate_limiter, SlidingWindowRateLimiter
+        from starlette.requests import Request
+
+        scope = {
+            "type": "http",
+            "method": "POST",
+            "path": "/api/sports/login",
+            "headers": [
+                (b"x-forwarded-for", b"203.0.113.195, 70.41.3.18"),
+                (b"x-real-ip", b"198.51.100.1"),
+            ],
+            "client": ("127.0.0.1", 12345),
+        }
+        req = Request(scope)
+        # x-real-ip takes precedence
+        self.assertEqual(_rate_limiter.get_client_ip(req), "198.51.100.1")
+
+        # Test sliding window rate limit
+        test_limiter = SlidingWindowRateLimiter(max_keys=10)
+        # Should allow up to limit
+        for _ in range(3):
+            test_limiter.check_rate_limit(req, "test_action", limit=3, window=60)
+
+        # 4th should raise 429
+        from fastapi import HTTPException
+        with self.assertRaises(HTTPException) as ctx:
+            test_limiter.check_rate_limit(req, "test_action", limit=3, window=60)
+        self.assertEqual(ctx.exception.status_code, 429)
+        self.assertEqual(ctx.exception.headers.get("Retry-After"), "60")
+
+    def test_rate_limiter_bounds_memory_keys(self):
+        from api.index import SlidingWindowRateLimiter
+        limiter = SlidingWindowRateLimiter(max_keys=5)
+        from starlette.requests import Request
+
+        for i in range(10):
+            req = Request({
+                "type": "http",
+                "method": "POST",
+                "path": "/api/test",
+                "headers": [(b"x-real-ip", f"192.0.2.{i}".encode("ascii"))],
+                "client": ("127.0.0.1", 12345),
+            })
+            limiter.check_rate_limit(req, "action", limit=5, window=60)
+
+        self.assertLessEqual(len(limiter._storage), 5)
+
+
 if __name__ == '__main__':
     unittest.main()

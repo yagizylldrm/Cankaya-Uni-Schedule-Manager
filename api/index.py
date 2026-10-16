@@ -77,22 +77,72 @@ app.add_middleware(
 )
 
 # Rate limiting and concurrency controls
-_IP_REQUEST_TIMES: Dict[str, List[float]] = defaultdict(list)
 _BOOKING_LOCKS = set()
 
+
+class SlidingWindowRateLimiter:
+    """
+    Proxy-aware, sliding window rate limiter with TTL cleanup and bounded memory.
+    Designed for serverless functions (per-instance in-memory protection) with an
+    adapter-ready structure for Redis/KV backends.
+    """
+    def __init__(self, max_keys: int = 10000):
+        self.max_keys = max_keys
+        self._storage: Dict[str, List[float]] = {}
+
+    def get_client_ip(self, request: Request) -> str:
+        # 1. X-Real-IP
+        real_ip = request.headers.get("x-real-ip")
+        if real_ip:
+            return real_ip.split(",")[0].strip()
+
+        # 2. X-Forwarded-For (first hop is the original client)
+        forwarded_for = request.headers.get("x-forwarded-for")
+        if forwarded_for:
+            return forwarded_for.split(",")[0].strip()
+
+        # 3. Direct client host
+        if request.client and request.client.host:
+            return request.client.host
+
+        return "unknown"
+
+    def check_rate_limit(self, request: Request, action: str, limit: int = 30, window: int = 60):
+        client_ip = self.get_client_ip(request)
+        now = time.time()
+        key = f"{client_ip}:{action}"
+
+        # Clean expired timestamps for this key
+        history = [t for t in self._storage.get(key, []) if now - t < window]
+
+        if len(history) >= limit:
+            raise HTTPException(
+                status_code=429,
+                detail={"code": "RATE_LIMIT_EXCEEDED", "message": "Çok fazla istek gönderildi. Lütfen biraz bekleyin."},
+                headers={"Retry-After": str(window)}
+            )
+
+        # Enforce memory bounding
+        if len(self._storage) >= self.max_keys and key not in self._storage:
+            # Purge any completely expired keys first
+            expired_keys = [k for k, timestamps in self._storage.items() if not timestamps or (now - timestamps[-1] >= window)]
+            for k in expired_keys:
+                del self._storage[k]
+
+            # If still over limit, pop oldest keys
+            if len(self._storage) >= self.max_keys:
+                oldest_key = min(self._storage.keys(), key=lambda k: self._storage[k][-1] if self._storage[k] else 0)
+                del self._storage[oldest_key]
+
+        history.append(now)
+        self._storage[key] = history
+
+
+_rate_limiter = SlidingWindowRateLimiter(max_keys=10000)
+
+
 def _check_rate_limit(request: Request, action: str, limit: int = 30, window: int = 60):
-    client_ip = request.client.host if request.client else "unknown"
-    now = time.time()
-    key = f"{client_ip}:{action}"
-    history = [t for t in _IP_REQUEST_TIMES[key] if now - t < window]
-    if len(history) >= limit:
-        raise HTTPException(
-            status_code=429,
-            detail={"code": "RATE_LIMIT_EXCEEDED", "message": "Çok fazla istek gönderildi. Lütfen biraz bekleyin."},
-            headers={"Retry-After": str(window)}
-        )
-    history.append(now)
-    _IP_REQUEST_TIMES[key] = history
+    _rate_limiter.check_rate_limit(request, action, limit, window)
 
 # Initialize singletons
 dm = DataManager(load_profile=False)
