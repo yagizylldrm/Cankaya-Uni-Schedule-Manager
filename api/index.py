@@ -94,7 +94,7 @@ def _check_rate_limit(request: Request, action: str, limit: int = 30, window: in
     _IP_REQUEST_TIMES[key] = history
 
 # Initialize singletons
-dm = DataManager()
+dm = DataManager(load_profile=False)
 scheduler = SchedulerEngine()
 
 router = APIRouter()
@@ -204,7 +204,7 @@ def get_courses(
 
     allowed_codes = None if include_outside_curriculum else dm.curriculum_course_codes(
         primary_dept, secondary_dept, secondary_type)
-    custom_codes = set(dm.student_profile.get("custom_overrides", {}))
+    custom_codes = set()
     results = []
     for course in dm.courses.values():
         if dept and dept != "TÜMÜ" and course.dept_code != dept:

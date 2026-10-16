@@ -119,6 +119,22 @@ class ApiTests(unittest.TestCase):
                 self.assertEqual(api.dm.curriculum_course_codes(alias),
                                  api.dm.curriculum_course_codes(canonical))
 
+    def test_api_catalog_ignores_local_profile_overrides(self):
+        local_profile = {
+            'primary_dept': 'PSY',
+            'custom_overrides': {'CENG111': 'SECMELI'},
+            'custom_credits': {'CENG111': {'credit': 99, 'ects': 99}},
+        }
+        with patch.dict(api.dm.student_profile, local_profile, clear=True):
+            course = self.client.get('/api/courses', params={
+                'query': 'CENG111',
+                'primary_dept': 'CENG',
+                'include_outside_curriculum': True,
+            }).json()[0]
+
+        self.assertEqual(course['type'], 'ZORUNLU')
+        self.assertNotEqual((course['credit'], course['ects']), (99, 99))
+
     def test_ceng_does_not_inherit_aiit_as_a_compulsory_course(self):
         self.assertNotIn('AIIT101', api.dm.curriculum_course_codes('CENG'))
         self.assertEqual(api.dm.classify_course('AIIT101', primary_dept='CENG')[0], 'MUFREDAT_DISI')

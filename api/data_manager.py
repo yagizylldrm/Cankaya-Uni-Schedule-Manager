@@ -840,8 +840,9 @@ class DataManager:
             "search_url": search_url
         }
 
-    def __init__(self, cache_filepath=None):
+    def __init__(self, cache_filepath=None, load_profile=True):
         self.cache_filepath = cache_filepath or os.path.join(os.path.dirname(__file__), self.DEFAULT_CACHE_FILE)
+        self.load_profile = load_profile
         self.courses = {}  # course_code -> Course object
         self.departments = set()
         self.student_profile = {
@@ -855,7 +856,8 @@ class DataManager:
         self.reload_official_curricula()
         self.load_from_cache()
         self.load_instructor_evidence()
-        self.load_student_profile()
+        if load_profile:
+            self.load_student_profile()
 
     def load_instructor_evidence(self):
         self.instructor_references = {}
@@ -1108,15 +1110,16 @@ class DataManager:
             self.student_profile.get("secondary_type", "YOK")
         )
 
-    def get_course_credits(self, course_code, primary_dept=None):
+    def get_course_credits(self, course_code, primary_dept=None, profile=None):
         """
         Returns (credit, ects) tuple for a given course code.
         Checks custom user overrides first, then known credits, then intelligent heuristics.
         """
         norm = self.normalize_code(course_code)
+        profile = self.student_profile if profile is None and self.load_profile else (profile or {})
 
         # 1. Custom user override
-        custom_credits = self.student_profile.get("custom_credits", {})
+        custom_credits = profile.get("custom_credits", {})
         if norm in custom_credits:
             c = custom_credits[norm]
             return int(c.get("credit", 3)), int(c.get("ects", 5))
@@ -1162,7 +1165,7 @@ class DataManager:
             self.student_profile.get("secondary_type", "YOK")
         )
 
-    def classify_course(self, course_code, primary_dept=None, secondary_dept=None, secondary_type=None):
+    def classify_course(self, course_code, primary_dept=None, secondary_dept=None, secondary_type=None, profile=None):
         """
         Classifies course as:
         - 'ZORUNLU' (Compulsory for primary major based on Bilgi Paketi academic program)
@@ -1171,16 +1174,17 @@ class DataManager:
         - 'TEKNIK_SECMELI' (Department technical elective)
         - 'SERBEST_SECMELI' (Free / social elective)
         """
-        primary = (primary_dept or self.student_profile.get("primary_dept", "CENG")).upper()
-        secondary = (secondary_dept or self.student_profile.get("secondary_dept", "YOK")).upper()
-        sec_type = (secondary_type or self.student_profile.get("secondary_type", "YOK")).upper()
+        profile = self.student_profile if profile is None and self.load_profile else (profile or {})
+        primary = (primary_dept or profile.get("primary_dept", "CENG")).upper()
+        secondary = (secondary_dept or profile.get("secondary_dept", "YOK")).upper()
+        sec_type = (secondary_type or profile.get("secondary_type", "YOK")).upper()
 
         code_upper = course_code.upper()
         norm_code = self.normalize_code(code_upper)
         course_dept = Course.extract_dept_code(code_upper)
 
         # 0. Check User Custom Overrides first
-        overrides = self.student_profile.get("custom_overrides", {})
+        overrides = profile.get("custom_overrides", {})
         if norm_code in overrides:
             custom_val = overrides[norm_code]
             if custom_val == "ZORUNLU":
