@@ -21,9 +21,14 @@ Thumbs.db
 # Scratch and logs
 *.log
 /scratch/test_*.js
+/scratch/*.json
 /deneme.jpeg
 /.superpowers/
 /graphify-out/
+
+# Local user data and environments
+/student_profile.json
+/.venv/
 
 # Node & Build artifacts
 node_modules/

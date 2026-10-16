@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from pathlib import Path
 
 class ScheduleSlot:
     def __init__(self, day, time_slot, classroom=""):
@@ -989,11 +990,20 @@ class DataManager:
             print(f"Cache load error: {e}")
             return False
 
+    @classmethod
+    def profile_path(cls):
+        return Path(__file__).resolve().parent.parent / cls.PROFILE_CACHE_FILE
+
+    @classmethod
+    def example_profile_path(cls):
+        return cls.profile_path().with_name("student_profile.example.json")
+
     def load_student_profile(self):
-        profile_path = os.path.join(os.path.dirname(__file__), self.PROFILE_CACHE_FILE)
-        if os.path.exists(profile_path):
+        profile_path = self.profile_path()
+        source_path = profile_path if profile_path.exists() else self.example_profile_path()
+        if source_path.exists():
             try:
-                with open(profile_path, 'r', encoding='utf-8') as f:
+                with source_path.open('r', encoding='utf-8') as f:
                     data = json.load(f)
                     self.student_profile.update(data)
             except Exception:
@@ -1007,8 +1017,7 @@ class DataManager:
         if secondary_type is not None:
             self.student_profile["secondary_type"] = secondary_type
         try:
-            profile_path = os.path.join(os.path.dirname(__file__), self.PROFILE_CACHE_FILE)
-            with open(profile_path, 'w', encoding='utf-8') as f:
+            with self.profile_path().open('w', encoding='utf-8') as f:
                 json.dump(self.student_profile, f, ensure_ascii=False, indent=2)
         except Exception as e:
             print(f"Error saving student profile: {e}")

@@ -1,5 +1,8 @@
+import json
+import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from api.prerequisite_manager import PrerequisiteManager as Manager
 from refresh_prerequisites import parse_rules
@@ -41,13 +44,33 @@ class PrerequisiteTests(unittest.TestCase):
                          Manager.check_prerequisites('MATH205', []))
 
     def test_official_details_override_stale_hardcoded_names(self):
-        from unittest.mock import patch
         from api.data_manager import DataManager
         with patch.dict(DataManager.KNOWN_COURSE_DETAILS, {'MATH205': {'name': 'Differential Equations', 'desc': 'stale'}}):
             dm = DataManager()
             self.assertIn('Lineer Cebir', dm.get_course_info('MATH205')['name'])
             self.assertNotEqual(dm.get_course_info('MATH205')['description'], 'stale')
             self.assertEqual(DataManager.KNOWN_COURSE_DETAILS['MATH205']['name'], 'Differential Equations')
+
+    def test_missing_profile_uses_anonymous_example(self):
+        from api.data_manager import DataManager
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            profile_path = Path(temp_dir) / 'student_profile.json'
+            example_path = Path(temp_dir) / 'student_profile.example.json'
+            example_path.write_text(json.dumps({
+                'primary_dept': 'MATH',
+                'secondary_type': 'YOK',
+                'secondary_dept': 'YOK',
+                'custom_overrides': {},
+                'custom_credits': {},
+                'passed_courses': {},
+            }), encoding='utf-8')
+            with patch.object(DataManager, 'profile_path', return_value=profile_path), \
+                    patch.object(DataManager, 'example_profile_path', return_value=example_path):
+                dm = DataManager()
+
+        self.assertEqual(dm.student_profile['primary_dept'], 'MATH')
+        self.assertEqual(dm.student_profile['passed_courses'], {})
 
     def test_graphics_requires_both_courses(self):
         result = Manager.check_prerequisites('CENG497', ['CENG218'])
