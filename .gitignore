@@ -23,6 +23,7 @@ Thumbs.db
 /scratch/test_*.js
 /deneme.jpeg
 /.superpowers/
+/graphify-out/
 
 # Node & Build artifacts
 node_modules/
