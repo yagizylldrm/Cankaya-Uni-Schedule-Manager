@@ -14,6 +14,22 @@ BASE_DIR = os.path.dirname(CURRENT_DIR)
 if BASE_DIR not in sys.path:
     sys.path.insert(1, BASE_DIR)
 
+# Load .env file automatically in development/local environments
+env_path = os.path.join(BASE_DIR, '.env')
+if os.path.exists(env_path):
+    try:
+        with open(env_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    k, v = line.split('=', 1)
+                    k = k.strip()
+                    v = v.strip().strip('"').strip("'")
+                    if k and k not in os.environ:
+                        os.environ[k] = v
+    except Exception:
+        pass
+
 import time
 import logging
 import hashlib
@@ -806,25 +822,43 @@ def ai_schedule_assistant(req: AIAssistantRequest, request: Request):
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json"
             }
-            body = {
-                "model": "llama-3.3-70b-versatile",
-                "messages": [
-                    {"role": "system", "content": system_instruction},
-                    {"role": "user", "content": user_content}
-                ],
-                "response_format": {"type": "json_object"},
-                "temperature": 0.2
-            }
-            resp = requests.post(groq_url, headers=headers, json=body, timeout=20)
-            if resp.status_code != 200:
-                logger.error("Groq API error: %s", resp.text)
+            # Try preferred chat models in order of capability
+            candidate_models = [
+                "llama-3.3-70b-versatile",
+                "llama3-70b-8192",
+                "llama3-8b-8192",
+                "mixtral-8x7b-32768",
+                "openai/gpt-oss-120b",
+                "openai/gpt-oss-20b"
+            ]
+            resp = None
+            for m in candidate_models:
+                body = {
+                    "model": m,
+                    "messages": [
+                        {"role": "system", "content": system_instruction},
+                        {"role": "user", "content": user_content}
+                    ],
+                    "response_format": {"type": "json_object"},
+                    "temperature": 0.2
+                }
+                resp = requests.post(groq_url, headers=headers, json=body, timeout=20)
+                if resp.status_code == 200:
+                    break
+
+            if not resp or resp.status_code != 200:
+                logger.error("Groq API error: %s", resp.text if resp else "no response")
                 raise HTTPException(status_code=502, detail="Groq API yanıt vermedi veya anahtar geçersiz.")
             resp_data = resp.json()
             raw_text = resp_data["choices"][0]["message"]["content"]
         else:
-            # Default: Google Gemini REST API (gemini-2.5-flash or gemini-1.5-flash)
-            gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
-            headers = {"Content-Type": "application/json"}
+            # Default: Google Gemini REST API (gemini-2.5-flash or gemini-flash-latest)
+            gemini_candidates = [
+                "gemini-2.5-flash",
+                "gemini-flash-latest",
+                "gemini-2.5-flash-lite",
+                "gemini-1.5-flash"
+            ]
             body = {
                 "contents": [
                     {
@@ -838,14 +872,16 @@ def ai_schedule_assistant(req: AIAssistantRequest, request: Request):
                     "temperature": 0.2
                 }
             }
-            resp = requests.post(gemini_url, headers=headers, json=body, timeout=20)
-            if resp.status_code != 200:
-                # Fallback to gemini-1.5-flash if 2.5-flash is not available for this key
-                gemini_fallback_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
-                resp = requests.post(gemini_fallback_url, headers=headers, json=body, timeout=20)
+            resp = None
+            headers = {"Content-Type": "application/json"}
+            for model_name in gemini_candidates:
+                gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+                resp = requests.post(gemini_url, headers=headers, json=body, timeout=20)
+                if resp.status_code == 200:
+                    break
 
-            if resp.status_code != 200:
-                logger.error("Gemini API error: %s", resp.text)
+            if not resp or resp.status_code != 200:
+                logger.error("Gemini API error: %s", resp.text if resp else "no response")
                 raise HTTPException(status_code=502, detail="Gemini API yanıt vermedi veya anahtar geçersiz.")
 
             resp_data = resp.json()
