@@ -287,6 +287,34 @@ class SportsBookingTests(unittest.TestCase):
         with self.assertRaises(SportsSessionExpiredError):
             decrypt_session_data(token)
 
+    def test_session_token_wrong_version_rejected(self):
+        data = {"user": "carol"}
+        token = encrypt_session_data(data)
+        import base64
+        rem = len(token) % 4
+        padded = token + "=" * (4 - rem if rem else 0)
+        raw = bytearray(base64.urlsafe_b64decode(padded))
+        # Modify version byte from 0x01 to 0x02
+        raw[0] = 0x02
+        tampered_version = base64.urlsafe_b64encode(bytes(raw)).decode("ascii")
+        with self.assertRaises(SportsSessionInvalidError) as ctx:
+            decrypt_session_data(tampered_version)
+        self.assertIn("sürüm", str(ctx.exception).lower())
+
+    def test_session_token_corrupted_tag_rejected(self):
+        data = {"user": "dave"}
+        token = encrypt_session_data(data)
+        import base64
+        rem = len(token) % 4
+        padded = token + "=" * (4 - rem if rem else 0)
+        raw = bytearray(base64.urlsafe_b64decode(padded))
+        # Byte layout: 1B version, 12B nonce, then ciphertext+tag (AES-GCM tag is last 16 bytes)
+        raw[-1] ^= 0xFF
+        corrupted_token = base64.urlsafe_b64encode(bytes(raw)).decode("ascii")
+        with self.assertRaises(SportsSessionInvalidError) as ctx:
+            decrypt_session_data(corrupted_token)
+        self.assertIn("doğrulanamadı", str(ctx.exception).lower())
+
     def test_input_validation(self):
         # Invalid date format
         with self.assertRaises(SportsInputError):

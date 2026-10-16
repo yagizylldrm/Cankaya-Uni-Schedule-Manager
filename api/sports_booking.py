@@ -13,6 +13,9 @@ import urllib.parse
 from typing import Dict, Any, Optional, Tuple, List, Set
 import requests
 from bs4 import BeautifulSoup
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from cryptography.hazmat.primitives import hashes
 
 logger = logging.getLogger(__name__)
 
@@ -59,12 +62,13 @@ class SportsParseError(SportsError):
 
 # --- Cryptographic Session Token Management ---
 
+TOKEN_VERSION_V1 = 0x01
 _DEV_TRANSIENT_SECRET: Optional[str] = None
 
 
 def _get_secret_key() -> bytes:
     """
-    Oturum şifreleme ve imzalama için 256-bit anahtar üretir.
+    Oturum şifreleme ve doğrulama için HKDF-SHA256 ile 256-bit AESGCM anahtarı türetir.
     Üretim ortamında SPORTS_SESSION_SECRET zorunludur ve en az 32 karakter olmalıdır.
     """
     secret = os.environ.get("SPORTS_SESSION_SECRET", "").strip()
@@ -75,32 +79,28 @@ def _get_secret_key() -> bytes:
             raise RuntimeError(
                 "Üretim ortamında SPORTS_SESSION_SECRET ortam değişkeni zorunludur ve en az 32 karakter olmalıdır."
             )
-        return hashlib.sha256(secret.encode("utf-8")).digest()
-
-    if not secret:
+        raw_key = secret.encode("utf-8")
+    elif not secret:
         global _DEV_TRANSIENT_SECRET
         if not _DEV_TRANSIENT_SECRET:
             _DEV_TRANSIENT_SECRET = secrets.token_hex(32)
-        secret = _DEV_TRANSIENT_SECRET
+        raw_key = _DEV_TRANSIENT_SECRET.encode("utf-8")
+    else:
+        raw_key = secret.encode("utf-8")
 
-    return hashlib.sha256(secret.encode("utf-8")).digest()
-
-
-def _generate_keystream(key: bytes, iv: bytes, length: int) -> bytes:
-    """HMAC-SHA256 counter mode ile pseudo-random keystream üretir."""
-    stream = bytearray()
-    counter = 0
-    while len(stream) < length:
-        block = hmac.new(key, iv + counter.to_bytes(4, byteorder="big"), hashlib.sha256).digest()
-        stream.extend(block)
-        counter += 1
-    return bytes(stream[:length])
+    hkdf = HKDF(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=b"cankaya-sports-session-salt",
+        info=b"sports-booking-aes-gcm-key",
+    )
+    return hkdf.derive(raw_key)
 
 
 def encrypt_session_data(data: Dict[str, Any], ttl_seconds: int = 3600) -> str:
     """
-    Oturum verilerini şifreler ve HMAC-SHA256 ile doğrulanabilir URL-safe bir dizgiye dönüştürür.
-    Rastgele 16 byte IV ve son kullanma zamanı (exp) içerir.
+    Oturum verilerini AES-GCM ile şifreler ve kimlik doğrulama tag'i ile paketler.
+    Format: version(1B) | nonce(12B) | ciphertext+tag(16B), URL-safe base64.
     """
     key = _get_secret_key()
     payload = {
@@ -108,18 +108,19 @@ def encrypt_session_data(data: Dict[str, Any], ttl_seconds: int = 3600) -> str:
         "data": data
     }
     plaintext = json.dumps(payload, separators=(',', ':')).encode("utf-8")
-    iv = secrets.token_bytes(16)
-    keystream = _generate_keystream(key, iv, len(plaintext))
-    ciphertext = bytes(a ^ b for a, b in zip(plaintext, keystream))
-    tag = hmac.new(key, iv + ciphertext, hashlib.sha256).digest()
-    packed = iv + tag + ciphertext
+    nonce = secrets.token_bytes(12)
+    aesgcm = AESGCM(key)
+    version_byte = bytes([TOKEN_VERSION_V1])
+    # version_byte is passed as associated data so it is cryptographically bound
+    ciphertext_and_tag = aesgcm.encrypt(nonce, plaintext, version_byte)
+    packed = version_byte + nonce + ciphertext_and_tag
     return base64.urlsafe_b64encode(packed).decode("ascii")
 
 
 def decrypt_session_data(token: str) -> Dict[str, Any]:
     """
-    Oturum belirtecini çözer ve doğrular.
-    Format bozukluğu veya imza uyuşmazlığında SportsSessionInvalidError,
+    Oturum belirtecini çözer ve AES-GCM ile doğrular.
+    Format bozukluğu veya imza/tag uyuşmazlığında SportsSessionInvalidError,
     süresi dolmuşsa SportsSessionExpiredError fırlatır.
     """
     if not token or not isinstance(token, str) or len(token) > 4096:
@@ -132,20 +133,24 @@ def decrypt_session_data(token: str) -> Dict[str, Any]:
     except Exception:
         raise SportsSessionInvalidError("Geçersiz oturum belirteci formatı.")
 
-    if len(packed) < 16 + 32:
+    # 1B version + 12B nonce + min 1B ciphertext + 16B GCM tag = 30 bytes min
+    if len(packed) < 1 + 12 + 16:
         raise SportsSessionInvalidError("Belirteç boyutu geçersiz.")
 
-    iv = packed[:16]
-    tag = packed[16:48]
-    ciphertext = packed[48:]
+    version = packed[0]
+    if version != TOKEN_VERSION_V1:
+        raise SportsSessionInvalidError(f"Desteklenmeyen belirteç sürümü: {version}.")
+
+    nonce = packed[1:13]
+    ciphertext_and_tag = packed[13:]
 
     key = _get_secret_key()
-    expected_tag = hmac.new(key, iv + ciphertext, hashlib.sha256).digest()
-    if not hmac.compare_digest(tag, expected_tag):
+    aesgcm = AESGCM(key)
+    version_byte = bytes([version])
+    try:
+        plaintext = aesgcm.decrypt(nonce, ciphertext_and_tag, version_byte)
+    except Exception:
         raise SportsSessionInvalidError("Oturum belirteci doğrulanamadı (imza geçersiz).")
-
-    keystream = _generate_keystream(key, iv, len(ciphertext))
-    plaintext = bytes(a ^ b for a, b in zip(ciphertext, keystream))
 
     try:
         payload = json.loads(plaintext.decode("utf-8"))
