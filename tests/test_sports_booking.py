@@ -172,7 +172,7 @@ class SportsBookingTests(unittest.TestCase):
         data = json.loads(res2.stdout.strip())
         self.assertEqual(data["user"], "proc1")
 
-    def test_login_upstream_error_includes_response_diagnostics(self):
+    def test_login_upstream_error_hides_response_diagnostics(self):
         mock_response = MagicMock()
         mock_response.status_code = 403
         mock_response.headers = {"Content-Type": "text/html; charset=UTF-8"}
@@ -191,10 +191,33 @@ class SportsBookingTests(unittest.TestCase):
             allow_redirects=True
         )
         message = str(context.exception)
-        self.assertIn("HTTP 403", message)
-        self.assertIn("text/html; charset=UTF-8", message)
-        self.assertIn("/cdn-cgi/challenge-platform", message)
-        self.assertIn("Just a moment...", message)
+        self.assertEqual(
+            message,
+            "Üniversite randevu servisine ulaşılamadı. Lütfen daha sonra tekrar deneyin."
+        )
+        self.assertNotIn("HTTP 403", message)
+        self.assertNotIn("text/html", message)
+        self.assertNotIn("/cdn-cgi/challenge-platform", message)
+        self.assertNotIn("Just a moment...", message)
+
+    def test_missing_login_token_hides_response_diagnostics(self):
+        mock_response = MagicMock(
+            status_code=200,
+            headers={"Content-Type": "text/html"},
+            url="https://secret-tunnel.ngrok-free.app/internal",
+            text="<html>secret upstream body</html>",
+            history=[],
+        )
+
+        with patch("requests.Session.get", return_value=mock_response):
+            with self.assertRaises(SportsUpstreamError) as context:
+                SportsBookingService.authenticate("student", "password")
+
+        message = str(context.exception)
+        self.assertEqual(message, "Üniversite randevu servisine ulaşılamadı. Lütfen daha sonra tekrar deneyin.")
+        self.assertNotIn("secret", message)
+        self.assertNotIn("ngrok", message)
+        self.assertNotIn("text/html", message)
 
     def test_login_post_uses_origin_and_referer_headers(self):
         base_url = SportsBookingService.get_base_url()

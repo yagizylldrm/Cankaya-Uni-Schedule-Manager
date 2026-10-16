@@ -287,22 +287,28 @@ class SportsBookingService(metaclass=_SportsBookingMeta):
         if get_res.status_code >= 400:
             content_type = get_res.headers.get("Content-Type", "")
             preview = " ".join(get_res.text[:300].split())
-            logger.warning("Login page HTTP %s (type: %s, url: %s)", get_res.status_code, content_type, get_res.url)
-            raise SportsUpstreamError(
-                f"Randevu servisi yanıt vermiyor (HTTP {get_res.status_code}, {content_type}, url: {get_res.url}, preview: {preview})"
+            logger.warning(
+                "Login page HTTP %s (type: %s, url: %s, preview: %s)",
+                get_res.status_code,
+                content_type,
+                get_res.url,
+                preview,
             )
+            raise SportsUpstreamError()
 
         soup = BeautifulSoup(get_res.text, "html.parser")
         token_input = soup.find("input", {"name": "__RequestVerificationToken"})
         if not token_input or not token_input.get("value"):
             content_type = get_res.headers.get("Content-Type", "bilinmiyor")
             response_preview = " ".join(get_res.text[:300].split())
-            logger.warning("CSRF token missing on login page: HTTP %s, type: %s", get_res.status_code, content_type)
-            raise SportsUpstreamError(
-                f"Giriş güvenlik belirteci (__RequestVerificationToken) alınamadı. "
-                f"HTTP {get_res.status_code}, Content-Type: {content_type}, "
-                f"Son URL: {get_res.url}, Yanıt: {response_preview}"
+            logger.warning(
+                "CSRF token missing on login page: HTTP %s, type: %s, url: %s, preview: %s",
+                get_res.status_code,
+                content_type,
+                get_res.url,
+                response_preview,
             )
+            raise SportsUpstreamError()
 
         payload = {
             "__RequestVerificationToken": token_input["value"],
