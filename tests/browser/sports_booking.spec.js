@@ -405,7 +405,7 @@ test('accessibility & dialog keyboard ergonomics: Escape key closes, focus resto
   await sportsTrigger.click();
   await expect(sportsTrigger).toHaveAttribute('aria-expanded', 'true');
 
-  const dialog = page.locator('dialog[aria-labelledby="sports-modal-title"]');
+  const dialog = page.getByRole('dialog', { name: /Spor Tesisi Randevu Sistemi/ });
   await expect(dialog).toBeVisible();
 
   // Press Escape
@@ -421,8 +421,14 @@ test('mobile viewport 390x844: touch target sizes >= 44px and no horizontal over
   await page.setViewportSize({ width: 390, height: 844 });
   await setupSportsPage(page);
 
-  const sportsBtn = page.getByRole('button', { name: 'Spor' });
-  await sportsBtn.click();
+  const moreBtn = page.getByRole('button', { name: 'Daha' });
+  if (await moreBtn.isVisible()) {
+    await moreBtn.click();
+    await page.getByRole('button', { name: 'Spor Tesisi Randevusu' }).click();
+  } else {
+    const sportsBtn = page.getByRole('button', { name: 'Spor' });
+    await sportsBtn.click();
+  }
 
   // Check login button height
   const loginSubmitBtn = page.getByRole('button', { name: 'Güvenli Giriş Yap' });
@@ -435,7 +441,7 @@ test('mobile viewport 390x844: touch target sizes >= 44px and no horizontal over
   expect(parseFloat(fontSize)).toBeGreaterThanOrEqual(16);
 
   // Check no horizontal scroll/overflow on dialog
-  const dialog = page.locator('dialog[aria-labelledby="sports-modal-title"]');
+  const dialog = page.getByRole('dialog', { name: /Spor Tesisi Randevu Sistemi/ });
   const scrollWidth = await dialog.evaluate((el) => el.scrollWidth);
   const clientWidth = await dialog.evaluate((el) => el.clientWidth);
   expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 2);

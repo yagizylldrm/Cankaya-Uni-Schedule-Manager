@@ -8,21 +8,46 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Semantic Studio Theme Tokens
+        canvas: 'rgb(var(--color-canvas) / <alpha-value>)',
+        surface: {
+          DEFAULT: 'rgb(var(--color-surface) / <alpha-value>)',
+          muted: 'rgb(var(--color-surface-muted) / <alpha-value>)',
+        },
+        ink: {
+          DEFAULT: 'rgb(var(--color-ink) / <alpha-value>)',
+          muted: 'rgb(var(--color-ink-muted) / <alpha-value>)',
+        },
+        border: {
+          subtle: 'rgb(var(--color-border-subtle) / <alpha-value>)',
+          strong: 'rgb(var(--color-border-strong) / <alpha-value>)',
+        },
+        brand: {
+          yellow: 'rgb(var(--color-brand) / <alpha-value>)',
+          hover: 'rgb(var(--color-brand-hover) / <alpha-value>)',
+          ink: 'rgb(var(--color-brand-ink) / <alpha-value>)',
+        },
+        // Legacy fallback alias for existing components during incremental migration
         cankaya: {
-          blue: '#002855',
-          navy: '#001a38',
-          gold: '#d49a17',
-          goldLight: '#f5b024',
-          accent: '#0284c7',
+          blue: '#171717',
+          navy: '#0d0d0d',
+          gold: '#f2c300',
+          goldLight: '#ffd000',
+          accent: '#f2c300',
         },
         dark: {
-          bg: '#181825',
-          surface: '#1e1e2e',
-          card: '#24273a',
-          border: '#313244',
-          text: '#cdd6f4',
-          subtext: '#a6adc8',
+          bg: '#121212',
+          surface: '#1d1d1b',
+          card: '#242422',
+          border: '#333330',
+          text: '#f7f7f3',
+          subtext: '#a3a39a',
         }
+      },
+      fontFamily: {
+        sans: ['"IBM Plex Sans"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        serif: ['"Literata"', 'Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       }
     },
   },

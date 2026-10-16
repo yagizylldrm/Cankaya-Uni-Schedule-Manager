@@ -70,12 +70,12 @@ test('recently added courses appear first in the course list', async ({ page }) 
   await page.route('**/api/courses?**', route => route.fulfill({ json: [course, another] }));
   await page.route('**/api/courses/CENG102?**', route => route.fulfill({ json: another }));
   await page.goto('/');
-  const cards = page.locator('div.group').filter({ has: page.getByRole('button', { name: 'Ekle', exact: true }) });
+  const cards = page.locator('[data-course-code]').filter({ has: page.getByRole('button', { name: 'Ekle', exact: true }) });
   await expect(cards).toHaveCount(2);
   await cards.nth(1).getByRole('button', { name: 'Ekle' }).click();
-  await expect(page.locator('div.group').first()).toContainText('CENG102');
-  await page.locator('div.group').filter({ hasText: 'CENG101' }).getByRole('button', { name: 'Ekle' }).click();
-  await expect(page.locator('div.group').first()).toContainText('CENG101');
+  await expect(page.locator('[data-course-code]').first()).toHaveAttribute('data-course-code', 'CENG102');
+  await page.locator('[data-course-code="CENG101"]').getByRole('button', { name: 'Ekle' }).click();
+  await expect(page.locator('[data-course-code]').first()).toHaveAttribute('data-course-code', 'CENG101');
 });
 
 test('draft preview does not draw every alternative section at once', async ({ page }) => {
@@ -98,7 +98,13 @@ test('custom activities can be reviewed and cleared from the list', async ({ pag
     'Pazartesi:12:00 - 12:50': { day: 'Pazartesi', time_slot: '12:00 - 12:50', title: 'Yemek', note: '', color: 'amber' },
   })));
   await page.goto('/');
-  await page.getByRole('button', { name: 'Etkinlikler' }).click();
+  const actBtn = page.getByRole('button', { name: 'Etkinlikler' });
+  if (await actBtn.isVisible()) {
+    await actBtn.click();
+  } else {
+    await menu(page);
+    await page.getByRole('button', { name: /Özel etkinlikler/ }).click();
+  }
   await expect(page.getByRole('dialog', { name: 'Özel etkinlikler' })).toContainText('Yemek');
   await page.getByRole('button', { name: 'Sil', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Özel etkinlikler' })).toContainText('Henüz etkinlik eklenmedi');
@@ -135,10 +141,17 @@ test('transcript progress separates completed courses and credits', async ({ pag
 
   await expect(page.getByText('Ders ilerlemesi', { exact: true })).toBeVisible();
   await expect(page.getByText('23 / 44 ders', { exact: true })).toBeVisible();
-  await expect(page.getByRole('img', { name: '23 / 44 ders tamamlandı (52%).' })).toBeVisible();
+  const courseProgress = page.getByRole('progressbar', { name: '23 / 44 ders tamamlandı (52%).' });
+  await expect(courseProgress).toBeVisible();
+  await expect(courseProgress).toHaveAttribute('value', '23');
+  await expect(courseProgress).toHaveAttribute('max', '44');
+
   await expect(page.getByText('Kredi ilerlemesi', { exact: true })).toBeVisible();
   await expect(page.getByText('68 / 131 kredi', { exact: true })).toBeVisible();
-  await expect(page.getByRole('img', { name: '68 / 131 kredi tamamlandı (52%).' })).toBeVisible();
+  const creditProgress = page.getByRole('progressbar', { name: '68 / 131 kredi tamamlandı (52%).' });
+  await expect(creditProgress).toBeVisible();
+  await expect(creditProgress).toHaveAttribute('value', '68');
+  await expect(creditProgress).toHaveAttribute('max', '131');
   expect(requestBody.passed_courses.CENG105.credit).toBe(2);
 });
 
@@ -180,7 +193,22 @@ test('zero completed credits uses the official curriculum total', async ({ page 
   await page.getByRole('button', { name: 'Transkript & Ön Koşul', exact: true }).click();
 
   await expect(page.getByText('0 / 143 kredi', { exact: true })).toBeVisible();
-  await expect(page.getByRole('img', { name: '0 / 143 kredi tamamlandı (0%).' })).toBeVisible();
+  await expect(page.getByRole('progressbar', { name: '0 / 143 kredi tamamlandı (0%).' })).toBeVisible();
+});
+
+test('transcript modal uses native dialog, closes on Escape, and restores focus', async ({ page }) => {
+  await mockApi(page);
+  await page.goto('/');
+  const trigger = page.getByRole('button', { name: /^Transkript/ }).first();
+  await expect(trigger).toBeVisible();
+  await trigger.click();
+
+  const dialog = page.locator('dialog[aria-labelledby="transcript-modal-title"]');
+  await expect(dialog).toBeVisible();
+
+  await page.keyboard.press('Escape');
+  await expect(dialog).not.toBeVisible();
+  await expect(trigger).toBeFocused();
 });
 
 test('transcript import shows and enables the passed-course filter', async ({ page }) => {
@@ -219,7 +247,12 @@ test('mobile first visit shows course selection and agenda has no page overflow'
   await page.getByRole('combobox', { name: 'Ana bölüm' }).click();
   await expect(page.getByRole('combobox', { name: 'Ana bölüm' })).toBeFocused();
   await page.getByRole('button', { name: 'Ekle', exact: true }).click();
-  await page.getByRole('button', { name: 'Haftalık Program' }).click();
+  const progBtn = page.getByRole('button', { name: 'Program', exact: true });
+  if (await progBtn.isVisible()) {
+    await progBtn.click();
+  } else {
+    await page.getByRole('button', { name: 'Haftalık Program' }).click();
+  }
   await expect(page.getByRole('region', { name: 'Günlük program' })).toBeVisible();
   await page.getByLabel('Gün', { exact: true }).selectOption('Pazartesi');
   await expect(page.getByRole('button', { name: /09:00 - 09:50 CENG101/ })).toBeVisible();
@@ -230,6 +263,15 @@ test('mobile first visit shows course selection and agenda has no page overflow'
   await expect(page.getByRole('button', { name: /13:00 - 13:50/ })).toBeVisible();
   expect(errors).toEqual([]);
   await page.screenshot({ path: 'test-results/mobile-agenda.png', fullPage: true });
+});
+
+test('combination bar renders semantic dl metrics and collapsible preferences', async ({ page }) => {
+  await createSchedule(page);
+  const dl = page.locator('[data-schedule-metrics]');
+  await expect(dl).toBeVisible();
+  await expect(dl.locator('dd')).toContainText(['Kredi', 'AKTS', 'Gün']);
+  const details = page.locator('details[data-preferences-details]');
+  await expect(details).toBeVisible();
 });
 
 test('preference conflict provides actionable one-click resolution', async ({ page }) => {
@@ -319,7 +361,12 @@ test('PNG export captures weekly timetable from the mobile agenda', async ({ pag
   await mockApi(page);
   await page.goto('/');
   await page.getByRole('button', { name: 'Ekle', exact: true }).click();
-  await page.getByRole('button', { name: 'Haftalık Program' }).click();
+  const progBtn = page.getByRole('button', { name: 'Program', exact: true });
+  if (await progBtn.isVisible()) {
+    await progBtn.click();
+  } else {
+    await page.getByRole('button', { name: 'Haftalık Program' }).click();
+  }
   await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
   await menu(page);
   const pending = page.waitForEvent('download');
@@ -351,7 +398,7 @@ test('adding and removing courses automatically updates the preview and generate
   await expect(page.locator('[data-weekly-grid]')).toContainText('MATH101');
   await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
   await expect(page.getByText('Ders Sepeti', { exact: true })).toHaveCount(0);
-  await page.locator('div.group').filter({ hasText: 'CENG101' }).getByRole('button', { name: 'Çıkar', exact: true }).click();
+  await page.locator('[data-course-code="CENG101"]').getByRole('button', { name: 'Çıkar', exact: true }).click();
   await expect(page.locator('[data-weekly-grid]')).not.toContainText('CENG101');
   await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
   await expect(page.locator('[data-weekly-grid]')).toContainText('MATH101');
@@ -549,9 +596,9 @@ test('a course without weekly meetings completes schedule generation', async ({ 
     })) } });
   });
   await page.goto('/');
-  await page.locator('div.group').filter({ hasText: 'CENG101' }).getByRole('button', { name: 'Ekle' }).click();
+  await page.locator('[data-course-code="CENG101"]').getByRole('button', { name: 'Ekle' }).click();
   await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
-  await page.locator('div.group').filter({ hasText: 'COL201' }).getByRole('button', { name: 'Ekle' }).click();
+  await page.locator('[data-course-code="COL201"]').getByRole('button', { name: 'Ekle' }).click();
   await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
   await expect(page.getByText('Hesaplanıyor…', { exact: true })).not.toBeVisible();
   await expect(page.locator('[data-weekly-grid]')).toContainText('CENG101');
@@ -578,15 +625,14 @@ test('a repeated add does not leave the calculation indicator visible', async ({
         : combos[0].sections }] } });
   });
   await page.goto('/');
-  await page.locator('div.group').filter({ hasText: 'CENG101' }).getByRole('button', { name: 'Ekle' }).click();
+  await page.locator('[data-course-code="CENG101"]').getByRole('button', { name: 'Ekle' }).click();
   await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
-  const colCard = page.locator('div.group').filter({ hasText: 'COL201' });
+  const colCard = page.locator('[data-course-code="COL201"]');
   await colCard.getByTitle('Ders Detayı ve Web Sayfası').click();
-  const modal = page.locator('div.fixed.inset-0');
+  const modal = page.getByRole('dialog', { name: /COL201/ });
   await expect(modal.getByRole('button', { name: 'Ekle', exact: true })).toBeVisible();
   await page.evaluate(() => {
-    [...document.querySelectorAll('div.group')].find(element => element.textContent.includes('COL201'))
-      .querySelector('button:not([title])').click();
+    document.querySelector('[data-course-code="COL201"] button:not([title])').click();
   });
   await expect.poll(() => detailRequests).toBe(2);
   await modal.getByRole('button', { name: 'Ekle', exact: true }).click();
@@ -632,9 +678,9 @@ test('changing the basket locks exports until the replacement schedule arrives',
     }] } });
   });
   await page.goto('/');
-  await page.locator('div.group').filter({ hasText: 'CENG101' }).getByRole('button', { name: 'Ekle' }).click();
+  await page.locator('[data-course-code="CENG101"]').getByRole('button', { name: 'Ekle' }).click();
   await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
-  await page.locator('div.group').filter({ hasText: 'MATH101' }).getByRole('button', { name: 'Ekle' }).click();
+  await page.locator('[data-course-code="MATH101"]').getByRole('button', { name: 'Ekle' }).click();
   await expect(page.getByText(/Gösterilen program güncel seçimlere ait değil/)).toBeVisible();
   await menu(page);
   await expect(page.getByRole('button', { name: 'Programı kaydet (JSON)' })).toBeDisabled();
@@ -685,4 +731,171 @@ test('old draft JSON with legacy preference keys opens without error', async ({ 
   await page.getByRole('button', { name: 'Programı yükle', exact: true }).click();
   await expect(page.getByText(/Program dosyası yüklendi/)).toBeVisible();
   await expect(page.getByRole('alert')).toHaveCount(0);
+});
+
+test('responsive shell: mobile bottom taskbar, workspace switching, more dialog, safe-area padding, and no overflow', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await mockApi(page);
+  await page.goto('/');
+
+  // Skip link exists
+  const skipLink = page.getByRole('link', { name: 'İçeriğe atla' });
+  await expect(skipLink).toBeAttached();
+
+  // Mobile bottom taskbar
+  const bottomNav = page.getByRole('navigation', { name: 'Mobil gezinme çubuğu' });
+  await expect(bottomNav).toBeVisible();
+
+  const coursesBtn = bottomNav.getByRole('button', { name: /^Dersler/ });
+  const scheduleBtn = bottomNav.getByRole('button', { name: 'Program' });
+  const moreBtn = bottomNav.getByRole('button', { name: 'Daha' });
+
+  await expect(coursesBtn).toHaveAttribute('aria-current', 'page');
+  await expect(coursesBtn).toBeVisible();
+  await expect(scheduleBtn).toBeVisible();
+  await expect(moreBtn).toBeVisible();
+
+  // Add course to basket
+  await page.getByRole('button', { name: 'Ekle', exact: true }).click();
+  await expect(coursesBtn).toContainText('1');
+
+  // Switch to schedule workspace
+  await scheduleBtn.click();
+  await expect(scheduleBtn).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('[data-schedule-panel]')).toBeVisible();
+
+  // Switch back to courses
+  await coursesBtn.click();
+  await expect(coursesBtn).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('aside')).toBeVisible();
+
+  // Open Daha dialog
+  await moreBtn.click();
+  const moreDialog = page.getByRole('dialog', { name: 'Daha Fazla Araç' });
+  await expect(moreDialog).toBeVisible();
+
+  // Access transcript from Daha dialog
+  await moreDialog.getByRole('button', { name: 'Transkript & Ön Koşul' }).click();
+  await expect(page.getByRole('dialog', { name: /Transkript/ })).toBeVisible();
+  await page.getByLabel('Kapat', { exact: true }).click();
+  await expect(page.getByRole('dialog', { name: /Transkript/ })).not.toBeVisible();
+
+  // Access sports from Daha dialog
+  await moreBtn.click();
+  await expect(moreDialog).toBeVisible();
+  await moreDialog.getByRole('button', { name: 'Spor tesisi randevusu' }).click();
+  const sportsDialog = page.locator('dialog[aria-labelledby="sports-modal-title"]');
+  await expect(sportsDialog).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(sportsDialog).not.toBeVisible();
+
+  // Main container has bottom padding for taskbar and safe-area
+  const main = page.locator('#main-content');
+  await expect(main).toBeVisible();
+  const mainPaddingBottom = await main.evaluate(el => window.getComputedStyle(el).paddingBottom);
+  expect(parseFloat(mainPaddingBottom)).toBeGreaterThanOrEqual(56);
+
+  // No horizontal overflow on mobile
+  const noOverflow = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
+  expect(noOverflow).toBe(true);
+});
+
+test('responsive shell: desktop 1280x800 catalog and schedule side-by-side workspace', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await mockApi(page);
+  await page.goto('/');
+
+  const drawer = page.locator('aside[data-catalog-drawer]');
+  await expect(drawer).toBeVisible();
+
+  const schedulePanel = page.locator('[data-schedule-panel]');
+  await expect(schedulePanel).toBeVisible();
+
+  const searchInput = page.locator('#course-search-input');
+  await expect(searchInput).toBeVisible();
+});
+
+test('timetable interactive elements are accessible buttons with visible labels and color options', async ({ page }) => {
+  await createSchedule(page);
+  // Ensure we are in week view
+  const weekBtn = page.getByRole('button', { name: 'Haftalık' });
+  if (await weekBtn.isVisible()) {
+    await weekBtn.click();
+  }
+
+  // Course card in timetable should be a semantic button with an accessible name
+  const courseBtn = page.locator('[data-weekly-grid]').getByRole('button', { name: /CENG101 Şube/ });
+  await expect(courseBtn).toBeVisible();
+
+  // Color change button should be keyboard accessible (not only hover)
+  const colorBtn = page.locator('[data-weekly-grid]').getByRole('button', { name: /CENG101 rengini değiştir/ }).first();
+  await expect(colorBtn).toBeVisible();
+
+  // Empty cell should have an accessible button to add an activity
+  const emptyCellBtn = page.locator('[data-weekly-grid]').getByRole('button', { name: /Özel etkinlik \/ mola ekle/ }).first();
+  await expect(emptyCellBtn).toBeVisible();
+
+  // Clicking course button opens CourseDetailModal
+  await courseBtn.click();
+  await expect(page.getByRole('heading', { name: /CENG101/ })).toBeVisible();
+  await page.getByLabel('Kapat', { exact: true }).click();
+  await expect(page.getByRole('heading', { name: /CENG101/ })).not.toBeVisible();
+});
+
+test('course detail modal uses AppDialog, displays prerequisites and official link, and closes on Escape', async ({ page }) => {
+  await createSchedule(page);
+  const courseCardBtn = page.locator('[data-weekly-grid]').getByRole('button', { name: /CENG101 Şube/ });
+  await courseCardBtn.click();
+
+  const dialog = page.getByRole('dialog', { name: /CENG101/ });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByText('Ön Koşul Durumu: Alınabilir')).toBeVisible();
+  await expect(dialog.getByRole('link', { name: /Resmi Ders Web Sitesi/ })).toBeVisible();
+
+  // Press Escape to close
+  await page.keyboard.press('Escape');
+  await expect(dialog).not.toBeVisible();
+});
+
+test('draft manager uses AppDialog, creates empty plan, and allows renaming', async ({ page }) => {
+  await mockApi(page);
+  await page.goto('/');
+
+  const planBtn = page.getByRole('button', { name: 'Planlar' });
+  if (await planBtn.isVisible()) {
+    await planBtn.click();
+  } else {
+    await menu(page);
+    await page.getByRole('button', { name: 'Plan taslakları' }).click();
+  }
+
+  const dialog = page.getByRole('dialog', { name: 'Plan taslakları' });
+  await expect(dialog).toBeVisible();
+
+  // Create a new empty plan
+  await dialog.getByPlaceholder('Yeni plan adı').fill('Güz Alternatif');
+  await dialog.getByRole('button', { name: 'Boş plan' }).click();
+
+  // Dialog should close after creating empty plan
+  await expect(dialog).not.toBeVisible();
+
+  // Reopen and verify new plan exists
+  if (await planBtn.isVisible()) {
+    await planBtn.click();
+  } else {
+    await menu(page);
+    await page.getByRole('button', { name: 'Plan taslakları' }).click();
+  }
+  await expect(dialog.getByText('Güz Alternatif')).toBeVisible();
+
+  // Rename plan
+  await dialog.getByRole('button', { name: 'Adlandır' }).last().click();
+  const renameInput = dialog.getByLabel('Yeni plan adı');
+  await renameInput.fill('Bahar Hazırlık');
+  await dialog.getByRole('button', { name: 'Kaydet' }).click();
+  await expect(dialog.getByText('Bahar Hazırlık')).toBeVisible();
+
+  // Escape closes dialog
+  await page.keyboard.press('Escape');
+  await expect(dialog).not.toBeVisible();
 });

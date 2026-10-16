@@ -3,35 +3,151 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply transition-colors duration-200;
+  :root {
+    /* Çizelge Stüdyosu Light Theme Tokens */
+    --color-canvas: 247 247 243;        /* #F7F7F3 Warm paper base */
+    --color-surface: 255 255 255;       /* #FFFFFF Crisp paper surface */
+    --color-surface-muted: 242 242 237; /* #F2F2ED Muted recessed surface */
+    --color-ink: 23 23 23;              /* #171717 Primary editorial ink */
+    --color-ink-muted: 107 107 99;      /* #6B6B63 Subdued secondary text */
+    --color-border-subtle: 226 226 219; /* #E2E2DB Clean ruled lines */
+    --color-border-strong: 189 189 181; /* #BDBDB5 Strong dividing lines */
+    --color-brand: 242 195 0;           /* #F2C300 Çankaya University gold accent */
+    --color-brand-hover: 229 184 0;     /* #E5B800 Slightly darker on press/hover */
+    --color-brand-ink: 23 23 23;        /* #171717 Text on brand yellow */
   }
-  button:disabled { @apply opacity-50 cursor-not-allowed; }
-  button:focus-visible, select:focus-visible, input:focus-visible {
-    @apply outline outline-2 outline-offset-2 outline-blue-500;
+
+  .dark {
+    /* Çizelge Stüdyosu Dark Theme Tokens (Graphite & Off-White) */
+    --color-canvas: 18 18 18;           /* #121212 Deep graphite background */
+    --color-surface: 29 29 27;          /* #1D1D1B Elevated card & sheet surface */
+    --color-surface-muted: 36 36 34;    /* #242422 Recessed graphite tone */
+    --color-ink: 247 247 243;           /* #F7F7F3 Crisp readable text */
+    --color-ink-muted: 163 163 154;     /* #A3A39A Muted caption text */
+    --color-border-subtle: 51 51 48;    /* #333330 Subtle dark rulers */
+    --color-border-strong: 75 75 70;    /* #4B4B46 Solid dark structure */
+    --color-brand: 255 208 0;           /* #FFD000 Vibrant brand yellow for dark */
+    --color-brand-hover: 242 195 0;     /* #F2C300 */
+    --color-brand-ink: 18 18 18;        /* #121212 Text on brand yellow */
+  }
+
+  body {
+    background-color: rgb(var(--color-canvas));
+    color: rgb(var(--color-ink));
+    font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    transition: background-color 150ms ease, color 150ms ease;
+  }
+
+  button:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* High-contrast accessible focus ring with brand yellow accent */
+  button:focus-visible,
+  select:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  a:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid rgb(var(--color-brand));
+    outline-offset: 2px;
+  }
+
+  /* Standard dialog backdrop */
+  dialog::backdrop {
+    background: rgba(18, 18, 18, 0.65);
+    backdrop-filter: blur(2px);
   }
 }
 
 @layer components {
-  .primary-action { @apply rounded-xl px-4 py-3 bg-cankaya-blue text-white dark:bg-cankaya-gold dark:text-slate-900 font-semibold text-sm; }
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-brand-yellow focus:text-brand-ink focus:font-semibold focus:rounded-md focus:shadow-lg focus:outline-none;
+  }
+
+  .primary-action {
+    @apply inline-flex items-center justify-center font-medium text-sm px-4 py-2.5 rounded-lg bg-brand-yellow text-brand-ink hover:bg-brand-hover active:scale-[0.99] transition-all;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center font-medium text-sm px-3.5 py-2 rounded-lg border border-border-subtle hover:border-border-strong hover:bg-surface-muted text-ink transition-colors;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center font-medium text-sm px-3 py-1.5 rounded-lg text-ink-muted hover:text-ink hover:bg-surface-muted transition-colors;
+  }
 }
 
-/* Make compact course labels and controls readable on touch screens. */
-@media (max-width: 767px) {
-  main .text-\[10px\], main .text-\[11px\] { font-size: 0.8125rem; }
-  main button, header button { min-height: 44px; }
-  main input[type='text'], main select { font-size: 16px; }
+/* Touch targets and mobile typography adjustments */
+@media (max-width: 1023px) {
+  main input[type='text'],
+  main input[type='search'],
+  main input[type='date'],
+  main select,
+  main textarea,
+  dialog input,
+  dialog select {
+    font-size: 16px !important;
+  }
+
+  header button,
+  nav button,
+  dialog button {
+    min-height: 44px;
+  }
 }
 
+/* Print Styles */
 @media print {
-  @page { size: landscape; margin: 10mm; }
-  header, aside, [data-onboarding], [data-view-controls], [data-agenda], dialog { display: none !important; }
-  body * { visibility: hidden; }
-  [data-schedule-panel], [data-weekly-grid] { display: block !important; }
-  [data-weekly-grid], [data-weekly-grid] * { visibility: visible; }
-  [data-weekly-grid] { position: absolute; left: 0; top: 0; width: 100%; border: 0; }
-  [data-grid-scroll] { overflow: visible !important; }
-  [data-weekly-grid] table { min-width: 0; }
+  @page {
+    size: landscape;
+    margin: 10mm;
+  }
+  header,
+  aside,
+  nav,
+  [data-onboarding],
+  [data-view-controls],
+  [data-agenda],
+  dialog {
+    display: none !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  [data-schedule-panel],
+  [data-weekly-grid] {
+    display: block !important;
+  }
+  [data-weekly-grid],
+  [data-weekly-grid] * {
+    visibility: visible;
+  }
+  [data-weekly-grid] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: 0;
+  }
+  [data-grid-scroll] {
+    overflow: visible !important;
+  }
+  [data-weekly-grid] table {
+    min-width: 0;
+  }
+}
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Custom Scrollbars */
@@ -45,9 +161,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 dark:bg-slate-700 rounded-full;
+  background-color: rgb(var(--color-border-strong) / 0.5);
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-slate-400 dark:bg-slate-600;
+  background-color: rgb(var(--color-border-strong) / 0.8);
 }

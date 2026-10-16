@@ -1,6 +1,7 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSchedule } from '../context/useSchedule';
-import { X, Trash2, Check, Clock, Calendar } from 'lucide-react';
+import AppDialog from './AppDialog';
+import { Trash2, Check, Clock, Calendar } from 'lucide-react';
 
 const PRESETS = [
   { label: 'Yemek Arası', title: 'Yemek Arası', note: '12-13 / Öğle Yemeği', color: 'amber' },
@@ -11,12 +12,12 @@ const PRESETS = [
 ];
 
 const COLORS = [
-  { id: 'amber', name: '🟡 Amber / Turuncu', ring: 'ring-amber-500', bg: 'bg-amber-100 border-amber-400 text-amber-900' },
-  { id: 'emerald', name: '🟢 Zümrüt / Yeşil', ring: 'ring-emerald-500', bg: 'bg-emerald-100 border-emerald-400 text-emerald-900' },
-  { id: 'blue', name: '🔵 Mavi / Lacivert', ring: 'ring-blue-500', bg: 'bg-blue-100 border-blue-400 text-blue-900' },
-  { id: 'purple', name: '🟣 Mor / Eflatun', ring: 'ring-purple-500', bg: 'bg-purple-100 border-purple-400 text-purple-900' },
-  { id: 'rose', name: '🔴 Kırmızı / Gül', ring: 'ring-rose-500', bg: 'bg-rose-100 border-rose-400 text-rose-900' },
-  { id: 'slate', name: '⚪ Gri / Slate', ring: 'ring-slate-500', bg: 'bg-slate-100 border-slate-300 text-slate-900' },
+  { id: 'amber', name: '🟡 Amber / Turuncu', ring: 'ring-amber-500', bg: 'bg-amber-100 border-amber-300 text-amber-900' },
+  { id: 'emerald', name: '🟢 Zümrüt / Yeşil', ring: 'ring-emerald-500', bg: 'bg-emerald-100 border-emerald-300 text-emerald-900' },
+  { id: 'blue', name: '🔵 Mavi / Lacivert', ring: 'ring-blue-500', bg: 'bg-blue-100 border-blue-300 text-blue-900' },
+  { id: 'purple', name: '🟣 Mor / Eflatun', ring: 'ring-purple-500', bg: 'bg-purple-100 border-purple-300 text-purple-900' },
+  { id: 'rose', name: '🔴 Kırmızı / Gül', ring: 'ring-rose-500', bg: 'bg-rose-100 border-rose-300 text-rose-900' },
+  { id: 'slate', name: '⚪ Gri / Nötr', ring: 'ring-slate-500', bg: 'bg-slate-100 border-slate-300 text-slate-900' },
 ];
 
 export default function CustomBlockModal() {
@@ -68,133 +69,22 @@ export default function CustomBlockModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-      <div className="w-full max-w-md bg-white dark:bg-dark-surface rounded-2xl shadow-2xl border border-slate-200 dark:border-dark-border overflow-hidden">
-        
-        {/* Header */}
-        <div className="p-4 bg-slate-50 dark:bg-dark-card border-b border-slate-200 dark:border-dark-border flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-dark-text">
-              {isEdit ? 'Özel Program Kutusunu Düzenle' : 'Özel Program Kutusu Ekle'}
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-dark-subtext flex items-center gap-1 mt-0.5">
-              <Calendar className="w-3.5 h-3.5" />
-              <span>{day}</span>
-              <span>•</span>
-              <Clock className="w-3.5 h-3.5" />
-              <span>{timeSlot}</span>
-            </p>
-          </div>
-
-          <button
-            onClick={() => setCustomBlockModalData(null)}
-            className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Content Body */}
-        <div className="p-4 space-y-4 text-xs">
-          {!isEdit && <div className="text-sm"><label htmlFor="activity-time">Etkinlik saati</label>
-            <select id="activity-time" value={chosenTime} onChange={e => setChosenTime(e.target.value)} className="mt-1 w-full rounded-lg border p-2 bg-white dark:bg-dark-card">
-              {Array.from(new Set([timeSlot, '08:40 - 09:30', ...Array.from({ length: 12 }, (_, i) => `${String(i + 9).padStart(2, '0')}:00 - ${String(i + 9).padStart(2, '0')}:50`)])).map(time => <option key={time}>{time}</option>)}
-            </select>
-          </div>}
-          
-          {/* Quick Presets */}
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-500 dark:text-dark-subtext uppercase tracking-wider mb-2">
-              Hazır Şablonlar
-            </label>
-            <div className="flex flex-wrap gap-1.5">
-              {PRESETS.map(p => (
-                <button
-                  key={p.label}
-                  type="button"
-                  onClick={() => handlePresetSelect(p)}
-                  className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-dark-card hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-dark-text font-medium transition"
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Title Input */}
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-500 dark:text-dark-subtext uppercase tracking-wider mb-1">
-              Başlık *
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Örn: Öğle Yemeği, Kütüphane..."
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-xl text-slate-800 dark:text-dark-text focus:outline-none focus:ring-1 focus:ring-cankaya-blue"
-            />
-          </div>
-
-          {/* Note Input */}
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-500 dark:text-dark-subtext uppercase tracking-wider mb-1">
-              Not / Açıklama (Opsiyonel)
-            </label>
-            <input
-              type="text"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="Örn: 12:00 - 13:00 arası yemek"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-xl text-slate-800 dark:text-dark-text focus:outline-none focus:ring-1 focus:ring-cankaya-blue"
-            />
-          </div>
-
-          {/* Color Selection */}
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-500 dark:text-dark-subtext uppercase tracking-wider mb-2">
-              Renk Seçimi
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              {COLORS.map(c => (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => setColor(c.id)}
-                  className={`p-2 rounded-xl border text-left flex items-center justify-between transition ${c.bg} ${
-                    color === c.id ? 'ring-2 ring-cankaya-blue dark:ring-cankaya-gold' : 'opacity-80 hover:opacity-100'
-                  }`}
-                >
-                  <span className="font-semibold">{c.name}</span>
-                  {color === c.id && <Check className="w-3.5 h-3.5" />}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Apply to all weekdays checkbox */}
-          <div className="pt-1">
-            <label className="flex items-center gap-2 text-slate-700 dark:text-dark-text cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={allWeekdays}
-                onChange={(e) => setAllWeekdays(e.target.checked)}
-                className="rounded border-slate-300 dark:border-dark-border text-cankaya-blue focus:ring-cankaya-blue w-4 h-4"
-              />
-              <span>Bu saati tüm hafta içi günlerine (Pzt - Cuma) uygula</span>
-            </label>
-          </div>
-
-        </div>
-
-        {/* Footer Actions */}
-        <div className="p-4 bg-slate-50 dark:bg-dark-card border-t border-slate-200 dark:border-dark-border flex items-center justify-between gap-2">
+    <AppDialog
+      isOpen={Boolean(customBlockModalData)}
+      onClose={() => setCustomBlockModalData(null)}
+      title={isEdit ? 'Özel Program Kutusunu Düzenle' : 'Özel Program Kutusu Ekle'}
+      description={`${day} • ${timeSlot}`}
+      titleId="custom-block-modal-title"
+      size="md"
+      footer={
+        <div className="flex items-center justify-between w-full text-xs">
           {isEdit ? (
             <button
               type="button"
               onClick={handleDelete}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-xs font-semibold transition"
+              className="btn-secondary text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 flex items-center gap-1.5 px-3 py-1.5 min-h-[36px]"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3.5 h-3.5" />
               <span>Sil</span>
             </button>
           ) : <div />}
@@ -203,7 +93,7 @@ export default function CustomBlockModal() {
             <button
               type="button"
               onClick={() => setCustomBlockModalData(null)}
-              className="px-3 py-2 rounded-xl text-slate-600 dark:text-dark-subtext hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium transition"
+              className="btn-secondary text-xs px-3.5 py-1.5 min-h-[36px]"
             >
               İptal
             </button>
@@ -211,14 +101,125 @@ export default function CustomBlockModal() {
             <button
               type="button"
               onClick={handleSave}
-              className="px-4 py-2 rounded-xl bg-cankaya-blue hover:bg-cankaya-navy text-cankaya-gold text-xs font-semibold shadow-md transition active:scale-95"
+              className="btn-primary text-xs px-4 py-1.5 min-h-[36px] font-semibold"
             >
               {isEdit ? 'Güncelle' : 'Ekle'}
             </button>
           </div>
         </div>
+      }
+    >
+      <div className="space-y-4 text-xs">
+        {/* Time selector if creating new block */}
+        {!isEdit && (
+          <div>
+            <label htmlFor="activity-time" className="block text-xs font-semibold text-ink mb-1">
+              Etkinlik saati
+            </label>
+            <select
+              id="activity-time"
+              value={chosenTime}
+              onChange={(e) => setChosenTime(e.target.value)}
+              className="w-full px-3 py-2 bg-surface border border-border-subtle rounded-xl text-xs sm:text-sm text-ink focus:outline-none focus:ring-1 focus:ring-brand font-mono"
+            >
+              {Array.from(new Set([
+                timeSlot,
+                '08:40 - 09:30',
+                ...Array.from({ length: 12 }, (_, i) => `${String(i + 9).padStart(2, '0')}:00 - ${String(i + 9).padStart(2, '0')}:50`)
+              ])).map(time => (
+                <option key={time} value={time}>{time}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Quick Presets */}
+        <div>
+          <span className="block text-[11px] font-bold text-ink-muted uppercase tracking-wider mb-1.5">
+            Hazır Şablonlar
+          </span>
+          <div className="flex flex-wrap gap-1.5">
+            {PRESETS.map(p => (
+              <button
+                key={p.label}
+                type="button"
+                onClick={() => handlePresetSelect(p)}
+                className="px-2.5 py-1 rounded-lg bg-surface-muted hover:bg-surface border border-border-subtle text-ink font-medium transition"
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Title Input */}
+        <div>
+          <label htmlFor="custom-block-title" className="block text-xs font-semibold text-ink mb-1">
+            Başlık *
+          </label>
+          <input
+            id="custom-block-title"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Örn: Öğle Yemeği, Kütüphane..."
+            className="w-full px-3 py-2 bg-surface border border-border-subtle rounded-xl text-xs sm:text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-1 focus:ring-brand font-sans"
+          />
+        </div>
+
+        {/* Note Input */}
+        <div>
+          <label htmlFor="custom-block-note" className="block text-xs font-semibold text-ink mb-1">
+            Not / Açıklama (Opsiyonel)
+          </label>
+          <input
+            id="custom-block-note"
+            type="text"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Örn: 12:00 - 13:00 arası yemek"
+            className="w-full px-3 py-2 bg-surface border border-border-subtle rounded-xl text-xs sm:text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-1 focus:ring-brand font-sans"
+          />
+        </div>
+
+        {/* Color Selection */}
+        <div>
+          <span className="block text-[11px] font-bold text-ink-muted uppercase tracking-wider mb-2">
+            Renk Seçimi
+          </span>
+          <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Etkinlik rengi">
+            {COLORS.map(c => (
+              <button
+                key={c.id}
+                type="button"
+                role="radio"
+                aria-checked={color === c.id}
+                onClick={() => setColor(c.id)}
+                className={`p-2.5 rounded-xl border text-left flex items-center justify-between transition ${c.bg} ${
+                  color === c.id ? 'ring-2 ring-offset-1 ring-ink' : 'opacity-80 hover:opacity-100'
+                }`}
+              >
+                <span className="font-semibold text-xs">{c.name}</span>
+                {color === c.id && <Check className="w-3.5 h-3.5" />}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Apply to all weekdays checkbox */}
+        <div className="pt-1">
+          <label className="flex items-center gap-2 text-ink text-xs cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={allWeekdays}
+              onChange={(e) => setAllWeekdays(e.target.checked)}
+              className="rounded border-border-subtle text-ink focus:ring-brand w-4 h-4"
+            />
+            <span>Bu saati tüm hafta içi günlerine (Pzt - Cuma) uygula</span>
+          </label>
+        </div>
 
       </div>
-    </div>
+    </AppDialog>
   );
 }

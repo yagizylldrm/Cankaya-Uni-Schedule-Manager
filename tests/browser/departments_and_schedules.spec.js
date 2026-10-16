@@ -274,7 +274,7 @@ test.describe('Çoklu Bölüm ve Program Yönetimi Testleri', () => {
     await expect(page.getByText('IE117')).toBeVisible();
 
     // Add IE117 to basket
-    const ie117Card = page.locator('div.group').filter({ hasText: 'IE117' });
+    const ie117Card = page.locator('[data-course-code="IE117"]');
     await ie117Card.getByRole('button', { name: 'Ekle' }).click();
 
     // Verify timetable combination rendered
@@ -282,7 +282,7 @@ test.describe('Çoklu Bölüm ve Program Yönetimi Testleri', () => {
     await expect(page.locator('[data-weekly-grid]')).toContainText('IE117');
 
     // Add IE227 to basket
-    const ie227Card = page.locator('div.group').filter({ hasText: 'IE227' });
+    const ie227Card = page.locator('[data-course-code="IE227"]');
     await ie227Card.getByRole('button', { name: 'Ekle' }).click();
 
     // Both courses should be visible in the weekly grid
@@ -295,10 +295,10 @@ test.describe('Çoklu Bölüm ve Program Yönetimi Testleri', () => {
     await page.goto('/');
 
     // Add CENG111 (timed) and CENG200 (untimed)
-    const ceng111Card = page.locator('div.group').filter({ hasText: 'CENG111' });
+    const ceng111Card = page.locator('[data-course-code="CENG111"]');
     await ceng111Card.getByRole('button', { name: 'Ekle' }).click();
 
-    const ceng200Card = page.locator('div.group').filter({ hasText: 'CENG200' });
+    const ceng200Card = page.locator('[data-course-code="CENG200"]');
     await ceng200Card.getByRole('button', { name: 'Ekle' }).click();
 
     // Untimed course badge / info appears in CombinationBar and no conflict alert is triggered
@@ -323,10 +323,10 @@ test.describe('Çoklu Bölüm ve Program Yönetimi Testleri', () => {
     await expect(page.getByText('MATH111')).toBeVisible();
 
     // 4. Add CENG111
-    await page.locator('div.group').filter({ hasText: 'CENG111' }).getByRole('button', { name: 'Ekle' }).click();
+    await page.locator('[data-course-code="CENG111"]').getByRole('button', { name: 'Ekle' }).click();
 
     // 5. Add MATH111
-    await page.locator('div.group').filter({ hasText: 'MATH111' }).getByRole('button', { name: 'Ekle' }).click();
+    await page.locator('[data-course-code="MATH111"]').getByRole('button', { name: 'Ekle' }).click();
 
     // 6. Timetable grid contains both departments' courses
     await expect(page.locator('[data-weekly-grid]')).toContainText('CENG111');
@@ -360,7 +360,7 @@ test.describe('Çoklu Bölüm ve Program Yönetimi Testleri', () => {
     await page.goto('/');
 
     // Plan 1: CENG Plan
-    await page.locator('div.group').filter({ hasText: 'CENG111' }).getByRole('button', { name: 'Ekle' }).click();
+    await page.locator('[data-course-code="CENG111"]').getByRole('button', { name: 'Ekle' }).click();
     await expect(page.locator('[data-weekly-grid]')).toContainText('CENG111');
 
     // Create Draft 2: "IE Planı"
@@ -370,7 +370,7 @@ test.describe('Çoklu Bölüm ve Program Yönetimi Testleri', () => {
 
     // In Draft 2, switch to IE and add IE117
     await page.locator('#primary-department').selectOption('IE');
-    await page.locator('div.group').filter({ hasText: 'IE117' }).getByRole('button', { name: 'Ekle' }).click();
+    await page.locator('[data-course-code="IE117"]').getByRole('button', { name: 'Ekle' }).click();
     await expect(page.locator('[data-weekly-grid]')).toContainText('IE117');
     await expect(page.locator('[data-weekly-grid]')).not.toContainText('CENG111');
 

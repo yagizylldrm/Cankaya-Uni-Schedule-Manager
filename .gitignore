@@ -22,6 +22,7 @@ Thumbs.db
 *.log
 /scratch/test_*.js
 /deneme.jpeg
+/.superpowers/
 
 # Node & Build artifacts
 node_modules/
