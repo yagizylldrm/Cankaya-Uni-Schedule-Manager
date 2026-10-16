@@ -1,3 +1,4 @@
+import json
 import unittest
 import tempfile
 from pathlib import Path
@@ -401,6 +402,128 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(res_mse['count'], 1)
         self.assertEqual(res_me['combinations'][0]['total_ects'], 5.0)
         self.assertEqual(res_mse['combinations'][0]['total_ects'], 6.0)
+
+    def test_atomic_json_dump_replaces_target_cleanly(self):
+        import tempfile
+        from api.data_manager import DataManager
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target_file = Path(tmpdir) / "test_target.json"
+            target_file.write_text(json.dumps({"initial": True}), encoding="utf-8")
+
+            # Call atomic dump
+            DataManager._atomic_json_dump(target_file, {"updated": True, "count": 42})
+
+            self.assertTrue(target_file.exists())
+            with open(target_file, "r", encoding="utf-8") as f:
+                loaded = json.load(f)
+            self.assertEqual(loaded, {"updated": True, "count": 42})
+
+    def test_atomic_json_dump_leaves_target_intact_on_failure(self):
+        import tempfile
+        from api.data_manager import DataManager
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target_file = Path(tmpdir) / "test_preserve.json"
+            original_content = json.dumps({"intact": True})
+            target_file.write_text(original_content, encoding="utf-8")
+
+            # Passing an un-serializable object should raise an exception and leave target intact
+            class Unserializable:
+                pass
+
+            with self.assertRaises(Exception):
+                DataManager._atomic_json_dump(target_file, {"data": Unserializable()})
+
+            self.assertTrue(target_file.exists())
+            self.assertEqual(target_file.read_text(encoding="utf-8"), original_content)
+
+    def test_load_from_cache_handles_corrupted_json_gracefully(self):
+        from api.data_manager import DataManager
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            corrupted_cache = Path(tmpdir) / "corrupt_courses.json"
+            corrupted_cache.write_text("{ incomplete json data: [", encoding="utf-8")
+
+            dm = DataManager(cache_filepath=str(corrupted_cache), load_profile=False)
+            loaded = dm.load_from_cache()
+
+            self.assertFalse(loaded)
+            self.assertEqual(len(dm.courses), 0)
+            self.assertEqual(len(dm.departments), 0)
+
+    def test_load_from_cache_handles_missing_keys_gracefully(self):
+        from api.data_manager import DataManager
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            invalid_schema_cache = Path(tmpdir) / "invalid_schema.json"
+            # Root is a list or malformed object missing expected fields
+            invalid_schema_cache.write_text(json.dumps(["not", "a", "dict"]), encoding="utf-8")
+
+            dm = DataManager(cache_filepath=str(invalid_schema_cache), load_profile=False)
+            loaded = dm.load_from_cache()
+
+            self.assertFalse(loaded)
+            self.assertEqual(len(dm.courses), 0)
+
+    def test_load_from_cache_skips_malformed_individual_courses(self):
+        from api.data_manager import DataManager
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            cache_file = Path(tmpdir) / "courses_with_malformed_entry.json"
+            data = {
+                "departments": ["CENG"],
+                "courses": {
+                    "CENG101": {
+                        "code": "CENG101",
+                        "dept_code": "CENG",
+                        "sections": {
+                            "1": {
+                                "course_code": "CENG101",
+                                "section_no": "1",
+                                "instructor": "Hoca",
+                                "slots": [{"day": "Pazartesi", "time_slot": "09:00 - 09:50"}]
+                            }
+                        }
+                    },
+                    "BROKEN": {
+                        # Missing 'code' key
+                        "sections": "not-a-dict"
+                    }
+                }
+            }
+            cache_file.write_text(json.dumps(data), encoding="utf-8")
+
+            dm = DataManager(cache_filepath=str(cache_file), load_profile=False)
+            loaded = dm.load_from_cache()
+
+            self.assertTrue(loaded)
+            self.assertIn("CENG101", dm.courses)
+            self.assertNotIn("BROKEN", dm.courses)
+            self.assertEqual(len(dm.courses), 1)
+
+    def test_load_student_profile_corrupted_json_keeps_defaults(self):
+        from api.data_manager import DataManager
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            profile_file = Path(tmpdir) / "student_profile.json"
+            profile_file.write_text("{ corrupt json profile: ", encoding="utf-8")
+
+            with patch.object(DataManager, 'profile_path', return_value=profile_file):
+                dm = DataManager(load_profile=True)
+                self.assertEqual(dm.student_profile["primary_dept"], "CENG")
+                self.assertEqual(dm.student_profile["secondary_dept"], "YOK")
+
+    def test_reload_official_curricula_handles_corrupt_files_resiliently(self):
+        from api.data_manager import DataManager
+
+        dm = DataManager(load_profile=False)
+        # Mock paths to return nonexistent or corrupt files
+        with patch('os.path.exists', return_value=True):
+            with patch('builtins.open', side_effect=ValueError("Corrupt JSON")):
+                # Should not raise exception
+                dm.reload_official_curricula()
+                self.assertIsNotNone(dm.KNOWN_COURSE_DETAILS)
 
 
 if __name__ == '__main__':

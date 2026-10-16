@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import tempfile
 from pathlib import Path
 
 class ScheduleSlot:
@@ -17,7 +18,13 @@ class ScheduleSlot:
 
     @classmethod
     def from_dict(cls, d):
-        return cls(d["day"], d["time_slot"], d.get("classroom", ""))
+        if not isinstance(d, dict):
+            return None
+        day = d.get("day")
+        time_slot = d.get("time_slot")
+        if not day or not time_slot:
+            return None
+        return cls(str(day), str(time_slot), d.get("classroom", ""))
 
 
 class Section:
@@ -54,9 +61,20 @@ class Section:
 
     @classmethod
     def from_dict(cls, d):
-        sec = cls(d["course_code"], d["section_no"], d.get("instructor", "Belirsiz"), d.get("classroom", ""))
+        if not isinstance(d, dict) or "course_code" not in d or "section_no" not in d:
+            return None
+        sec = cls(str(d["course_code"]), str(d["section_no"]), d.get("instructor", "Belirsiz"), d.get("classroom", ""))
         sec.instructor_evidence = d.get("instructor_evidence")
-        sec.slots = [ScheduleSlot.from_dict(s) for s in d.get("slots", [])]
+        raw_slots = d.get("slots", [])
+        if isinstance(raw_slots, list):
+            valid_slots = []
+            for s in raw_slots:
+                slot = ScheduleSlot.from_dict(s)
+                if slot:
+                    valid_slots.append(slot)
+            sec.slots = valid_slots
+        else:
+            sec.slots = []
         return sec
 
 
@@ -102,9 +120,15 @@ class Course:
 
     @classmethod
     def from_dict(cls, d):
-        c = cls(d["code"], d.get("dept_code", ""))
-        for sec_no, sec_data in d.get("sections", {}).items():
-            c.sections[str(sec_no)] = Section.from_dict(sec_data)
+        if not isinstance(d, dict) or "code" not in d:
+            return None
+        c = cls(str(d["code"]), str(d.get("dept_code", "")))
+        raw_sections = d.get("sections", {})
+        if isinstance(raw_sections, dict):
+            for sec_no, sec_data in raw_sections.items():
+                sec = Section.from_dict(sec_data)
+                if sec:
+                    c.sections[str(sec.section_no)] = sec
         return c
 
 
@@ -867,19 +891,24 @@ class DataManager:
         try:
             with open(path, encoding='utf-8') as stream:
                 evidence = json.load(stream)
+            if not isinstance(evidence, dict):
+                return
             self.instructor_references = evidence.get('records', {})
             if evidence.get('schedule_fetched_at') != getattr(self, 'schedule_fetched_at', None):
                 return  # The timetable changed; old section assignments need revalidation.
+            raw_sections = evidence.get('sections', {})
+            if not isinstance(raw_sections, dict):
+                return
             for code, course in self.courses.items():
                 for number, section in course.sections.items():
-                    record = evidence.get('sections', {}).get(self.normalize_code(code), {}).get(str(number))
-                    if record and record.get('verification') in {
+                    record = raw_sections.get(self.normalize_code(code), {}).get(str(number))
+                    if isinstance(record, dict) and record.get('verification') in {
                         'course_section_and_all_slots_match',
                         'current_term_department_timetable_course_section_room_and_slots_match',
                     }:
                         section.instructor = record['name']
                         section.instructor_evidence = record
-        except (OSError, ValueError) as exc:
+        except (OSError, ValueError, TypeError) as exc:
             print(f'Instructor evidence could not be loaded: {exc}')
 
     def reload_official_curricula(self):
@@ -890,25 +919,32 @@ class DataManager:
         if os.path.exists(curricula_path):
             try:
                 with open(curricula_path, "r", encoding="utf-8") as f:
-                    self.official_curricula = json.load(f)
-                # Some program aliases (LAW/HUK, BF/BAF, etc.) share one
-                # official program, but their old copies have incomplete or
-                # differently normalized rows. Use the complete record for all.
-                by_program = {}
-                for curriculum in self.official_curricula.values():
-                    program_key = (str(curriculum.get("program_id")), str(curriculum.get("curriculum_id")))
-                    score = sum(len(curriculum.get(field, [])) for field in
-                        ("all_department_courses", "elective_slots", "technical_elective_codes", "social_elective_codes"))
-                    if program_key not in by_program or score > by_program[program_key][0]:
-                        by_program[program_key] = (score, curriculum)
-                for curriculum in self.official_curricula.values():
-                    program_key = (str(curriculum.get("program_id")), str(curriculum.get("curriculum_id")))
-                    rich = by_program[program_key][1]
-                    for field in ("compulsory_courses", "compulsory_codes", "all_department_courses",
-                                  "elective_slots", "technical_elective_codes", "technical_elective_pool",
-                                  "social_elective_codes", "social_elective_pool", "elective_count"):
-                        if field in rich:
-                            curriculum[field] = rich[field]
+                    data = json.load(f)
+                if isinstance(data, dict):
+                    self.official_curricula = data
+                    # Some program aliases (LAW/HUK, BF/BAF, etc.) share one
+                    # official program, but their old copies have incomplete or
+                    # differently normalized rows. Use the complete record for all.
+                    by_program = {}
+                    for curriculum in self.official_curricula.values():
+                        if not isinstance(curriculum, dict):
+                            continue
+                        program_key = (str(curriculum.get("program_id")), str(curriculum.get("curriculum_id")))
+                        score = sum(len(curriculum.get(field, [])) for field in
+                            ("all_department_courses", "elective_slots", "technical_elective_codes", "social_elective_codes")
+                            if isinstance(curriculum.get(field), list))
+                        if program_key not in by_program or score > by_program[program_key][0]:
+                            by_program[program_key] = (score, curriculum)
+                    for curriculum in self.official_curricula.values():
+                        if not isinstance(curriculum, dict):
+                            continue
+                        program_key = (str(curriculum.get("program_id")), str(curriculum.get("curriculum_id")))
+                        rich = by_program.get(program_key, (0, {}))[1]
+                        for field in ("compulsory_courses", "compulsory_codes", "all_department_courses",
+                                      "elective_slots", "technical_elective_codes", "technical_elective_pool",
+                                      "social_elective_codes", "social_elective_pool", "elective_count"):
+                            if field in rich:
+                                curriculum[field] = rich[field]
             except Exception as e:
                 print(f"Error loading official curricula: {e}")
 
@@ -917,7 +953,10 @@ class DataManager:
             try:
                 with open(details_path, "r", encoding="utf-8") as f:
                     course_details = json.load(f)
+                if isinstance(course_details, dict):
                     for code, d in course_details.items():
+                        if not isinstance(d, dict):
+                            continue
                         norm = self.normalize_code(code)
                         if d.get("name"):
                             self.KNOWN_COURSE_DETAILS[norm] = {
@@ -957,14 +996,35 @@ class DataManager:
 
         self.save_to_cache()
 
+    @staticmethod
+    def _atomic_json_dump(filepath, data):
+        """Atomically writes JSON data to a file by writing to a temporary file in the same directory and replacing."""
+        target_path = Path(filepath).resolve()
+        target_dir = target_path.parent
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        temp_fd, temp_path = tempfile.mkstemp(dir=target_dir, prefix=f".{target_path.name}.", suffix=".tmp")
+        try:
+            with open(temp_fd, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(temp_path, target_path)
+        except Exception:
+            if os.path.exists(temp_path):
+                try:
+                    os.remove(temp_path)
+                except OSError:
+                    pass
+            raise
+
     def save_to_cache(self):
         data = {
             "departments": sorted(list(self.departments)),
             "courses": {c_code: c.to_dict() for c_code, c in self.courses.items()}
         }
         try:
-            with open(self.cache_filepath, 'w', encoding='utf-8') as f:
-                json.dump(data, f, ensure_ascii=False, indent=2)
+            self._atomic_json_dump(self.cache_filepath, data)
             print(f"Saved {len(self.courses)} courses to {self.cache_filepath}")
         except Exception as e:
             print(f"Cache write error: {e}")
@@ -977,14 +1037,24 @@ class DataManager:
             with open(self.cache_filepath, 'r', encoding='utf-8') as f:
                 data = json.load(f)
 
-            self.departments = set(data.get("departments", []))
+            if not isinstance(data, dict):
+                print(f"Cache load error: expected JSON object at root of {self.cache_filepath}")
+                return False
+
+            raw_depts = data.get("departments", [])
+            self.departments = set(raw_depts) if isinstance(raw_depts, (list, set)) else set()
             self.schedule_fetched_at = data.get('fetched_at')
             self.courses = {}
-            for c_code, c_data in data.get("courses", {}).items():
-                self.courses[c_code] = Course.from_dict(c_data)
-                dept = self.courses[c_code].dept_code
-                if dept:
-                    self.departments.add(dept)
+
+            raw_courses = data.get("courses", {})
+            if isinstance(raw_courses, dict):
+                for c_code, c_data in raw_courses.items():
+                    course_obj = Course.from_dict(c_data)
+                    if course_obj:
+                        self.courses[course_obj.code] = course_obj
+                        dept = course_obj.dept_code
+                        if dept:
+                            self.departments.add(dept)
 
             print(f"Loaded {len(self.courses)} courses from cache ({self.cache_filepath})")
             return True
@@ -1007,7 +1077,8 @@ class DataManager:
             try:
                 with source_path.open('r', encoding='utf-8') as f:
                     data = json.load(f)
-                    self.student_profile.update(data)
+                    if isinstance(data, dict):
+                        self.student_profile.update(data)
             except Exception:
                 pass
 
@@ -1019,8 +1090,7 @@ class DataManager:
         if secondary_type is not None:
             self.student_profile["secondary_type"] = secondary_type
         try:
-            with self.profile_path().open('w', encoding='utf-8') as f:
-                json.dump(self.student_profile, f, ensure_ascii=False, indent=2)
+            self._atomic_json_dump(self.profile_path(), self.student_profile)
         except Exception as e:
             print(f"Error saving student profile: {e}")
 
