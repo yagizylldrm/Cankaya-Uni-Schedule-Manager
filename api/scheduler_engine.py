@@ -1,5 +1,16 @@
+import time
+
+
 class SchedulerEngine:
     DAYS_ORDER = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"]
+
+    def __init__(self):
+        self.last_search_meta = {
+            "truncated": False,
+            "time_exceeded": False,
+            "duration_ms": 0.0,
+            "count": 0
+        }
 
     @staticmethod
     def slots_overlap(slot1, slot2):
@@ -241,15 +252,27 @@ class SchedulerEngine:
                 "action": {"type": "review_basket", "label": "Ders seçimlerini incele"}})
         return details[:8]
 
-    def generate_combinations(self, course_sections_dict, preferences=None, custom_blocks=None):
+    def generate_combinations(self, course_sections_dict, preferences=None, custom_blocks=None,
+                              max_results=500, time_budget_ms=2000):
         """
-        Generates valid non-conflicting section combinations.
+        Generates valid non-conflicting section combinations within bounds.
         course_sections_dict: { "CENG111": [Section1, Section2, ...], "MATH119": [...] }
         preferences: dict e.g. {"free_friday": True, "no_morning": False}
         custom_blocks: dict of user-defined schedule blocks e.g. { "Pazartesi:10:00 - 10:50": {...} }
-        
+        max_results: maximum combinations to collect before truncating (default 500)
+        time_budget_ms: maximum search time in milliseconds (default 2000 ms)
+
         Returns: list of combinations. Each combination is a list of Section objects.
         """
+        start_time = time.perf_counter()
+        time_budget_sec = time_budget_ms / 1000.0
+        self.last_search_meta = {
+            "truncated": False,
+            "time_exceeded": False,
+            "duration_ms": 0.0,
+            "count": 0
+        }
+
         course_codes = list(course_sections_dict.keys())
         if not course_codes:
             return []
@@ -308,14 +331,30 @@ class SchedulerEngine:
                 incompatible_earlier[id(later)] = conflicts
 
         valid_combinations = []
+        truncated = False
+        time_exceeded = False
 
         def backtrack(course_idx, current_combination):
+            nonlocal truncated, time_exceeded
+            if truncated or time_exceeded:
+                return
+
+            # Check time budget periodically (check every node)
+            if time.perf_counter() - start_time > time_budget_sec:
+                time_exceeded = True
+                truncated = True
+                return
+
             if course_idx == len(sections_per_course):
                 valid_combinations.append(list(current_combination))
+                if len(valid_combinations) >= max_results:
+                    truncated = True
                 return
 
             candidate_sections = sections_per_course[course_idx]
             for sec in candidate_sections:
+                if truncated or time_exceeded:
+                    break
                 if not any(id(existing_sec) in incompatible_earlier.get(id(sec), ())
                            for existing_sec in current_combination):
                     current_combination.append(sec)
@@ -323,6 +362,14 @@ class SchedulerEngine:
                     current_combination.pop()
 
         backtrack(0, [])
+
+        duration = (time.perf_counter() - start_time) * 1000.0
+        self.last_search_meta = {
+            "truncated": truncated,
+            "time_exceeded": time_exceeded,
+            "duration_ms": round(duration, 2),
+            "count": len(valid_combinations)
+        }
 
         # Apply preference filters / sorting if provided
         if preferences:

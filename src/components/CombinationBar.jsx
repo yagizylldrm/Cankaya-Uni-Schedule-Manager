@@ -20,6 +20,8 @@ export default function CombinationBar({ onReviewCourses }) {
     updatePreferences,
     conflictsInfo,
     conflictDetails,
+    isTruncated,
+    isTimeExceeded,
     generateSchedule,
     generationError,
     isGenerating,
@@ -83,6 +85,17 @@ export default function CombinationBar({ onReviewCourses }) {
         <p role="status" className="rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 p-3 text-xs sm:text-sm text-amber-800 dark:text-amber-300 font-medium">
           Gösterilen program güncel seçimlere ait değil. Yeni sonuç gelene kadar dışa aktarılamaz.
         </p>
+      )}
+
+      {isTruncated && !isScheduleStale && (
+        <div role="status" className="rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 p-3 text-xs sm:text-sm text-amber-800 dark:text-amber-300 font-medium flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
+          <span>
+            {isTimeExceeded
+              ? 'Arama süresi sınırına (2 sn) ulaşıldığı için olası kombinasyonların ilk bölümü listelendi. Daha fazla seçenek görmek için şube ve tercihlerle filtreleyin.'
+              : 'Çok fazla çakışmasız alternatif bulunduğu için ilk 500 kombinasyon listelendi. Seçenekleri daraltmak için şube veya tercihleri filtreleyin.'}
+          </span>
+        </div>
       )}
 
       {storageError && (

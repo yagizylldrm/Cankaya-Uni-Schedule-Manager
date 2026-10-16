@@ -294,6 +294,8 @@ export function ScheduleProvider({ children }) {
   }, [combinations, sortedCombinations, currentComboIndex]);
   const [conflictsInfo, setConflictsInfo] = useState(null);
   const [conflictDetails, setConflictDetails] = useState([]);
+  const [isTruncated, setIsTruncated] = useState(false);
+  const [isTimeExceeded, setIsTimeExceeded] = useState(false);
   const [resultSignature, setResultSignature] = useState(() => initialDraft.selectedCombination ? inputSignature(
     initialDraft.basket, initialDraft.preferences, initialDraft.customBlocks, initialDraft.program) : null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -441,6 +443,8 @@ export function ScheduleProvider({ children }) {
     }
     setConflictsInfo(null);
     setConflictDetails([]);
+    setIsTruncated(false);
+    setIsTimeExceeded(false);
     setGenerationError('');
     setIsGenerating(hasCourses);
     setRestoredPlan(false);
@@ -460,6 +464,8 @@ export function ScheduleProvider({ children }) {
       const selected = Object.fromEntries(Object.entries(basket).map(([code, c]) => [code, c.selectedSections || []]));
       const res = await generateCombinations(selected, nextPreferences, nextBlocks);
       if (id !== requestId.current) return;
+      setIsTruncated(Boolean(res.truncated));
+      setIsTimeExceeded(Boolean(res.time_exceeded));
       if (res.combinations?.length) {
         successfulContentSignature.current = requestedContentSignature;
         setCombinations(res.combinations);
@@ -495,6 +501,8 @@ export function ScheduleProvider({ children }) {
       setResultSignature(null);
       setConflictsInfo(null);
       setConflictDetails([]);
+      setIsTruncated(false);
+      setIsTimeExceeded(false);
       setGenerationError('');
       setIsGenerating(false);
       return;
@@ -586,10 +594,11 @@ export function ScheduleProvider({ children }) {
       currentComboIndex,
       setCurrentComboIndex,
       conflictsInfo,
+      conflictDetails,
+      isTruncated,
+      isTimeExceeded,
       isGenerating,
       generateSchedule,
-      generationError,
-      conflictDetails,
       isScheduleStale,
       selectedCombination,
       canExport,

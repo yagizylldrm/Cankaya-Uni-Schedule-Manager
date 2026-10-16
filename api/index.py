@@ -534,11 +534,15 @@ def generate_schedule_combinations(req: CombinationsRequest):
             "section_refs" if req.compact else "sections": combo_sections
         })
 
+    meta = getattr(scheduler, "last_search_meta", {})
     response = {
         "count": count,
         "combinations": serialized_combos,
         "conflicts_info": conflicts_info,
-        "conflict_details": scheduler.explain_conflicts(target_dict, prefs, custom_blocks) if count == 0 else []
+        "conflict_details": scheduler.explain_conflicts(target_dict, prefs, custom_blocks) if count == 0 else [],
+        "truncated": meta.get("truncated", False),
+        "time_exceeded": meta.get("time_exceeded", False),
+        "search_duration_ms": meta.get("duration_ms", 0.0)
     }
     if req.compact:
         response["section_catalog"] = {

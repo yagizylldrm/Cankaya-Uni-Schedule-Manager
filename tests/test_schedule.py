@@ -92,6 +92,35 @@ class ConflictTests(unittest.TestCase):
             'A': [first, duplicate, different_instructor, different_time], 'B': [other]})
         self.assertEqual([combo[0].section_no for combo in combos], ['1', '4'])
 
+    def test_search_budget_caps_max_results(self):
+        # Create courses on different days so each course section can be chosen independently
+        days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma']
+        course_dict = {}
+        for c_idx, day in enumerate(days):
+            c_name = f'COURSE_{c_idx}'
+            course_dict[c_name] = [
+                section(c_name, str(s_idx), day=day, time=f'{8+s_idx:02d}:00 - {8+s_idx:02d}:50')
+                for s_idx in range(4)
+            ]
+        # Total combinations = 4^5 = 1024
+        combos = self.engine.generate_combinations(course_dict, max_results=50)
+        self.assertEqual(len(combos), 50)
+        self.assertTrue(self.engine.last_search_meta.get('truncated'))
+        self.assertFalse(self.engine.last_search_meta.get('time_exceeded'))
+
+    def test_search_budget_caps_time_budget(self):
+        days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma']
+        course_dict = {}
+        for c_idx, day in enumerate(days):
+            c_name = f'COURSE_{c_idx}'
+            course_dict[c_name] = [
+                section(c_name, str(s_idx), day=day, time=f'{8+s_idx:02d}:00 - {8+s_idx:02d}:50')
+                for s_idx in range(4)
+            ]
+        combos = self.engine.generate_combinations(course_dict, max_results=5000, time_budget_ms=0.0001)
+        self.assertTrue(self.engine.last_search_meta.get('time_exceeded'))
+        self.assertTrue(self.engine.last_search_meta.get('truncated'))
+
 
 class ApiTests(unittest.TestCase):
     def test_latest_curriculum_filters_each_department_course_list(self):
@@ -328,6 +357,31 @@ class ApiTests(unittest.TestCase):
             files={"file": ("", b"some text", "text/plain")}
         )
         self.assertIn(res_none.status_code, (400, 422))
+
+    def test_combinations_api_includes_truncation_metadata(self):
+        # Setup course with many valid non-overlapping combinations
+        courses = {}
+        for c_idx in range(4):
+            c_name = f'CR_{c_idx}'
+            course = Course(c_name)
+            course.sections = {
+                str(s_idx): section(c_name, str(s_idx), day='Pazartesi', time=f'{8+s_idx:02d}:00 - {8+s_idx:02d}:50')
+                for s_idx in range(4)
+            }
+            courses[c_name] = course
+
+        with patch.object(api.dm, 'courses', courses):
+            # Request all sections
+            selected = {c: [str(s) for s in range(4)] for c in courses}
+            # Create dummy sections matching the course sections
+            sample_combo = [courses[c_name].sections['0'] for c_name in courses]
+            with patch.object(api.scheduler, 'generate_combinations', return_value=[sample_combo] * 50) as mock_gen:
+                api.scheduler.last_search_meta = {'truncated': True, 'time_exceeded': False}
+                res = self.client.post('/api/combinations', json={'selected_courses': selected}).json()
+                self.assertIn('truncated', res)
+                self.assertIn('time_exceeded', res)
+                self.assertTrue(res['truncated'])
+                self.assertFalse(res['time_exceeded'])
 
 
 if __name__ == '__main__':

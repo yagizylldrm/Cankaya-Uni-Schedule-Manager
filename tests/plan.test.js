@@ -23,12 +23,16 @@ test('API combinations count distinct weekly timetables after hydration', async 
   };
   globalThis.fetch = async () => ({ ok: true, json: async () => ({
     count: 3,
+    truncated: true,
+    time_exceeded: false,
     section_catalog: { EE205: sections },
     combinations: ['1', '2', '3'].map((number, index) => ({ index, section_refs: [['EE205', number]] }))
   }) });
   try {
     const result = await generateCombinations({ EE205: ['1', '2', '3'] });
     assert.equal(result.count, 2);
+    assert.equal(result.truncated, true);
+    assert.equal(result.time_exceeded, false);
     assert.deepEqual(result.combinations.map(combo => combo.sections[0].section_no), ['1', '3']);
     assert.deepEqual(result.combinations.map(combo => combo.index), [0, 1]);
   } finally {
