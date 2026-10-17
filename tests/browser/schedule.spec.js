@@ -651,7 +651,9 @@ test('API error shows a retry button', async ({ page }) => {
     else await route.fulfill({ json: {} });
   });
   await page.goto('/');
-  await expect(page.getByRole('alert')).toContainText('Bölümler listelenemedi');
+  await expect(page.getByRole('alert')).toContainText(
+    'Sunucu tarafında geçici bir sorun yaşanıyor, lütfen daha sonra tekrar deneyin.'
+  );
   await expect(page.getByRole('button', { name: 'Tekrar dene' })).toBeVisible();
 });
 

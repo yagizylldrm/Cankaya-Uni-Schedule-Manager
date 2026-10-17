@@ -2,19 +2,24 @@
  * API Service for communication with FastAPI serverless backend.
  */
 import { uniqueTimetableCombinations } from '../utils/combinations.js';
+import { createHttpError, createNetworkError } from './httpErrors.js';
 
 const BASE_URL = '/api';
-const OFFLINE_ERROR = 'Çevrimdışı. Ders arama ve program üretimi internet bağlantısı gerektirir.';
 
 async function apiFetch(url, options) {
+  let response;
   try {
-    const response = await fetch(url, options);
-    if (response.status === 503) throw new Error(OFFLINE_ERROR);
-    return response;
+    response = await fetch(url, options);
   } catch (error) {
-    if (error instanceof TypeError) throw new Error(OFFLINE_ERROR);
+    if (error instanceof TypeError) throw createNetworkError(error);
     throw error;
   }
+
+  if (!response.ok) {
+    const data = await response.clone().json().catch(() => ({}));
+    throw createHttpError(response.status, data);
+  }
+  return response;
 }
 
 export async function fetchHealth() {
@@ -197,7 +202,13 @@ export async function askAiAssistant({
   });
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.detail || 'Yapay zeka asistanı yanıt veremedi');
+    const detail = typeof errorData.detail === 'object'
+      ? errorData.detail.message
+      : errorData.detail;
+    const error = new Error(errorData.error || detail || 'Yapay zeka asistanı yanıt veremedi');
+    error.status = res.status;
+    error.code = errorData.detail?.code;
+    throw error;
   }
   return res.json();
 }

@@ -1,12 +1,20 @@
-const BASE_URL = '/api';
+import { ApiError, createHttpError, createNetworkError } from './httpErrors.js';
 
-export class SportsApiError extends Error {
-  constructor(message, { status = 500, code = 'UNKNOWN_ERROR', data = null } = {}) {
-    super(message);
+const BASE_URL = '/api';
+const UPSTREAM_HTML_ERROR =
+  'Üniversite spor sistemi şu an yanıt veremiyor veya bakım modunda (Sunucu hatası).';
+
+function safeErrorMessage(message, fallback) {
+  if (typeof message !== 'string') return fallback;
+  return /<!doctype|<html|<head|<body|<title|<script|<style/i.test(message)
+    ? UPSTREAM_HTML_ERROR
+    : message;
+}
+
+export class SportsApiError extends ApiError {
+  constructor(message, options = {}) {
+    super(message, options);
     this.name = 'SportsApiError';
-    this.status = status;
-    this.code = code;
-    this.data = data;
   }
 }
 
@@ -28,7 +36,16 @@ function parseErrorResponse(status, data, defaultMsg) {
     }
   }
 
-  return new SportsApiError(message, { status, code, data });
+  const error = createHttpError(status, { detail: { message, code } }, {
+    fallback: defaultMsg,
+    htmlFallback: UPSTREAM_HTML_ERROR,
+    preserveServerCodes: ['UPSTREAM_ERROR', 'PARSE_ERROR']
+  });
+  return new SportsApiError(safeErrorMessage(error.message, defaultMsg), {
+    status: error.status,
+    code: error.code,
+    data
+  });
 }
 
 async function requestSports(endpoint, body, signal = null, defaultErrorMsg = 'İşlem başarısız oldu.') {
@@ -47,9 +64,10 @@ async function requestSports(endpoint, body, signal = null, defaultErrorMsg = '�
     if (err.name === 'AbortError') {
       throw err;
     }
-    throw new SportsApiError('Sunucuya bağlanılamadı. Lütfen bağlantınızı kontrol edin.', {
-      status: 0,
-      code: 'NETWORK_ERROR'
+    const networkError = createNetworkError(err);
+    throw new SportsApiError(networkError.message, {
+      status: networkError.status,
+      code: networkError.code
     });
   }
 

@@ -4,7 +4,7 @@
   "version": "2.0.0",
   "type": "module",
   "scripts": {
-    "test": "node --test tests/plan.test.js",
+    "test": "node --test tests/*.test.js",
     "test:api": "node scripts/python.mjs -m unittest discover -s tests -p test_*.py",
     "test:e2e": "playwright test",
     "dev": "vite",

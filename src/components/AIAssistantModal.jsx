@@ -106,7 +106,11 @@ export default function AIAssistantModal({ isOpen, onClose }) {
         }
       ]);
     } catch (err) {
-      const errMsg = err.message || 'Yapay zeka asistanına bağlanırken bir hata oluştu.';
+      let errMsg = err.message || 'Yapay zeka asistanına bağlanırken bir hata oluştu.';
+      // Show 429 rate limit message politely
+      if (err.status === 429 || err.code === 'RATE_LIMIT_EXCEEDED') {
+        errMsg = 'Çok fazla istek gönderildi. Lütfen 1 dakika bekleyin.';
+      }
       setMessages(prev => [
         ...prev,
         {

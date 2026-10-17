@@ -36,6 +36,7 @@ import hashlib
 from collections import defaultdict
 from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form, Body, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
@@ -751,7 +752,16 @@ def ai_schedule_assistant(req: AIAssistantRequest, request: Request):
     Accepts user prompt and current timetable context, calling Gemini or Groq API to analyze
     and recommend the most suitable combination index along with suggested preferences and reasoning.
     """
-    _check_rate_limit(request, "ai_assistant", limit=20, window=60)
+    try:
+        _check_rate_limit(request, "ai_assistant", limit=5, window=60)
+    except HTTPException as exc:
+        if exc.status_code == 429:
+            return JSONResponse(
+                status_code=429,
+                content={"error": "Çok fazla istek gönderdiniz, lütfen 1 dakika bekleyin."},
+                headers=exc.headers,
+            )
+        raise
 
     # Input guardrails: sanitize and check prompt for injection / off-topic queries
     prompt_clean = req.prompt.strip()

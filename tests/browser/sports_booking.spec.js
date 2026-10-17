@@ -298,6 +298,29 @@ test('race condition defense: out-of-order date responses only show the latest r
   await expect(page.getByText('Eski Tarih Seansı')).not.toBeVisible();
 });
 
+test('HTML upstream errors are replaced with a safe sports message', async ({ page }) => {
+  await setupSportsPage(page, {
+    slotsOverride: async (route) => {
+      await route.fulfill({
+        status: 502,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          detail: '<!DOCTYPE html><html><title>IIS Error</title><body>secret path</body></html>'
+        })
+      });
+    }
+  });
+
+  await loginToSportsModal(page);
+
+  const alert = page.getByRole('alert');
+  await expect(alert).toContainText(
+    'Üniversite spor sistemi şu an yanıt veremiyor veya bakım modunda (Sunucu hatası).'
+  );
+  await expect(alert).not.toContainText('IIS Error');
+  await expect(alert).not.toContainText('<html>');
+});
+
 test('slot error display and retry functionality', async ({ page }) => {
   let attempt = 0;
 

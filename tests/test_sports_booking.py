@@ -219,6 +219,26 @@ class SportsBookingTests(unittest.TestCase):
         self.assertNotIn("ngrok", message)
         self.assertNotIn("text/html", message)
 
+    def test_login_maintenance_html_returns_fixed_sanitized_message(self):
+        mock_response = MagicMock(
+            status_code=200,
+            headers={"Content-Type": "text/html; charset=UTF-8"},
+            url=f"{SportsBookingService.get_base_url()}/Account/StudentLogin",
+            text="<!DOCTYPE html><html><title>IIS Maintenance</title><body>secret server path</body></html>",
+            history=[],
+        )
+
+        with patch("requests.Session.get", return_value=mock_response):
+            with self.assertRaises(SportsUpstreamError) as context:
+                SportsBookingService.authenticate("student", "password")
+
+        self.assertEqual(
+            str(context.exception),
+            "Üniversite spor sistemi şu an yanıt veremiyor veya bakım modunda (Sunucu hatası)."
+        )
+        self.assertNotIn("IIS", str(context.exception))
+        self.assertNotIn("secret", str(context.exception))
+
     def test_login_post_uses_origin_and_referer_headers(self):
         base_url = SportsBookingService.get_base_url()
         login_url = f"{base_url}/Account/StudentLogin"
@@ -409,6 +429,36 @@ class SportsBookingTests(unittest.TestCase):
             self.assertEqual(slots[1]["capacity"], 25)
             self.assertTrue(slots[1]["is_full"])
 
+    def test_slots_maintenance_html_returns_fixed_sanitized_message(self):
+        token = encrypt_session_data({"cookies": {".AspNet.ApplicationCookie": "abc"}})
+        base_url = SportsBookingService.get_base_url()
+
+        get_response = MagicMock(
+            status_code=200,
+            headers={"Content-Type": "text/html"},
+            url=f"{base_url}/Appointment/SeansSelection",
+            text='<input name="__RequestVerificationToken" value="CSRF_123" />',
+            history=[],
+        )
+        post_response = MagicMock(
+            status_code=200,
+            headers={"Content-Type": "text/html"},
+            url=f"{base_url}/Appointment/SeansSelection",
+            text="<html><head><title>Service Unavailable</title></head><body>HTTP Error 503</body></html>",
+            history=[],
+        )
+
+        with patch("requests.Session.get", return_value=get_response), patch(
+            "requests.Session.post", return_value=post_response
+        ):
+            with self.assertRaises(SportsUpstreamError) as context:
+                SportsBookingService.get_available_slots(token, "28.09.2026")
+
+        self.assertEqual(
+            str(context.exception),
+            "Üniversite spor sistemi şu an yanıt veremiyor veya bakım modunda (Sunucu hatası)."
+        )
+
     def test_get_available_slots_empty_records(self):
         empty_html = """
         <html><body><div class="alert alert-info">Seçilen kriterlere uygun kayıt bulunamadı.</div></body></html>
@@ -448,6 +498,25 @@ class SportsBookingTests(unittest.TestCase):
             result_fail = SportsBookingService.book_slot(token, "102")
             self.assertFalse(result_fail["success"])
             self.assertIn("kontenjan", result_fail["message"].lower())
+
+    def test_booking_maintenance_html_returns_fixed_sanitized_message(self):
+        token = encrypt_session_data({"cookies": {".AspNet.ApplicationCookie": "abc"}})
+        mock_response = MagicMock(
+            status_code=503,
+            headers={"Content-Type": "text/html"},
+            url="https://randevu.cankaya.edu.tr/Appointment/SeansSelected/101",
+            text="<!doctype html><html><title>HTTP Error 503.0</title></html>",
+            history=[],
+        )
+
+        with patch("requests.Session.get", return_value=mock_response):
+            with self.assertRaises(SportsUpstreamError) as context:
+                SportsBookingService.book_slot(token, "101")
+
+        self.assertEqual(
+            str(context.exception),
+            "Üniversite spor sistemi şu an yanıt veremiyor veya bakım modunda (Sunucu hatası)."
+        )
 
     def test_unsafe_external_redirect_blocked(self):
         token = encrypt_session_data({"cookies": {".AspNet.ApplicationCookie": "abc"}})

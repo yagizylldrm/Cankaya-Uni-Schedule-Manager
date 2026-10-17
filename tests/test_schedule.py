@@ -260,6 +260,7 @@ class ApiTests(unittest.TestCase):
 
     def setUp(self):
         self.client = TestClient(api.app)
+        api._rate_limiter._storage.clear()
         self.a = Course('A')
         self.a.sections = {'1': section('A')}
         self.b = Course('B')
@@ -525,6 +526,49 @@ class ApiTests(unittest.TestCase):
                 # Should not raise exception
                 dm.reload_official_curricula()
                 self.assertIsNotNone(dm.KNOWN_COURSE_DETAILS)
+
+    def test_ai_assistant_limits_each_ip_to_five_requests_per_minute(self):
+        payload = {
+            'prompt': 'Pazartesi boş olsun',
+            'provider': 'gemini',
+            'api_key': 'fake_key',
+            'combinations': [{'index': 0, 'days_count': 4, 'sections': []}]
+        }
+        fake_response = {
+            'candidates': [{'content': {'parts': [{'text': json.dumps({
+                'recommended_index': 0,
+                'explanation': '1. program seçildi.',
+                'suggested_preferences': {}
+            })}]}}]
+        }
+
+        with patch('requests.post') as mock_post:
+            mock_post.return_value = SimpleNamespace(
+                status_code=200,
+                json=lambda: fake_response,
+                text=json.dumps(fake_response)
+            )
+            headers = {'x-real-ip': '198.51.100.10'}
+            for _ in range(5):
+                self.assertEqual(
+                    self.client.post('/api/ai/assistant', json=payload, headers=headers).status_code,
+                    200
+                )
+
+            limited = self.client.post('/api/ai/assistant', json=payload, headers=headers)
+            other_ip = self.client.post(
+                '/api/ai/assistant',
+                json=payload,
+                headers={'x-real-ip': '198.51.100.11'}
+            )
+
+        self.assertEqual(limited.status_code, 429)
+        self.assertEqual(
+            limited.json(),
+            {'error': 'Çok fazla istek gönderdiniz, lütfen 1 dakika bekleyin.'}
+        )
+        self.assertEqual(limited.headers.get('retry-after'), '60')
+        self.assertEqual(other_ip.status_code, 200)
 
     def test_ai_assistant_returns_error_when_no_api_key_configured(self):
         with patch.dict(os.environ, {}, clear=True):

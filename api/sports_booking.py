@@ -19,6 +19,11 @@ from cryptography.hazmat.primitives import hashes
 
 logger = logging.getLogger(__name__)
 
+SPORTS_UPSTREAM_HTML_ERROR = (
+    "Üniversite spor sistemi şu an yanıt veremiyor veya bakım modunda "
+    "(Sunucu hatası)."
+)
+
 # --- Typed Exceptions ---
 
 class SportsError(ValueError):
@@ -261,6 +266,29 @@ class SportsBookingService(metaclass=_SportsBookingMeta):
                     raise SportsUpstreamError("Güvenli olmayan harici yönlendirme engellendi.")
 
     @classmethod
+    def _raise_if_error_page(cls, response: requests.Response):
+        """Beklenen EBS HTML'i ile IIS/bakım hata sayfalarını ayırır."""
+        text = response.text or ""
+        soup = BeautifulSoup(text, "html.parser")
+        title = soup.title.get_text(" ", strip=True).lower() if soup.title else ""
+        visible_text = soup.get_text(" ", strip=True).lower()
+        error_markers = (
+            "service unavailable", "http error", "internal server error",
+            "iis", "maintenance", "bakım", "temporarily unavailable",
+        )
+        status_code = response.status_code if isinstance(response.status_code, int) else 200
+        if status_code >= 500 or any(
+            marker in title or marker in visible_text[:500]
+            for marker in error_markers
+        ):
+            logger.warning(
+                "Sports upstream returned an error page: HTTP %s, url: %s",
+                response.status_code,
+                response.url,
+            )
+            raise SportsUpstreamError(SPORTS_UPSTREAM_HTML_ERROR)
+
+    @classmethod
     def authenticate(cls, username: str, password: str) -> Dict[str, Any]:
         """
         Öğrenci kimlik bilgilerini üniversite randevu sistemine iletir.
@@ -288,6 +316,8 @@ class SportsBookingService(metaclass=_SportsBookingMeta):
         except requests.RequestException as e:
             logger.warning("Failed to reach login page: %s", type(e).__name__)
             raise SportsUpstreamError("Üniversite randevu sunucusuna bağlanılamadı.")
+
+        cls._raise_if_error_page(get_res)
 
         if get_res.status_code >= 400:
             content_type = get_res.headers.get("Content-Type", "")
@@ -413,6 +443,7 @@ class SportsBookingService(metaclass=_SportsBookingMeta):
         if "/Account/StudentLogin" in get_res.url or "Login" in get_res.url:
             raise SportsSessionExpiredError("Üniversite oturumunuzun süresi dolmuş. Lütfen tekrar giriş yapın.")
 
+        cls._raise_if_error_page(get_res)
         soup = BeautifulSoup(get_res.text, "html.parser")
         token_input = soup.find("input", {"name": "__RequestVerificationToken"})
         token_val = token_input.get("value") if token_input else ""
@@ -439,6 +470,7 @@ class SportsBookingService(metaclass=_SportsBookingMeta):
         if "/Account/StudentLogin" in post_res.url or "Login" in post_res.url:
             raise SportsSessionExpiredError("Üniversite oturumunuzun süresi dolmuş. Lütfen tekrar giriş yapın.")
 
+        cls._raise_if_error_page(post_res)
         soup = BeautifulSoup(post_res.text, "html.parser")
         table = soup.select_one("#customTable, table")
 
@@ -534,6 +566,7 @@ class SportsBookingService(metaclass=_SportsBookingMeta):
         if "/Account/StudentLogin" in res.url or "Login" in res.url:
             raise SportsSessionExpiredError("Üniversite oturumunuzun süresi dolmuş. Lütfen tekrar giriş yapın.")
 
+        cls._raise_if_error_page(res)
         text_lower = res.text.lower()
         if "başvurunuz alınmıştır" in text_lower or "randevunuz başarıyla" in text_lower:
             return {
