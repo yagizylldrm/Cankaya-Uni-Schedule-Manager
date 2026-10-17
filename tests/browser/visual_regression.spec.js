@@ -134,6 +134,9 @@ test('token contrast ratio meets WCAG AA standards in light and dark modes', asy
   const themeToggle = page.getByRole('button', { name: /temaya geç/i });
   await themeToggle.click();
   await expect(page.locator('html')).toHaveClass(/dark/);
+  await expect.poll(async () => {
+    return await page.evaluate(() => window.getComputedStyle(document.body).backgroundColor);
+  }).toBe('rgb(18, 18, 18)');
 
   const darkColors = await page.evaluate(() => {
     const body = document.body;
