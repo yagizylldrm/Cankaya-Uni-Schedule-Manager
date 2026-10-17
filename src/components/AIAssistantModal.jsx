@@ -81,25 +81,28 @@ export default function AIAssistantModal({ isOpen, onClose }) {
         customBlocks
       });
 
-      const recIndex = typeof res.recommended_index === 'number' ? res.recommended_index : 0;
+      const isRelevant = res.is_relevant !== false && typeof res.recommended_index === 'number';
+      const recIndex = isRelevant ? res.recommended_index : null;
       const explanation = res.explanation || 'Talebinize göre en uygun program kombinasyonu belirlendi.';
       const suggestedPrefs = res.suggested_preferences || {};
 
-      setLastRecommendation({
-        index: recIndex,
-        explanation,
-        preferences: suggestedPrefs
-      });
+      if (isRelevant && recIndex !== null) {
+        setLastRecommendation({
+          index: recIndex,
+          explanation,
+          preferences: suggestedPrefs
+        });
+      }
 
       setMessages(prev => [
         ...prev,
         {
           role: 'assistant',
           content: explanation,
-          recommendation: {
+          recommendation: isRelevant && recIndex !== null ? {
             index: recIndex,
             preferences: suggestedPrefs
-          }
+          } : null
         }
       ]);
     } catch (err) {
@@ -220,7 +223,7 @@ export default function AIAssistantModal({ isOpen, onClose }) {
         </div>
 
         {/* Chat Messages Container */}
-        <div className="h-64 sm:h-72 overflow-y-auto rounded-xl border border-border-subtle bg-surface-muted/20 p-3 space-y-3 text-xs sm:text-sm">
+        <div className="h-64 sm:h-72 overflow-y-auto rounded-xl border border-border-subtle bg-surface-muted/30 p-3 space-y-3 text-xs sm:text-sm">
           {messages.map((msg, index) => (
             <div
               key={index}
@@ -229,13 +232,13 @@ export default function AIAssistantModal({ isOpen, onClose }) {
               <div
                 className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 ${
                   msg.role === 'user'
-                    ? 'bg-ink text-surface dark:bg-brand dark:text-ink font-medium rounded-tr-sm'
+                    ? 'bg-ink text-surface dark:bg-brand dark:text-brand-ink font-medium rounded-tr-sm'
                     : msg.isError
-                    ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50 rounded-tl-sm'
+                    ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-200 dark:border-rose-900/60 rounded-tl-sm'
                     : 'bg-surface text-ink border border-border-subtle shadow-xs rounded-tl-sm'
                 }`}
               >
-                <div className="leading-relaxed whitespace-pre-wrap">{msg.content}</div>
+                <div className="leading-relaxed whitespace-pre-wrap text-inherit">{msg.content}</div>
 
                 {/* If message carries an actionable recommendation */}
                 {msg.recommendation && (
@@ -247,9 +250,9 @@ export default function AIAssistantModal({ isOpen, onClose }) {
                     <button
                       type="button"
                       onClick={() => handleApply(msg.recommendation)}
-                      className="px-3 py-1 rounded-lg bg-brand hover:bg-brand-hover text-ink font-semibold text-xs transition-colors flex items-center gap-1 shadow-xs"
+                      className="px-3.5 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-brand-ink font-bold text-xs transition-colors flex items-center gap-1.5 shadow-sm active:scale-95"
                     >
-                      <Check className="w-3.5 h-3.5" />
+                      <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                       <span>Programı Uygula</span>
                     </button>
                   </div>

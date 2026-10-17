@@ -753,6 +753,29 @@ def ai_schedule_assistant(req: AIAssistantRequest, request: Request):
     """
     _check_rate_limit(request, "ai_assistant", limit=20, window=60)
 
+    # Input guardrails: sanitize and check prompt for injection / off-topic queries
+    prompt_clean = req.prompt.strip()
+    if not prompt_clean:
+        raise HTTPException(status_code=400, detail="Lütfen bir ders programı talebi belirtin.")
+
+    blocked_keywords = [
+        "ignore previous instructions", "ignore all instructions", "system prompt",
+        "dan mode", "jailbreak", "bypass", "drop table", "<script", "eval(", "prompt injection"
+    ]
+    prompt_lower = prompt_clean.lower()
+    if any(kw in prompt_lower for kw in blocked_keywords):
+        raise HTTPException(
+            status_code=400,
+            detail="Talebiniz güvenlik kurallarına uygun bulunmadı. Lütfen ders programı tercihlerinizi belirtin."
+        )
+
+    # Combinations guardrail: must have at least one combination to analyze
+    if not req.combinations:
+        raise HTTPException(
+            status_code=400,
+            detail="Analiz edilecek ders programı alternatifi bulunmuyor. Lütfen önce ders seçimi yapın."
+        )
+
     # Determine provider and API key
     provider = (req.provider or "gemini").lower().strip()
     api_key = (req.api_key or "").strip()
@@ -768,9 +791,9 @@ def ai_schedule_assistant(req: AIAssistantRequest, request: Request):
             detail=f"API anahtarı bulunamadı. Lütfen {provider.capitalize()} API anahtarı sağlayın veya sunucu ortamında tanımlayın."
         )
 
-    # Compact combination representation for LLM context
+    # Compact combination representation for LLM context (cap to top 10 to keep payload small and fast)
     combos_summary = []
-    for c in req.combinations[:30]:  # Cap to first 30 combinations for token efficiency
+    for c in req.combinations[:10]:
         idx = c.get("index", 0)
         days = c.get("days_count", 0)
         sections_info = []
@@ -790,13 +813,25 @@ def ai_schedule_assistant(req: AIAssistantRequest, request: Request):
 
     system_instruction = (
         "Sen Çankaya Üniversitesi Ders Programı Yöneticisi için uzman bir akademik planlama asistanısın. "
-        "Kullanıcının doğal dilde belirttiği istekleri (örn: 'Pazartesi boş olsun', 'haftada 3 gün geleyim', "
-        "'öğleden sonra olsun', 'sabah erken ders olmasın', 'en az boşluklu olsun') analiz et. "
-        "Mevcut kombinasyonlar arasından kullanıcının isteğine en uygun olan kombinasyonun 'recommended_index' değerini seç. "
+        "GÖREVİN: Kullanıcının doğal dilde belirttiği ders programı isteklerini (örn: 'Pazartesi boş olsun', 'haftada 3 gün geleyim', "
+        "'öğleden sonra olsun', 'sabah erken ders olmasın', 'en az boşluklu olsun') analiz etmek ve en uygun programı seçmektir.\n\n"
+        "ÖNEMLİ GUARDRAIL / UYGUNLUK KURALLARI:\n"
+        "1. KULLANICI GİRDİSİ ANLAMLI BİR DERS PROGRAMI TALEBİ İÇERİYOR MU?\n"
+        "   - Eğer kullanıcı sadece selamlaşma ('selam', 'merhaba', 'hey'), rastgele sayılar ('67', '123'), anlamsız harfler ('asdf', 'test') "
+        "veya ders programıyla ilgisiz sorular yazmışsa:\n"
+        "     * 'is_relevant': false yap.\n"
+        "     * 'recommended_index': null yap.\n"
+        "     * 'explanation': 'Merhaba! Ders programınızı optimize edebilmem için lütfen haftalık programınızla ilgili bir tercih belirtin. Örneğin: \"Pazartesi boş olsun\", \"Sabahları erken ders olmasın\" veya \"Haftada 3 gün geleyim\".'\n"
+        "     * 'suggested_preferences': {}\n"
+        "2. EĞER GİRDİ GEÇERLİ BİR DERS PROGRAMI TALEBİ İSE:\n"
+        "   - 'is_relevant': true yap.\n"
+        "   - Mevcut kombinasyonlar arasından en uygun olanın 0 tabanlı indeksini 'recommended_index' olarak belirle.\n"
+        "   - 'explanation' içinde kullanıcıya hitap ederken DAİMA 1'den başlayan numarasını kullan (yani recommended_index + 1; örn: indeks 8 ise '9 numaralı program' veya '9. program' de, asla 0 tabanlı indeksi söyleme).\n\n"
         "Yanıtını sadece ve sadece geçerli bir JSON nesnesi olarak döndür. JSON formatı: "
         "{\n"
-        '  "recommended_index": 0,\n'
-        '  "explanation": "Neden bu programı seçtiğinin kısa, anlaşılır ve samimi Türkçe açıklaması.",\n'
+        '  "is_relevant": true/false,\n'
+        '  "recommended_index": 0 (veya alakasız ise null),\n'
+        '  "explanation": "Kullanıcıya açıklama veya yönlendirme metni.",\n'
         '  "suggested_preferences": {\n'
         '    "free_monday": true/false,\n'
         '    "free_friday": true/false,\n'
@@ -824,12 +859,12 @@ def ai_schedule_assistant(req: AIAssistantRequest, request: Request):
             }
             # Try preferred chat models in order of capability
             candidate_models = [
+                "openai/gpt-oss-120b",
+                "openai/gpt-oss-20b",
                 "llama-3.3-70b-versatile",
                 "llama3-70b-8192",
                 "llama3-8b-8192",
-                "mixtral-8x7b-32768",
-                "openai/gpt-oss-120b",
-                "openai/gpt-oss-20b"
+                "mixtral-8x7b-32768"
             ]
             resp = None
             for m in candidate_models:
@@ -852,12 +887,13 @@ def ai_schedule_assistant(req: AIAssistantRequest, request: Request):
             resp_data = resp.json()
             raw_text = resp_data["choices"][0]["message"]["content"]
         else:
-            # Default: Google Gemini REST API (gemini-2.5-flash or gemini-flash-latest)
+            # Default: Google Gemini REST API
             gemini_candidates = [
-                "gemini-2.5-flash",
+                "gemini-3-flash-preview",
                 "gemini-flash-latest",
-                "gemini-2.5-flash-lite",
-                "gemini-1.5-flash"
+                "gemini-3.5-flash",
+                "gemini-3.1-flash-lite",
+                "gemini-2.5-flash"
             ]
             body = {
                 "contents": [
@@ -874,15 +910,20 @@ def ai_schedule_assistant(req: AIAssistantRequest, request: Request):
             }
             resp = None
             headers = {"Content-Type": "application/json"}
+            last_err = ""
             for model_name in gemini_candidates:
-                gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
-                resp = requests.post(gemini_url, headers=headers, json=body, timeout=20)
-                if resp.status_code == 200:
-                    break
+                try:
+                    gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+                    resp = requests.post(gemini_url, headers=headers, json=body, timeout=40)
+                    if resp.status_code == 200:
+                        break
+                    last_err = resp.text
+                except Exception as ex:
+                    last_err = str(ex)
 
             if not resp or resp.status_code != 200:
-                logger.error("Gemini API error: %s", resp.text if resp else "no response")
-                raise HTTPException(status_code=502, detail="Gemini API yanıt vermedi veya anahtar geçersiz.")
+                logger.error("Gemini API error: %s", last_err)
+                raise HTTPException(status_code=502, detail=f"Gemini API yanıt vermedi: {last_err[:150]}")
 
             resp_data = resp.json()
             raw_text = resp_data["candidates"][0]["content"]["parts"][0]["text"]
@@ -898,11 +939,39 @@ def ai_schedule_assistant(req: AIAssistantRequest, request: Request):
             clean_text = clean_text[:-3]
         result = json.loads(clean_text.strip())
 
+        is_relevant = result.get("is_relevant", True)
+        raw_rec_index = result.get("recommended_index")
+
+        # Guardrail: If irrelevant / small-talk / gibberish, do not return a recommended combination
+        if is_relevant is False or raw_rec_index is None:
+            rec_index = None
+            sanitized_prefs = {}
+        else:
+            # Validate recommended_index boundaries
+            if not isinstance(raw_rec_index, int) or raw_rec_index < 0 or raw_rec_index >= len(req.combinations):
+                rec_index = 0
+            else:
+                rec_index = raw_rec_index
+
+            raw_prefs = result.get("suggested_preferences", {})
+            sanitized_prefs = {}
+            if isinstance(raw_prefs, dict):
+                allowed_pref_keys = {"free_monday", "free_friday", "no_morning", "no_lunch_break", "compact_days"}
+                for k, v in raw_prefs.items():
+                    if k in allowed_pref_keys and isinstance(v, bool):
+                        sanitized_prefs[k] = v
+
+        # Guardrail: validate and sanitize explanation
+        explanation = str(result.get("explanation", "Talebinize en uygun alternatif belirlendi.")).strip()
+        if len(explanation) > 1000:
+            explanation = explanation[:1000]
+
         return {
             "status": "ok",
-            "recommended_index": result.get("recommended_index", 0),
-            "explanation": result.get("explanation", "Talebinize en uygun alternatif belirlendi."),
-            "suggested_preferences": result.get("suggested_preferences", {})
+            "is_relevant": is_relevant,
+            "recommended_index": rec_index,
+            "explanation": explanation,
+            "suggested_preferences": sanitized_prefs
         }
     except HTTPException:
         raise

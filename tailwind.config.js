@@ -23,6 +23,7 @@ export default {
           strong: 'rgb(var(--color-border-strong) / <alpha-value>)',
         },
         brand: {
+          DEFAULT: 'rgb(var(--color-brand) / <alpha-value>)',
           yellow: 'rgb(var(--color-brand) / <alpha-value>)',
           hover: 'rgb(var(--color-brand-hover) / <alpha-value>)',
           ink: 'rgb(var(--color-brand-ink) / <alpha-value>)',
