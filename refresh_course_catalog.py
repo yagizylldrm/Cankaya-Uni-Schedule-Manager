@@ -196,6 +196,10 @@ def fetch_sources():
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding='utf-8')
 
 
+def sources_need_refresh(cache=CACHE):
+    return not (cache / 'department_sources.json').exists()
+
+
 def compile_catalog():
     evidence = json.loads((ROOT / 'prerequisite_evidence.json').read_text(encoding='utf-8'))
     curricula = json.loads((DATA / 'cankaya_official_curricula.json').read_text(encoding='utf-8'))
@@ -332,6 +336,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--refresh-sources', action='store_true')
     args = parser.parse_args()
-    if args.refresh_sources:
+    if args.refresh_sources or sources_need_refresh():
         fetch_sources()
     compile_catalog()

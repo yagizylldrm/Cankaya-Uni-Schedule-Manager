@@ -1,6 +1,6 @@
 # 🎓 Çankaya Üniversitesi Ders Programı Oluşturucu (Schedule Manager)
 
-Çankaya Üniversitesi'nin açılan derslerinden haftalık çakışmasız programlar oluşturan web uygulaması. Kredi/AKTS takibi, özel etkinlikler ve yerel plan taslakları içerir. Qt masaüstü sürümü eski sürüm olarak korunur.
+Çankaya Üniversitesi'nin açılan derslerinden haftalık çakışmasız programlar oluşturan web uygulaması. Kredi/AKTS takibi, özel etkinlikler ve yerel plan taslakları içerir.
 
 ---
 
@@ -144,15 +144,4 @@ npm run build
 ```
 
 Tarayıcı testleri Vite'ı otomatik başlatır ve tekrarlanabilir ders verileri kullanır. API testleri Python zamanlama motorunu ve FastAPI uç noktalarını kontrol eder. Takvim çıktısı [iCalendar (RFC 5545)](https://www.rfc-editor.org/rfc/rfc5545) biçimini kullanır.
-
-## 🖥️ Eski Masaüstü Sürümü (PySide6)
-
-Masaüstü Qt uygulamasını yerel bilgisayarınızda çalıştırmak isterseniz:
-
-```bash
-pip install -r requirements-desktop.txt
-python main.py
-```
-
-> **Not**: Masaüstü sürümü web uygulamasındaki plan JSON içe aktarma, CSV ve takvim dışa aktarma özelliklerini içermez. Ders önbelleği `api/` altında gelir.
 

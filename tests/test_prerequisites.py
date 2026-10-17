@@ -5,10 +5,33 @@ from pathlib import Path
 from unittest.mock import patch
 
 from api.prerequisite_manager import PrerequisiteManager as Manager
+from collect_prerequisites import validate_report
+from refresh_course_catalog import sources_need_refresh
 from refresh_prerequisites import parse_rules
 
 
 class PrerequisiteTests(unittest.TestCase):
+    def test_collector_rejects_partial_program_failures(self):
+        with self.assertRaisesRegex(RuntimeError, 'incomplete'):
+            validate_report({
+                'programs': [{'errors': [{'code': 'CENG105'}]}],
+                'errors': [],
+            })
+        with self.assertRaisesRegex(RuntimeError, 'incomplete'):
+            validate_report({
+                'programs': [{'errors': []}],
+                'errors': [{'program': {'ProgramId': '1'}}],
+            })
+        with self.assertRaisesRegex(RuntimeError, 'incomplete'):
+            validate_report({'programs': [], 'errors': []})
+
+    def test_catalog_refreshes_missing_untracked_sources(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.assertTrue(sources_need_refresh(Path(temp_dir)))
+            cache = Path(temp_dir)
+            (cache / 'department_sources.json').write_text('{}', encoding='utf-8')
+            self.assertFalse(sources_need_refresh(cache))
+
     def test_department_tables_include_empty_rules_and_combined_conditions(self):
         html = (Path(__file__).parent / 'fixtures/ceng_curriculum.html').read_text(encoding='utf-8')
         rules = parse_rules(html)

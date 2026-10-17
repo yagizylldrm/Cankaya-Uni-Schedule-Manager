@@ -89,6 +89,11 @@ def collect_program(program):
     return {'program': program, 'curricula_count': len(curricula), 'records': records, 'errors': errors}
 
 
+def validate_report(report):
+    if not report['programs'] or report['errors'] or any(program['errors'] for program in report['programs']):
+        raise RuntimeError('Prerequisite evidence refresh incomplete; existing catalog preserved')
+
+
 def main():
     global OFFERED
     CACHE.mkdir(exist_ok=True)
@@ -110,7 +115,11 @@ def main():
             except Exception as exc:
                 report['errors'].append({'program': program, 'error': str(exc)})
                 print(f"ERROR {program['ProgramAdi']}: {exc}", flush=True)
-            (ROOT / 'prerequisite_evidence.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    validate_report(report)
+    (ROOT / 'prerequisite_evidence.json').write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + '\n',
+        encoding='utf-8',
+    )
     print('Evidence saved; app rules unchanged.', flush=True)
 
 

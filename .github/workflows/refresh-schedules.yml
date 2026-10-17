@@ -1,4 +1,4 @@
-name: Refresh offered courses
+name: Refresh catalog and schedules
 
 on:
   schedule:
@@ -21,22 +21,28 @@ jobs:
           cache: pip
       - run: python -m pip install -r requirements.txt
       - run: python refresh_schedules.py
+      - run: python collect_prerequisites.py
+        env:
+          CANKAYA_EBS_TOKEN: ${{ secrets.CANKAYA_EBS_TOKEN }}
+          OGBS_API_TOKEN: ${{ secrets.OGBS_API_TOKEN }}
+      - run: python refresh_course_catalog.py
+      - run: python refresh_instructors.py
       - name: Open a reviewable data PR
         env:
           GH_TOKEN: ${{ github.token }}
           BASE_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
-          if git diff --quiet -- api/cankaya_courses.json; then
-            echo "No course changes"
+          if git diff --quiet -- api/*.json; then
+            echo "No catalog or schedule changes"
             exit 0
           fi
           branch="data/refresh-schedules-${GITHUB_RUN_ID}"
           git switch -c "$branch"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- api/cankaya_courses.json
-          git commit -m "data: refresh offered course schedules"
+          git add -- api/*.json
+          git commit -m "data: comprehensive weekly catalog and schedule refresh"
           git push -u origin "$branch"
           gh pr create --base "$BASE_BRANCH" --head "$branch" \
-            --title "data: refresh offered course schedules" \
-            --body "Automated refresh from the university offered-course listing. Please review course, section, and instructor changes before merging."
+            --title "data: comprehensive weekly catalog and schedule refresh" \
+            --body "Automated weekly refresh of the university course catalog, prerequisites, schedules, and instructors. Please review the generated data changes before merging."
