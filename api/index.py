@@ -205,7 +205,7 @@ class SportsBookRequest(BaseModel):
 
 class AIAssistantRequest(BaseModel):
     prompt: str = Field(..., min_length=1, max_length=2000)
-    provider: Optional[str] = "gemini"  # "gemini" or "groq"
+    provider: Optional[str] = None  # "gemini" or "groq" or None (use server default)
     api_key: Optional[str] = None
     combinations: List[Dict[str, Any]] = []
     preferences: Optional[Dict[str, bool]] = None

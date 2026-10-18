@@ -738,3 +738,4 @@ export default function Navbar({
     </>
   );
 }
+<button onClick={open}>GPA</button>
