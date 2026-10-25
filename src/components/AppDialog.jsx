@@ -105,7 +105,7 @@ export default function AppDialog({
         {/* Header */}
         <div className="px-5 py-4 border-b border-border-subtle flex items-start justify-between gap-4 bg-surface">
           <div>
-            <h2 id={headingId} className="font-serif text-lg sm:text-xl font-bold text-ink leading-snug">
+            <h2 id={headingId} className="text-lg sm:text-xl font-semibold tracking-tight text-ink leading-snug">
               {title}
             </h2>
             {description && (

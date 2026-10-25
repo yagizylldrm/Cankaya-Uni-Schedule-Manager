@@ -6,20 +6,11 @@ import { MapPin, Plus, AlertTriangle } from 'lucide-react';
 
 const DAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
 
-const BASE_TIME_SLOTS = [
-  "09:00 - 09:50",
-  "10:00 - 10:50",
-  "11:00 - 11:50",
-  "12:00 - 12:50",
-  "13:00 - 13:50",
-  "14:00 - 14:50",
-  "15:00 - 15:50",
-  "16:00 - 16:50",
-  "17:00 - 17:50",
-  "18:00 - 18:50",
-  "19:00 - 19:50",
-  "20:00 - 20:50"
-];
+const BASE_TIME_SLOTS = Array.from({ length: 8 }, (_, index) => {
+  const hour = String(index + 9).padStart(2, '0');
+  const next = String(index + 10).padStart(2, '0');
+  return `${hour}:20 - ${next}:${index === 7 ? '00' : '10'}`;
+});
 
 // Fixed 8-color palette with semantic left spines and tags
 const COURSE_PALETTES = [
@@ -149,31 +140,7 @@ export default function TimetableGrid({ gridRef }) {
   // Empty weekend columns are never useful in the timetable preview.
   const visibleDays = hasWeekendContent ? DAYS : DAYS.slice(0, 5);
 
-  const TIME_SLOTS = useMemo(() => {
-    const contentStartTimes = [];
-    for (const section of activeSections) for (const slot of section.slots || []) {
-      const start = parseTimeRange(slot.time_slot)?.[0];
-      if (Number.isFinite(start)) contentStartTimes.push(start);
-    }
-    for (const block of Object.values(customBlocks || {})) {
-      const start = parseTimeRange(block.time_slot)?.[0];
-      if (Number.isFinite(start)) contentStartTimes.push(start);
-    }
-
-    const latestContentStart = contentStartTimes.length ? Math.max(...contentStartTimes) : 960;
-    const latestVisibleStart = Math.max(960, latestContentStart);
-    const startTimes = new Set(
-      BASE_TIME_SLOTS
-        .map(slot => parseTimeRange(slot)?.[0])
-        .filter(start => Number.isFinite(start) && start <= latestVisibleStart)
-    );
-    contentStartTimes.forEach(start => startTimes.add(start));
-
-    return [...startTimes].sort((a, b) => a - b).map(start => {
-      const label = minutes => `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
-      return `${label(start)} - ${label(start + 50)}`;
-    });
-  }, [activeSections, customBlocks]);
+  const TIME_SLOTS = BASE_TIME_SLOTS;
 
   // Color mapping per course code
   const getCourseColorPalette = useMemo(() => {
@@ -186,11 +153,11 @@ export default function TimetableGrid({ gridRef }) {
     return map;
   }, [activeSections, courseColors]);
 
-  // Matches a slot to a time slot label
+  // API periods start on the hour; grid labels start twenty minutes later.
   const matchSlotToRow = (slotTime, rowTime) => {
     const slot = parseTimeRange(slotTime);
     const row = parseTimeRange(rowTime);
-    return Boolean(slot && row && slot[0] === row[0]);
+    return Boolean(slot && row && Math.floor(slot[0] / 60) === Math.floor(row[0] / 60));
   };
 
   const overlapsAt = (day, rowTime) => {
@@ -200,7 +167,7 @@ export default function TimetableGrid({ gridRef }) {
       ...activeSections.flatMap(section => (section.slots || []).filter(slot => slot.day === day).map(slot => parseTimeRange(slot.time_slot))),
       ...Object.values(customBlocks || {}).filter(block => block.day === day).map(block => parseTimeRange(block.time_slot))
     ].filter(Boolean);
-    const atRow = entries.filter(range => range[0] === currentStart);
+    const atRow = entries.filter(range => Math.max(range[0], currentStart) < Math.min(range[1], currentStart + 40));
     if (!atRow.length) return false;
     return atRow.some(range => entries.some(other =>
       other !== range && Math.max(range[0], other[0]) < Math.min(range[1], other[1])));
@@ -271,7 +238,7 @@ export default function TimetableGrid({ gridRef }) {
       {/* Top View Controls: Title / Status and View Toggle */}
       <div data-view-controls className="flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm py-1">
         <p role="status" className="font-medium text-ink-muted">
-          {isGenerating ? 'Program güncelleniyor…' : sortedCombinations.length ? 'Seçili program' : 'Taslak · Her ders için bir şubenin ön izlemesi'}
+          {sortedCombinations.length ? 'Seçili program' : 'Haftalık planın'}
         </p>
 
         <div className="inline-flex rounded-xl bg-surface-muted/60 p-0.5 border border-border-subtle">
@@ -279,7 +246,7 @@ export default function TimetableGrid({ gridRef }) {
             type="button"
             aria-pressed={view === 'agenda'}
             onClick={() => setView('agenda')}
-            className={`min-h-[36px] px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+            className={`min-h-11 sm:min-h-[36px] px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
               view === 'agenda' ? 'bg-surface text-ink shadow-sm border border-border-subtle' : 'text-ink-muted hover:text-ink'
             }`}
           >
@@ -289,7 +256,7 @@ export default function TimetableGrid({ gridRef }) {
             type="button"
             aria-pressed={view === 'week'}
             onClick={() => setView('week')}
-            className={`min-h-[36px] px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+            className={`min-h-11 sm:min-h-[36px] px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
               view === 'week' ? 'bg-surface text-ink shadow-sm border border-border-subtle' : 'text-ink-muted hover:text-ink'
             }`}
           >
@@ -355,7 +322,7 @@ export default function TimetableGrid({ gridRef }) {
                     >
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-xs font-mono font-bold text-ink tabular-nums">
-                          {item.time_slot.replace('/', ' – ')}
+                          {item.time_slot.replace('/', ' - ')}
                         </p>
                         {conflict && (
                           <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-600 text-white flex items-center gap-1 shadow-sm">
@@ -395,10 +362,10 @@ export default function TimetableGrid({ gridRef }) {
       <div
         ref={gridRef}
         data-weekly-grid
-        className={`${view === 'week' ? 'flex' : 'hidden'} bg-surface rounded-2xl border border-border-subtle shadow-sm overflow-hidden flex-col min-h-[600px] transition-colors`}
+        className={`${view === 'week' ? 'flex' : 'hidden'} bg-surface rounded-2xl border border-border-subtle shadow-sm overflow-hidden flex-col transition-colors`}
       >
         <div data-grid-scroll className="overflow-x-auto overscroll-x-contain touch-pan-x">
-          <table className="w-full table-fixed border-collapse min-w-[700px] text-left">
+          <table className="w-full table-fixed border-collapse min-w-[700px] lg:min-w-0 text-left">
             {/* Header Days Row */}
             <thead>
               <tr className="bg-surface-muted/80 border-b border-border-subtle">
@@ -408,7 +375,7 @@ export default function TimetableGrid({ gridRef }) {
                 {visibleDays.map(day => (
                   <th
                     key={day}
-                    className="p-2.5 text-center text-xs font-bold text-ink tracking-wide border-r border-border-subtle last:border-r-0"
+                    className="py-4 px-2 text-center text-xs font-semibold text-ink border-r border-border-subtle last:border-r-0"
                   >
                     {day}
                   </th>

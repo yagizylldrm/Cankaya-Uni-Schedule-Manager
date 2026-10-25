@@ -1,15 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSchedule } from '../context/useSchedule';
 import {
   ChevronLeft,
   ChevronRight,
   Sliders,
   AlertTriangle,
-  RefreshCw,
   ChevronDown
 } from 'lucide-react';
 
 export default function CombinationBar({ onReviewCourses }) {
+  const [preferencesOpen, setPreferencesOpen] = useState(() => !window.matchMedia('(max-width: 767px)').matches);
   const {
     sortedCombinations,
     comboSort,
@@ -65,7 +65,11 @@ export default function CombinationBar({ onReviewCourses }) {
   };
 
   return (
-    <div className="bg-surface rounded-2xl border border-border-subtle p-3 sm:p-4 space-y-3 transition-colors">
+    <div className="schedule-controls bg-surface rounded-2xl border border-border-subtle p-4 sm:p-5 space-y-4 transition-colors">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-base font-semibold tracking-tight">Program seçenekleri</h2>
+        <span className="text-xs text-ink-muted">{totalCombos} alternatif</span>
+      </div>
       {/* Alert & Status Notifications */}
       {generationError && (
         <div role="alert" className="rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 p-3 text-xs sm:text-sm text-rose-700 dark:text-rose-300">
@@ -79,12 +83,6 @@ export default function CombinationBar({ onReviewCourses }) {
             Tekrar dene
           </button>
         </div>
-      )}
-
-      {isScheduleStale && (
-        <p role="status" className="rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 p-3 text-xs sm:text-sm text-amber-800 dark:text-amber-300 font-medium">
-          Gösterilen program güncel seçimlere ait değil. Yeni sonuç gelene kadar dışa aktarılamaz.
-        </p>
       )}
 
       {isTruncated && !isScheduleStale && (
@@ -166,7 +164,7 @@ export default function CombinationBar({ onReviewCourses }) {
           {/* Semantic Summary Metrics */}
           <dl
             data-schedule-metrics
-            className="flex items-center gap-2 text-xs font-medium text-ink bg-surface-muted/60 px-3 py-1.5 rounded-xl border border-border-subtle"
+            className="flex flex-wrap items-center gap-2 text-xs font-medium text-ink px-1 py-1.5"
           >
             {currentCombo && !isScheduleStale ? (
               <>
@@ -203,20 +201,14 @@ export default function CombinationBar({ onReviewCourses }) {
             )}
           </dl>
 
-          {/* Calculating state */}
-          {isGenerating && (
-            <span role="status" className="text-xs text-brand font-medium animate-pulse flex items-center gap-1.5 ml-1">
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-brand" />
-              <span>Hesaplanıyor…</span>
-            </span>
-          )}
         </div>
       </div>
 
       {/* Layered Progressive Disclosure: Preferences */}
       <details
         data-preferences-details
-        open
+        open={preferencesOpen}
+        onToggle={event => setPreferencesOpen(event.currentTarget.open)}
         className="group border-t border-border-subtle pt-2.5 text-xs text-ink transition-colors"
       >
         <summary className="cursor-pointer font-medium select-none py-1 hover:text-ink flex items-center justify-between text-ink-muted">
@@ -269,7 +261,7 @@ export default function CombinationBar({ onReviewCourses }) {
               onChange={(e) => updatePreferences({ no_lunch_break: e.target.checked })}
               className="rounded border-border-subtle text-ink focus:ring-brand w-3.5 h-3.5"
             />
-            <span>Öğle Arası Boş (12:00–14:00)</span>
+            <span>Öğle Arası Boş (12:00-14:00)</span>
           </label>
         </div>
       </details>

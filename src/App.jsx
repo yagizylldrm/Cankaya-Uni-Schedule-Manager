@@ -7,9 +7,7 @@ import CourseSearchPanel from './components/CourseSearchPanel';
 import CombinationBar from './components/CombinationBar';
 import TimetableGrid from './components/TimetableGrid';
 import CustomBlockModal from './components/CustomBlockModal';
-import TranscriptModal from './components/TranscriptModal';
 import CourseDetailModal from './components/CourseDetailModal';
-import SportsBookingModal from './components/SportsBookingModal';
 import AppDialog from './components/AppDialog';
 import {
   Search,
@@ -23,8 +21,6 @@ function AppContent() {
     basket,
     selectedCombination,
     customBlockModalData,
-    transcriptModalOpen,
-    sportsModalOpen,
     notice,
     dismissNotice,
     notify
@@ -72,7 +68,7 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-canvas text-ink transition-colors">
+    <div className="min-h-[100dvh] flex flex-col bg-canvas text-ink transition-colors">
       {/* Skip to Main Content Link for Keyboard / Screen Readers */}
       <a href="#main-content" className="skip-link">
         İçeriğe atla
@@ -172,14 +168,14 @@ function AppContent() {
       {/* Main Workspace Container */}
       <main
         id="main-content"
-        className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-4 lg:p-6 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] lg:pb-6 flex flex-col lg:flex-row gap-4 sm:gap-6 items-start"
+        className="workspace flex-1 max-w-7xl w-full mx-auto p-3 sm:p-4 lg:p-6 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] lg:pb-8 flex flex-col lg:flex-row gap-4 sm:gap-6 items-start"
       >
         {/* Left Panel: Course selection catalog */}
         <aside
           data-catalog-drawer
           className={`min-w-0 ${
             mobileWorkspace === 'courses' ? 'flex flex-1 w-full' : 'hidden'
-          } lg:flex lg:flex-col lg:sticky lg:top-20 lg:h-[calc(100vh-6.5rem)] lg:w-80 xl:w-96`}
+          } lg:flex lg:flex-none lg:flex-col lg:sticky lg:top-20 lg:h-[calc(100vh-6.5rem)] lg:w-80 xl:w-96`}
         >
           <div className="flex-1 min-h-0 w-full">
             <CourseSearchPanel />
@@ -197,8 +193,12 @@ function AppContent() {
           <CombinationBar onReviewCourses={showSearch} />
 
           {!basketCount && !selectedCombination && (
-            <div className="rounded-xl p-4 bg-surface border border-border-subtle text-sm">
-              <p className="text-ink-muted">Programın henüz boş. Önce almak istediğin dersleri ekle.</p>
+            <div className="rounded-xl p-5 bg-surface border border-border-subtle text-sm flex items-start gap-3">
+              <Calendar className="w-5 h-5 text-ink-muted shrink-0 mt-0.5" />
+              <div>
+                <h2 className="font-semibold text-ink">Haftanı planlamaya başla</h2>
+                <p className="text-ink-muted mt-1 leading-relaxed">Programın henüz boş. Önce almak istediğin dersleri ekle.</p>
+              </div>
             </div>
           )}
 
@@ -266,8 +266,6 @@ function AppContent() {
       {customBlockModalData && (
         <CustomBlockModal key={`${customBlockModalData.day}:${customBlockModalData.timeSlot}`} />
       )}
-      {transcriptModalOpen && <TranscriptModal />}
-      {sportsModalOpen && <SportsBookingModal />}
       <CourseDetailModal />
 
       {/* Notification Toast */}

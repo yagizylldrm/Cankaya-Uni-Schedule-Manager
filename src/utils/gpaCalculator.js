@@ -5,16 +5,19 @@ export const calculateGpa = (courses) => {
   return cred ? pts/cred : 0;
 };
 export const simulateNewCgpa = ({pastCompletedCredits,pastTotalPoints,pastCourses=[],currentCourses=[]}) => {
-  const retakeCodes = new Set(pastCourses.map(c=>c.courseCode));
-  let pts = pastTotalPoints, cred = pastCompletedCredits;
-  currentCourses.forEach(c => {
-    if (retakeCodes.has(c.courseCode) && pastCourses.find(p=>p.courseCode===c.courseCode)) {
-      const old = pastCourses.find(p=>p.courseCode===c.courseCode);
-      pts -= (old.credits||0)*GRADES[old.grade];
-      cred -= (old.credits||0);
+  let pts = Number(pastTotalPoints) || 0;
+  let cred = Number(pastCompletedCredits) || 0;
+  const retaken = new Set();
+  for (const course of currentCourses) {
+    const code = course.courseCode.trim().toUpperCase();
+    const old = code && !retaken.has(code) && pastCourses.find(p => p.courseCode.trim().toUpperCase() === code);
+    if (old) {
+      pts -= old.credits * GRADES[old.grade];
+      cred -= old.credits;
+      retaken.add(code);
     }
-    pts += (c.credits||0)*GRADES[c.grade];
-    cred += (c.credits||0);
-  });
-  return { newCgpa: cred?pts/cred:0, termGpa: calculateGpa(currentCourses) };
+    pts += course.credits * GRADES[course.grade];
+    cred += course.credits;
+  }
+  return { newCgpa: cred ? pts / cred : 0, termGpa: calculateGpa(currentCourses) };
 };

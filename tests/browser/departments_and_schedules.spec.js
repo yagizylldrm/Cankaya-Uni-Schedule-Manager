@@ -338,7 +338,11 @@ test.describe('Çoklu Bölüm ve Program Yönetimi Testleri', () => {
     await page.goto('/');
 
     // 1. Check CENG curriculum progress in modal
-    await page.getByRole('button', { name: /^Transkript & Ön Koşul/ }).click();
+    const transcriptBtn1 = page.getByRole('button', { name: /^Transkript & Ön Koşul/ });
+    if (!(await transcriptBtn1.isVisible())) {
+      await page.getByRole('button', { name: 'Araçlar' }).click();
+    }
+    await transcriptBtn1.click();
     await expect(page.getByText('CENG Lisans Programı Müfredat İlerlemesi')).toBeVisible();
     await expect(page.getByText('12 / 45 ders', { exact: true })).toBeVisible();
     await expect(page.getByText('36 / 145 kredi', { exact: true })).toBeVisible();
@@ -349,7 +353,11 @@ test.describe('Çoklu Bölüm ve Program Yönetimi Testleri', () => {
 
     // 2. Switch to IE department and open transcript again
     await page.locator('#primary-department').selectOption('IE');
-    await page.getByRole('button', { name: /^Transkript & Ön Koşul/ }).click();
+    const transcriptBtn2 = page.getByRole('button', { name: /^Transkript & Ön Koşul/ });
+    if (!(await transcriptBtn2.isVisible())) {
+      await page.getByRole('button', { name: 'Araçlar' }).click();
+    }
+    await transcriptBtn2.click();
     await expect(page.getByText('IE Lisans Programı Müfredat İlerlemesi')).toBeVisible();
     await expect(page.getByText('12 / 45 ders', { exact: true })).toBeVisible();
     await expect(page.getByText('36 / 145 kredi', { exact: true })).toBeVisible();
@@ -376,7 +384,7 @@ test.describe('Çoklu Bölüm ve Program Yönetimi Testleri', () => {
 
     // Switch back to Draft 1: "Varsayılan Plan"
     await page.getByRole('button', { name: 'Planlar' }).click();
-    await page.getByRole('button', { name: 'Aç' }).first().click();
+    await page.getByRole('button', { name: 'Aç', exact: true }).first().click();
 
     // Original CENG course is preserved!
     await expect(page.locator('[data-weekly-grid]')).toContainText('CENG111');

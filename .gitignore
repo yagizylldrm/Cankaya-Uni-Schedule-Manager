@@ -34,6 +34,7 @@ Thumbs.db
 node_modules/
 test-results/
 playwright-report/
+.playwright-mcp/
 frontend/node_modules/
 dist/
 frontend/dist/

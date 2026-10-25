@@ -134,7 +134,7 @@ export default function CourseSearchPanel() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-surface rounded-2xl border border-border-subtle shadow-sm overflow-hidden transition-colors">
+    <div className="catalog-panel flex flex-col h-full bg-surface rounded-2xl border border-border-subtle overflow-hidden transition-colors">
       {/* Error Banner */}
       {(departmentsError || coursesError) && (
         <div role="alert" className="m-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 p-3 text-xs text-rose-700 dark:text-rose-300">
@@ -275,6 +275,7 @@ export default function CourseSearchPanel() {
         </div>
 
         {/* Search Input */}
+        <label htmlFor="course-search-input" className="sr-only">Ders ara</label>
         <div className="relative">
           <Search className="w-4 h-4 text-ink-muted absolute left-2.5 top-2.5 pointer-events-none" />
           <input
@@ -324,7 +325,7 @@ export default function CourseSearchPanel() {
       </div>
 
       {/* 3. Course Results List (Akademik Kayıt Defteri) */}
-      <div className="flex-1 overflow-y-auto divide-y divide-border-subtle">
+      <div className="flex-1 overflow-y-auto divide-y divide-border-subtle pb-6">
         {loading ? (
           <div className="p-4 space-y-3">
             {[1, 2, 3, 4].map(i => (
@@ -419,7 +420,7 @@ export default function CourseSearchPanel() {
                       )}
                     </div>
 
-                    <p className="text-xs text-ink font-medium truncate mt-0.5" title={course.name}>
+                    <p className="text-sm text-ink font-medium leading-snug mt-1" title={course.name}>
                       {course.name}
                     </p>
                   </div>

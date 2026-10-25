@@ -5,26 +5,27 @@ import DraftManager from './DraftManager';
 import CustomBlocksManager from './CustomBlocksManager';
 import AppDialog from './AppDialog';
 import AIAssistantModal from './AIAssistantModal';
+import GpaSimulatorModal from './GpaSimulatorModal';
+import TranscriptModal from './TranscriptModal';
+import SportsBookingModal from './SportsBookingModal';
 import { buildSharePayload } from '../utils/plan';
 import {
   Sun,
   Moon,
-  FileText,
   Download,
   Image as ImageIcon,
   FileJson,
   Printer,
   Layers,
-  Dumbbell,
   Wrench,
   Share2,
   CalendarDays,
   FileSpreadsheet,
-  CheckCircle2,
-  RefreshCw,
-  AlertCircle,
+  ArrowDownUp,
   Sparkles,
-  Bot
+  FileText,
+  Dumbbell,
+  Calculator
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
@@ -43,39 +44,58 @@ export default function Navbar({
     selectedCombination,
     semester,
     isGenerating,
-    setTranscriptModalOpen,
-    sportsModalOpen,
-    setSportsModalOpen,
     profile,
     drafts,
     canExport,
     isScheduleStale,
     notify,
-    activeDraftId
+    activeDraftId,
+    sportsModalOpen,
+    setSportsModalOpen,
+    transcriptModalOpen,
+    setTranscriptModalOpen
   } = useSchedule();
 
-  const [isToolsOpen, setIsToolsOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [gpaModalOpen, setGpaModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [includeShareActivities, setIncludeShareActivities] = useState(false);
   const [includeShareNotes, setIncludeShareNotes] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [pngPreview, setPngPreview] = useState(null);
   const [transferMode, setTransferMode] = useState(null);
   const [manager, setManager] = useState(null);
-  const [aiModalOpen, setAiModalOpen] = useState(false);
+
   const toolsMenuRef = useRef(null);
   const toolsTriggerRef = useRef(null);
+  const exportMenuRef = useRef(null);
+  const exportTriggerRef = useRef(null);
 
-  // Close tools menu on click outside or Escape
+  // Close menus on click outside or Escape
   useEffect(() => {
-    if (!isToolsOpen) return;
+    if (!toolsOpen && !exportOpen) return;
     const outside = (event) => {
-      if (!toolsMenuRef.current?.contains(event.target)) {
-        setIsToolsOpen(false);
+      if (document.querySelector('dialog[open]')) return;
+      if (toolsOpen && !toolsMenuRef.current?.contains(event.target)) {
+        setToolsOpen(false);
+      }
+      if (exportOpen && !exportMenuRef.current?.contains(event.target)) {
+        setExportOpen(false);
       }
     };
     const escape = (event) => {
+      if (document.querySelector('dialog[open]')) return;
       if (event.key === 'Escape') {
-        setIsToolsOpen(false);
+        if (toolsOpen) {
+          setToolsOpen(false);
+          toolsTriggerRef.current?.focus();
+        }
+        if (exportOpen) {
+          setExportOpen(false);
+          exportTriggerRef.current?.focus();
+        }
       }
     };
     document.addEventListener('pointerdown', outside);
@@ -84,15 +104,15 @@ export default function Navbar({
       document.removeEventListener('pointerdown', outside);
       document.removeEventListener('keydown', escape);
     };
-  }, [isToolsOpen]);
+  }, [toolsOpen, exportOpen]);
 
   const basketCount = Object.keys(basket).length;
-  const passedCount = Object.keys(profile.passedCourses || {}).length;
   const activeDraft = drafts?.find((d) => d.id === activeDraftId) || drafts?.[0];
+  const passedCount = profile?.passedCourses?.length || 0;
 
   // Export as PNG image with deterministic paper/canvas background
   const handleExportPNG = async () => {
-    setIsToolsOpen(false);
+    setExportOpen(false);
     if (!timetableRef.current || !canExport) return;
 
     setExporting(true);
@@ -122,10 +142,17 @@ export default function Navbar({
           }
         },
       });
-      const link = document.createElement('a');
-      link.download = `Cankaya_Ders_Programi_${new Date().toISOString().slice(0, 10)}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+      const name = `Cankaya_Ders_Programi_${new Date().toISOString().slice(0, 10)}.png`;
+      const image = canvas.toDataURL('image/png');
+      if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        const blob = await (await fetch(image)).blob();
+        setPngPreview({ name, image, file: new File([blob], name, { type: 'image/png' }) });
+      } else {
+        const link = document.createElement('a');
+        link.download = name;
+        link.href = image;
+        link.click();
+      }
     } catch (err) {
       notify(`Görsel dışa aktarılırken hata: ${err.message}`);
     } finally {
@@ -133,19 +160,32 @@ export default function Navbar({
     }
   };
 
+  const handleSharePNG = async () => {
+    if (!pngPreview) return;
+    try {
+      if (!navigator.share || !navigator.canShare?.({ files: [pngPreview.file] })) {
+        notify('Paylaşım bu tarayıcıda kullanılamıyor. Görseli basılı tutup Fotoğraflar’a kaydedin veya Dosyalara indirin.');
+        return;
+      }
+      await navigator.share({ files: [pngPreview.file], title: 'Haftalık ders programı' });
+    } catch (err) {
+      if (err.name !== 'AbortError') notify(`Görsel paylaşılamadı: ${err.message}`);
+    }
+  };
+
   const handleExportJSON = () => {
-    setIsToolsOpen(false);
+    setExportOpen(false);
     setTransferMode('save');
   };
 
   const handlePrint = () => {
-    setIsToolsOpen(false);
+    setExportOpen(false);
     if (!canExport) return;
     window.print();
   };
 
   const openShareModal = () => {
-    setIsToolsOpen(false);
+    setExportOpen(false);
     setShareModalOpen(true);
   };
 
@@ -193,33 +233,12 @@ export default function Navbar({
             />
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="font-serif text-base sm:text-lg font-bold text-ink leading-tight truncate">
+                <h1 className="text-base sm:text-lg font-semibold tracking-tight text-ink leading-tight truncate">
                   Çankaya Program Yöneticisi
                 </h1>
               </div>
-              <div className="flex items-center gap-2 text-xs text-ink-muted">
-                <span className="truncate max-w-[140px] sm:max-w-[200px]" title={activeDraft?.name || 'Ana Taslak'}>
-                  {activeDraft?.name || 'Ana Taslak'}
-                </span>
-                <span className="text-border-strong">·</span>
-                {isGenerating ? (
-                  <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400">
-                    <RefreshCw className="w-3 h-3 animate-spin" />
-                    <span>Güncelleniyor…</span>
-                  </span>
-                ) : isScheduleStale ? (
-                  <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400">
-                    <AlertCircle className="w-3 h-3" />
-                    <span>Sonuç bekleniyor</span>
-                  </span>
-                ) : selectedCombination ? (
-                  <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                    <CheckCircle2 className="w-3 h-3" />
-                    <span>Güncel</span>
-                  </span>
-                ) : (
-                  <span>Ders seçimi bekleniyor</span>
-                )}
+              <div className="text-xs text-ink-muted truncate max-w-[140px] sm:max-w-[200px]" title={activeDraft?.name || 'Ana Taslak'}>
+                {activeDraft?.name || 'Ana Taslak'}
               </div>
             </div>
           </div>
@@ -252,68 +271,117 @@ export default function Navbar({
               )}
             </button>
 
-            {/* AI Program Assistant (Desktop) */}
-            <button
-              type="button"
-              onClick={() => setAiModalOpen(true)}
-              aria-label="Yapay Zeka Asistanı"
-              title="Yapay Zeka ile Doğal Dilde Program Seç"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg text-ink bg-brand hover:bg-brand-hover shadow-xs transition-colors"
-            >
-              <Sparkles className="w-4 h-4 text-ink" />
-              <span className="hidden md:inline">Yapay Zeka Asistanı</span>
-              <span className="md:hidden">Asistan</span>
-            </button>
-
-            {/* Transcript Quick Link (Desktop) */}
-            <button
-              type="button"
-              onClick={() => setTranscriptModalOpen(true)}
-              aria-label="Transkript & Ön Koşul"
-              title="Transkript & Ön Koşul"
-              className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg text-ink bg-surface-muted hover:bg-surface border border-border-subtle transition-colors"
-            >
-              <FileText className="w-4 h-4 text-ink-muted" />
-              <span className="hidden lg:inline">Transkript & Ön Koşul</span>
-              <span className="lg:hidden">Transkript</span>
-              {passedCount > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 bg-emerald-600 text-white rounded-full text-[10px] font-bold">
-                  {passedCount}
-                </span>
-              )}
-            </button>
-
-            {/* Sports Booking Quick Link (Desktop) */}
-            <button
-              id="sports-modal-trigger"
-              type="button"
-              onClick={() => setSportsModalOpen(true)}
-              aria-haspopup="dialog"
-              aria-expanded={sportsModalOpen}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg text-ink bg-surface-muted hover:bg-surface border border-border-subtle transition-colors"
-              title="Çankaya Üniversitesi Spor Tesisi Randevu Sistemi (randevu.cankaya.edu.tr)"
-            >
-              <Dumbbell className="w-4 h-4 text-ink-muted" />
-              <span>Spor Randevusu</span>
-            </button>
-
-            {/* Unified Tools & Export Dropdown */}
+            {/* Araçlar Dropdown Menu */}
             <div ref={toolsMenuRef} className="relative">
               <button
                 ref={toolsTriggerRef}
                 type="button"
-                onClick={() => setIsToolsOpen(!isToolsOpen)}
-                disabled={exporting}
-                aria-label="Programı kaydet veya yükle"
-                aria-expanded={isToolsOpen}
+                onClick={() => {
+                  setExportOpen(false);
+                  setToolsOpen(!toolsOpen);
+                }}
+                aria-label="Araçlar menüsü"
+                aria-expanded={toolsOpen}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg text-ink bg-surface-muted hover:bg-surface border border-border-subtle transition-colors"
               >
                 <Wrench className="w-4 h-4 text-ink-muted" />
-                <span className="hidden sm:inline">Araçlar & Dışa Aktar</span>
-                <span className="sm:hidden">Araçlar</span>
+                <span>Araçlar</span>
               </button>
 
-              {isToolsOpen && (
+              {toolsOpen && (
+                <div
+                  className="absolute right-0 mt-2 w-64 bg-surface rounded-xl shadow-xl border border-border-subtle py-1.5 z-50 text-sm divide-y divide-border-subtle"
+                >
+                  <div className="py-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAiModalOpen(true);
+                      }}
+                      aria-haspopup="dialog"
+                      aria-expanded={aiModalOpen}
+                      className="w-full px-4 py-2 text-left flex items-center justify-between hover:bg-surface-muted text-ink transition-colors"
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <Sparkles className="w-4 h-4 text-brand shrink-0" />
+                        <span>Yapay Zeka Asistanı</span>
+                      </span>
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-brand/10 text-brand">
+                        AI
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTranscriptModalOpen(true);
+                      }}
+                      aria-haspopup="dialog"
+                      aria-expanded={transcriptModalOpen}
+                      className="w-full px-4 py-2 text-left flex items-center justify-between hover:bg-surface-muted text-ink transition-colors"
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <FileText className="w-4 h-4 text-ink-muted shrink-0" />
+                        <span>Transkript & Ön Koşul</span>
+                      </span>
+                      {passedCount > 0 && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-600/10 text-emerald-600 dark:text-emerald-400">
+                          {passedCount}
+                        </span>
+                      )}
+                    </button>
+
+                    <button
+                      id="sports-modal-trigger"
+                      type="button"
+                      onClick={() => {
+                        setSportsModalOpen(true);
+                      }}
+                      aria-haspopup="dialog"
+                      aria-expanded={sportsModalOpen}
+                      className="w-full px-4 py-2 text-left flex items-center gap-2.5 hover:bg-surface-muted text-ink transition-colors"
+                    >
+                      <Dumbbell className="w-4 h-4 text-ink-muted shrink-0" />
+                      <span>Spor Randevusu</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setGpaModalOpen(true);
+                      }}
+                      aria-haspopup="dialog"
+                      aria-expanded={gpaModalOpen}
+                      className="w-full px-4 py-2 text-left flex items-center gap-2.5 hover:bg-surface-muted text-ink transition-colors"
+                    >
+                      <Calculator className="w-4 h-4 text-ink-muted shrink-0" />
+                      <span>GPA Simülatörü</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Yükle / Dışa Aktar Dropdown Menu */}
+            <div ref={exportMenuRef} className="relative">
+              <button
+                ref={exportTriggerRef}
+                type="button"
+                onClick={() => {
+                  setToolsOpen(false);
+                  setExportOpen(!exportOpen);
+                }}
+                disabled={exporting}
+                aria-label="Programı kaydet veya yükle"
+                aria-expanded={exportOpen}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg text-ink bg-surface-muted hover:bg-surface border border-border-subtle transition-colors"
+              >
+                <ArrowDownUp className="w-4 h-4 text-ink-muted" />
+                <span className="hidden sm:inline">Yükle / Dışa Aktar</span>
+                <span className="sm:hidden">Dışa Aktar</span>
+              </button>
+
+              {exportOpen && (
                 <div
                   className="absolute right-0 mt-2 w-72 bg-surface rounded-xl shadow-xl border border-border-subtle py-1.5 z-50 text-sm divide-y divide-border-subtle"
                 >
@@ -329,19 +397,8 @@ export default function Navbar({
                     <button
                       type="button"
                       onClick={() => {
-                        setAiModalOpen(true);
-                        setIsToolsOpen(false);
-                      }}
-                      className="w-full px-4 py-2 text-left flex items-center gap-2.5 hover:bg-surface-muted text-ink font-medium"
-                    >
-                      <Sparkles className="w-4 h-4 text-brand" />
-                      <span>Yapay Zeka Program Asistanı</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
                         setTransferMode('load');
-                        setIsToolsOpen(false);
+                        setExportOpen(false);
                       }}
                       className="w-full px-4 py-2 text-left flex items-center gap-2.5 hover:bg-surface-muted text-ink"
                     >
@@ -352,7 +409,7 @@ export default function Navbar({
                       type="button"
                       onClick={() => {
                         setManager('blocks');
-                        setIsToolsOpen(false);
+                        setExportOpen(false);
                       }}
                       className="w-full px-4 py-2 text-left flex items-center gap-2.5 hover:bg-surface-muted text-ink"
                     >
@@ -391,7 +448,7 @@ export default function Navbar({
                       disabled={!canExport}
                       onClick={() => {
                         setTransferMode('calendar');
-                        setIsToolsOpen(false);
+                        setExportOpen(false);
                       }}
                       className="w-full px-4 py-2 text-left flex items-center gap-2.5 hover:bg-surface-muted text-ink disabled:opacity-40 disabled:hover:bg-transparent"
                     >
@@ -403,7 +460,7 @@ export default function Navbar({
                       disabled={!canExport}
                       onClick={() => {
                         setTransferMode('csv');
-                        setIsToolsOpen(false);
+                        setExportOpen(false);
                       }}
                       className="w-full px-4 py-2 text-left flex items-center gap-2.5 hover:bg-surface-muted text-ink disabled:opacity-40 disabled:hover:bg-transparent"
                     >
@@ -437,18 +494,12 @@ export default function Navbar({
       </header>
 
       {/* Dialogs */}
-      {aiModalOpen && (
-        <AIAssistantModal
-          isOpen={true}
-          onClose={() => setAiModalOpen(false)}
-        />
-      )}
       {transferMode && (
         <PlanTransfer
           mode={transferMode}
           onClose={() => setTransferMode(null)}
           onRestored={onShowSchedule}
-          restoreFocusRef={toolsTriggerRef}
+          restoreFocusRef={exportTriggerRef}
         />
       )}
       {manager === 'drafts' && <DraftManager onClose={() => setManager(null)} />}
@@ -459,7 +510,7 @@ export default function Navbar({
           onClose={() => setShareModalOpen(false)}
           title="Programı Paylaş"
           description="Yerel ders seçimlerinizi ve programınızı bir bağlantı ile salt-okunur olarak paylaşın. Transkript ve notlarınız dahil edilmez."
-          restoreFocusRef={toolsTriggerRef}
+          restoreFocusRef={exportTriggerRef}
           size="md"
           footer={
             <>
@@ -515,6 +566,23 @@ export default function Navbar({
       )}
 
       {/* Mobile "Daha" Tools Dialog */}
+      {pngPreview && (
+        <AppDialog
+          title="Program görseli"
+          description="Fotoğraflar’a kaydetmek için Paylaş veya kaydet’i seçin. Alternatif olarak görsele basılı tutabilir ya da Dosyalara indirebilirsiniz."
+          onClose={() => setPngPreview(null)}
+          size="lg"
+        >
+          <div className="p-4 space-y-4">
+            <img src={pngPreview.image} alt="Haftalık ders programı" className="w-full max-h-[55vh] object-contain rounded-lg border border-border-subtle" />
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={handleSharePNG} className="primary-action min-h-11 px-4">Paylaş veya kaydet</button>
+              <a href={pngPreview.image} download={pngPreview.name} className="min-h-11 px-4 inline-flex items-center rounded-xl border border-border-subtle text-ink font-medium">Dosyalara indir</a>
+            </div>
+          </div>
+        </AppDialog>
+      )}
+
       {mobileToolsOpen && (
         <AppDialog
           isOpen={true}
@@ -543,14 +611,14 @@ export default function Navbar({
                     onCloseMobileTools?.();
                     setAiModalOpen(true);
                   }}
-                  className="w-full min-h-[44px] px-3.5 py-2.5 text-left flex items-center justify-between rounded-xl bg-brand hover:bg-brand-hover text-ink font-semibold transition shadow-xs"
+                  className="w-full min-h-[44px] px-3.5 py-2.5 text-left flex items-center justify-between rounded-xl bg-surface-muted hover:bg-surface border border-border-subtle text-ink font-medium transition"
                 >
                   <span className="flex items-center gap-2.5">
-                    <Sparkles className="w-4 h-4 text-ink" />
+                    <Sparkles className="w-4 h-4 text-brand" />
                     <span>Yapay Zeka Asistanı</span>
                   </span>
-                  <span className="px-2 py-0.5 bg-ink text-surface rounded-full text-xs font-bold">
-                    Doğal Dil
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-brand/10 text-brand">
+                    AI
                   </span>
                 </button>
 
@@ -567,7 +635,7 @@ export default function Navbar({
                     <span>Transkript & Ön Koşul</span>
                   </span>
                   {passedCount > 0 && (
-                    <span className="px-2 py-0.5 bg-emerald-600 text-white rounded-full text-xs font-bold">
+                    <span className="text-xs text-ink-muted font-bold">
                       {passedCount} ders
                     </span>
                   )}
@@ -582,7 +650,19 @@ export default function Navbar({
                   className="w-full min-h-[44px] px-3.5 py-2.5 text-left flex items-center gap-2.5 rounded-xl bg-surface-muted hover:bg-surface border border-border-subtle text-ink font-medium transition"
                 >
                   <Dumbbell className="w-4 h-4 text-ink-muted" />
-                  <span>Spor tesisi randevusu</span>
+                  <span>Spor Randevusu</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    onCloseMobileTools?.();
+                    setGpaModalOpen(true);
+                  }}
+                  className="w-full min-h-[44px] px-3.5 py-2.5 text-left flex items-center gap-2.5 rounded-xl bg-surface-muted hover:bg-surface border border-border-subtle text-ink font-medium transition"
+                >
+                  <Calculator className="w-4 h-4 text-ink-muted" />
+                  <span>GPA Simülatörü</span>
                 </button>
 
                 <button
@@ -735,7 +815,16 @@ export default function Navbar({
           </div>
         </AppDialog>
       )}
+
+      {/* Global Modals from Araçlar */}
+      {aiModalOpen && (
+        <AIAssistantModal isOpen={aiModalOpen} onClose={() => setAiModalOpen(false)} />
+      )}
+      {gpaModalOpen && (
+        <GpaSimulatorModal open={gpaModalOpen} onClose={() => setGpaModalOpen(false)} />
+      )}
+      <TranscriptModal />
+      <SportsBookingModal />
     </>
   );
 }
-<button onClick={open}>GPA</button>

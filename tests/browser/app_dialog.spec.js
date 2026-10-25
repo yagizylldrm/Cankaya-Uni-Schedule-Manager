@@ -50,7 +50,11 @@ test.describe('AppDialog component accessibility and focus semantics', () => {
 
     await page.goto('/');
 
-    // AI Assistant trigger button in navbar
+    // AI Assistant trigger button in Araçlar menu
+    const araclarBtn = page.getByRole('button', { name: 'Araçlar' });
+    if (await araclarBtn.isVisible()) {
+      await araclarBtn.click();
+    }
     const aiTrigger = page.getByRole('button', { name: 'Yapay Zeka Asistanı' });
     await expect(aiTrigger).toBeVisible();
     await aiTrigger.click();

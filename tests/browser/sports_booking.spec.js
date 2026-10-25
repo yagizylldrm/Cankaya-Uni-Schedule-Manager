@@ -122,6 +122,17 @@ async function setupSportsPage(page, { slotsOverride = null, bookOverride = null
 
 async function loginToSportsModal(page, username = '202111001', password = 'correctpass') {
   const sportsBtn = page.getByRole('button', { name: 'Spor Randevusu' });
+  if (!(await sportsBtn.isVisible())) {
+    const araclarBtn = page.getByRole('button', { name: 'Araçlar' });
+    if (await araclarBtn.isVisible()) {
+      await araclarBtn.click();
+    } else {
+      const moreBtn = page.getByRole('button', { name: 'Daha' });
+      if (await moreBtn.isVisible()) {
+        await moreBtn.click();
+      }
+    }
+  }
   await expect(sportsBtn).toBeVisible();
   await sportsBtn.click();
 
@@ -142,6 +153,7 @@ test('sports booking modal full flow: truthful security notice, login failure/su
   await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
 
   // 2. Click "Spor Randevusu" button in Navbar
+  await page.getByRole('button', { name: 'Araçlar' }).click();
   const sportsBtn = page.getByRole('button', { name: 'Spor Randevusu' });
   await expect(sportsBtn).toBeVisible();
   await sportsBtn.click();
@@ -216,7 +228,11 @@ test('session lifecycle: modal close and reopen preserves session in memory, exp
   await expect(page.getByRole('heading', { name: 'Spor Tesisi Randevu Sistemi' })).not.toBeVisible();
 
   // Reopen modal: session should still be active in React memory!
-  await page.getByRole('button', { name: 'Spor Randevusu' }).click();
+  const sportsBtn = page.getByRole('button', { name: 'Spor Randevusu' });
+  if (!(await sportsBtn.isVisible())) {
+    await page.getByRole('button', { name: 'Araçlar' }).click();
+  }
+  await sportsBtn.click();
   await expect(page.getByText('Ahmet Yılmaz')).toBeVisible();
   await expect(page.getByText('Oturum Aktif')).toBeVisible();
 
@@ -421,6 +437,7 @@ test('session expiry 401 code automatically logs user out', async ({ page }) => 
 test('accessibility & dialog keyboard ergonomics: Escape key closes, focus restored to navbar trigger', async ({ page }) => {
   await setupSportsPage(page);
 
+  await page.getByRole('button', { name: 'Araçlar' }).click();
   const sportsTrigger = page.getByRole('button', { name: 'Spor Randevusu' });
   await expect(sportsTrigger).toHaveAttribute('aria-haspopup', 'dialog');
   await expect(sportsTrigger).toHaveAttribute('aria-expanded', 'false');
@@ -447,10 +464,10 @@ test('mobile viewport 390x844: touch target sizes >= 44px and no horizontal over
   const moreBtn = page.getByRole('button', { name: 'Daha' });
   if (await moreBtn.isVisible()) {
     await moreBtn.click();
-    await page.getByRole('button', { name: 'Spor Tesisi Randevusu' }).click();
+    await page.getByRole('button', { name: 'Spor Randevusu' }).click();
   } else {
-    const sportsBtn = page.getByRole('button', { name: 'Spor' });
-    await sportsBtn.click();
+    await page.getByRole('button', { name: 'Araçlar' }).click();
+    await page.getByRole('button', { name: 'Spor Randevusu' }).click();
   }
 
   // Check login button height

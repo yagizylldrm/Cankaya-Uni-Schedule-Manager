@@ -42,6 +42,14 @@ async function createSchedule(page) {
   await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
 }
 
+async function openTranscriptModal(page) {
+  const trigger = page.getByRole('button', { name: /^Transkript/ }).first();
+  if (!(await trigger.isVisible())) {
+    await page.getByRole('button', { name: 'Araçlar' }).click();
+  }
+  return trigger;
+}
+
 async function menu(page) {
   await page.getByRole('button', { name: 'Programı kaydet veya yükle' }).click();
 }
@@ -78,6 +86,32 @@ test('recently added courses appear first in the course list', async ({ page }) 
   await expect(page.locator('[data-course-code]').first()).toHaveAttribute('data-course-code', 'CENG101');
 });
 
+test('weekly hour labels stay fixed and API short periods render in their matching rows', async ({ page }) => {
+  const apiCourse = { ...course, sections: [{ ...sections[0], slots: [
+    { day: 'Pazartesi', time_slot: '09:00/09:20' },
+    { day: 'Salı', time_slot: '16:00/16:20' },
+  ] }] };
+  await mockApi(page);
+  await page.route('**/api/courses/CENG101?**', route => route.fulfill({ json: apiCourse }));
+  await page.route('**/api/combinations', route => route.fulfill({ json: { count: 0, combinations: [] } }));
+  await page.goto('/');
+  const labels = page.locator('[data-weekly-grid] tbody tr td:first-child');
+  const expected = Array.from({ length: 8 }, (_, i) => {
+    const hour = String(i + 9).padStart(2, '0');
+    const next = String(i + 10).padStart(2, '0');
+    return `${hour}:20 - ${next}:${i === 7 ? '00' : '10'}`;
+  });
+  await expect(labels).toHaveText(expected);
+  const grid = page.locator('[data-weekly-grid]');
+  expect(await grid.evaluate(element => element.getBoundingClientRect().height)).toBeLessThan(600);
+  await page.getByRole('button', { name: 'Ekle', exact: true }).click();
+  await expect(labels).toHaveText(expected);
+  await expect(page.locator('[data-weekly-grid] tbody tr').first()).toContainText('CENG101');
+  await expect(page.locator('[data-weekly-grid] tbody tr').last()).toContainText('CENG101');
+  await page.getByRole('button', { name: 'Çıkar', exact: true }).click();
+  await expect(labels).toHaveText(expected);
+});
+
 test('draft preview does not draw every alternative section at once', async ({ page }) => {
   const sameTimeCourse = { ...course, sections: [sections[0], { ...sections[1], slots: sections[0].slots }] };
   await mockApi(page);
@@ -88,6 +122,7 @@ test('draft preview does not draw every alternative section at once', async ({ p
   await page.goto('/');
   await page.getByRole('button', { name: 'Ekle', exact: true }).click();
   await expect(page.getByText('Uygun program bulunamadı.')).toBeVisible();
+  await expect(page.getByText('Taslak · Her ders için bir şubenin ön izlemesi')).toHaveCount(0);
   await expect(page.locator('[data-weekly-grid] [title^="CENG101 Sec"]')).toHaveCount(1);
   await expect(page.locator('[data-weekly-grid]')).not.toContainText('ÇAKIŞMA!');
 });
@@ -137,7 +172,8 @@ test('transcript progress separates completed courses and credits', async ({ pag
     }
   });
   await page.goto('/');
-  await page.getByRole('button', { name: /^Transkript & Ön Koşul/ }).click();
+  const transcriptBtn1 = await openTranscriptModal(page);
+  await transcriptBtn1.click();
 
   await expect(page.getByText('Ders ilerlemesi', { exact: true })).toBeVisible();
   await expect(page.getByText('23 / 44 ders', { exact: true })).toBeVisible();
@@ -167,7 +203,8 @@ test('an old progress response never appears as zero over zero credits', async (
     },
   });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Transkript & Ön Koşul', exact: true }).click();
+  const transcriptBtn2 = await openTranscriptModal(page);
+  await transcriptBtn2.click();
 
   await expect(page.getByRole('alert')).toContainText('Kredi bilgisi yüklenemedi');
   await expect(page.getByText('0 / 0 kredi', { exact: true })).toHaveCount(0);
@@ -190,7 +227,8 @@ test('zero completed credits uses the official curriculum total', async ({ page 
     },
   });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Transkript & Ön Koşul', exact: true }).click();
+  const transcriptBtn3 = await openTranscriptModal(page);
+  await transcriptBtn3.click();
 
   await expect(page.getByText('0 / 143 kredi', { exact: true })).toBeVisible();
   await expect(page.getByRole('progressbar', { name: '0 / 143 kredi tamamlandı (0%).' })).toBeVisible();
@@ -199,7 +237,7 @@ test('zero completed credits uses the official curriculum total', async ({ page 
 test('transcript modal uses native dialog, closes on Escape, and restores focus', async ({ page }) => {
   await mockApi(page);
   await page.goto('/');
-  const trigger = page.getByRole('button', { name: /^Transkript/ }).first();
+  const trigger = await openTranscriptModal(page);
   await expect(trigger).toBeVisible();
   await trigger.click();
 
@@ -224,7 +262,8 @@ test('transcript import shows and enables the passed-course filter', async ({ pa
   } }));
   await page.goto('/');
   await expect(page.getByRole('checkbox', { name: 'Geçtiğim Dersleri Gizle' })).toHaveCount(0);
-  await page.getByRole('button', { name: 'Transkript & Ön Koşul', exact: true }).click();
+  const transcriptBtn5 = await openTranscriptModal(page);
+  await transcriptBtn5.click();
   await page.getByPlaceholder('Oasis transkript sayfasındaki tüm metni kopyalayıp (Ctrl+A, Ctrl+C) buraya yapıştırın...').fill('CENG101 Programming AA');
   await page.getByRole('button', { name: 'Transkripti Ayrıştır ve Aktar' }).click();
   await page.getByRole('button', { name: 'Tamam', exact: true }).click();
@@ -254,6 +293,13 @@ test('mobile first visit shows course selection and agenda has no page overflow'
     await page.getByRole('button', { name: 'Haftalık Program' }).click();
   }
   await expect(page.getByRole('region', { name: 'Günlük program' })).toBeVisible();
+  const preferences = page.locator('details[data-preferences-details]');
+  await expect(preferences).not.toHaveAttribute('open');
+  await preferences.locator('summary').click();
+  await expect(preferences).toHaveAttribute('open');
+  const viewTargets = await page.getByRole('button', { name: /^(Günlük|Haftalık)$/ }).evaluateAll(buttons =>
+    buttons.map(button => button.getBoundingClientRect().height));
+  expect(Math.min(...viewTargets)).toBeGreaterThanOrEqual(44);
   await page.getByLabel('Gün', { exact: true }).selectOption('Pazartesi');
   await expect(page.getByRole('button', { name: /09:00 - 09:50 CENG101/ })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -378,6 +424,30 @@ test('PNG export captures weekly timetable from the mobile agenda', async ({ pag
   await download.saveAs('test-results/mobile-export.png');
 });
 
+test('iOS PNG export offers a share action and a saveable image preview', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'userAgent', { value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1' });
+  });
+  await mockApi(page);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Ekle', exact: true }).click();
+  await page.getByRole('button', { name: 'Program', exact: true }).click();
+  await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Daha' }).click();
+  await page.getByRole('button', { name: 'PNG Görsel Olarak' }).click();
+  const preview = page.getByRole('dialog', { name: 'Program görseli' });
+  await expect(preview).toBeVisible();
+  const image = preview.getByRole('img', { name: 'Haftalık ders programı' });
+  await expect(image).toBeVisible();
+  await expect(image).toHaveJSProperty('naturalWidth', 2000);
+  const shareButton = preview.getByRole('button', { name: 'Paylaş veya kaydet' });
+  await expect(shareButton).toBeVisible();
+  await shareButton.click();
+  await expect(page.getByText('Paylaşım bu tarayıcıda kullanılamıyor.', { exact: false })).toBeVisible();
+  await expect(preview.getByRole('link', { name: 'Dosyalara indir' })).toHaveAttribute('download', /\.png$/);
+});
+
 test('adding and removing courses automatically updates the preview and generated schedule', async ({ page }) => {
   await mockApi(page);
   const other = { ...course, code: 'MATH101', name: 'Matematik', sections: [{ ...sections[0], slots: [{ day: 'Salı', time_slot: '10:00 - 10:50' }] }] };
@@ -402,7 +472,7 @@ test('adding and removing courses automatically updates the preview and generate
   await expect(page.locator('[data-weekly-grid]')).not.toContainText('CENG101');
   await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
   await expect(page.locator('[data-weekly-grid]')).toContainText('MATH101');
-  expect(requests).toEqual([['CENG101'], ['CENG101', 'MATH101'], ['MATH101']]);
+  await expect.poll(() => requests).toEqual([['CENG101'], ['CENG101', 'MATH101'], ['MATH101']]);
   await page.getByRole('button', { name: 'Çıkar', exact: true }).click();
   await expect(page.locator('[data-weekly-grid]')).not.toContainText('MATH101');
   await expect(page.getByText('Seçimler değişti — programı yeniden oluşturun.')).not.toBeVisible();
@@ -418,7 +488,7 @@ test('removing the last course while generation is pending ignores the old respo
   const request = page.waitForRequest('**/api/combinations');
   await page.getByRole('button', { name: 'Ekle', exact: true }).click();
   await request;
-  await expect(page.getByText('Program güncelleniyor…', { exact: true })).toBeVisible();
+  await expect(page.getByText('Program güncelleniyor…', { exact: true })).toHaveCount(0);
   await expect(page.locator('[data-weekly-grid]')).toContainText('CENG101');
   await page.getByRole('button', { name: 'Çıkar', exact: true }).click();
   await expect(page.locator('[data-weekly-grid]')).not.toContainText('CENG101');
@@ -463,7 +533,7 @@ test('section selection regenerates automatically and ignores superseded respons
   const requested = page.waitForRequest('**/api/combinations');
   await page.getByRole('checkbox', { name: /Şube 1/ }).uncheck();
   expect((await requested).postDataJSON().selected_courses.CENG101).toEqual(['2']);
-  await expect(page.getByText('Program güncelleniyor…', { exact: true })).toBeVisible();
+  await expect(page.getByText('Program güncelleniyor…', { exact: true })).toHaveCount(0);
   await expect(page.locator('[data-weekly-grid]')).not.toContainText('S.1');
   await expect(page.locator('[data-weekly-grid]')).toContainText('S.2');
   await page.getByRole('checkbox', { name: /Şube 2/ }).uncheck();
@@ -498,9 +568,13 @@ test('adding another course keeps the page and previous timetable steady while u
   await page.getByRole('button', { name: 'Ekle', exact: true }).first().click();
   await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
   const topBefore = await page.locator('[data-schedule-panel]').evaluate(element => element.getBoundingClientRect().top);
+  const pendingUpdate = page.waitForRequest('**/api/combinations');
   await page.getByRole('button', { name: 'Ekle', exact: true }).click();
-  await expect(page.getByText('Program güncelleniyor…', { exact: true })).toBeVisible();
+  await pendingUpdate;
+  await expect(page.getByText('Program güncelleniyor…', { exact: true })).toHaveCount(0);
   await expect(page.locator('[data-weekly-grid]')).toContainText('CENG101');
+  await expect(page.getByText('Hesaplanıyor…', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Güncelleniyor…', { exact: true })).toHaveCount(0);
   expect(await page.locator('[data-schedule-panel]').evaluate(element => element.getBoundingClientRect().top)).toBe(topBefore);
   release();
   await expect(page.locator('[data-weekly-grid]')).toContainText('MATH101');
@@ -556,7 +630,7 @@ test('adding a course shows immediate progress while its details load', async ({
   });
   await page.goto('/');
   await page.getByRole('button', { name: 'Ekle', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Ekleniyor…' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Ekleniyor…', exact: true })).toBeDisabled();
   release();
   await expect(page.getByRole('button', { name: 'Çıkar', exact: true })).toBeVisible();
   await expect(page.locator('[data-weekly-grid]')).toContainText('CENG101');
@@ -682,8 +756,10 @@ test('changing the basket locks exports until the replacement schedule arrives',
   await page.goto('/');
   await page.locator('[data-course-code="CENG101"]').getByRole('button', { name: 'Ekle' }).click();
   await expect(page.getByText('Seçili program', { exact: true })).toBeVisible();
+  const pendingUpdate = page.waitForRequest('**/api/combinations');
   await page.locator('[data-course-code="MATH101"]').getByRole('button', { name: 'Ekle' }).click();
-  await expect(page.getByText(/Gösterilen program güncel seçimlere ait değil/)).toBeVisible();
+  await pendingUpdate;
+  await expect(page.getByText(/Gösterilen program güncel seçimlere ait değil/)).toHaveCount(0);
   await menu(page);
   await expect(page.getByRole('button', { name: 'Programı kaydet (JSON)' })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Takvime aktar (.ics)' })).toBeDisabled();
@@ -785,11 +861,15 @@ test('responsive shell: mobile bottom taskbar, workspace switching, more dialog,
   // Access sports from Daha dialog
   await moreBtn.click();
   await expect(moreDialog).toBeVisible();
-  await moreDialog.getByRole('button', { name: 'Spor tesisi randevusu' }).click();
+  await moreDialog.getByRole('button', { name: 'Spor Randevusu' }).click();
   const sportsDialog = page.locator('dialog[aria-labelledby="sports-modal-title"]');
   await expect(sportsDialog).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(sportsDialog).not.toBeVisible();
+
+  const taskbarBtns = await page.locator('nav[aria-label="Mobil gezinme çubuğu"] button').evaluateAll(buttons =>
+    buttons.map(button => button.getBoundingClientRect().height));
+  expect(Math.min(...taskbarBtns)).toBeGreaterThanOrEqual(44);
 
   // Main container has bottom padding for taskbar and safe-area
   const main = page.locator('#main-content');
@@ -800,6 +880,44 @@ test('responsive shell: mobile bottom taskbar, workspace switching, more dialog,
   // No horizontal overflow on mobile
   const noOverflow = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
   expect(noOverflow).toBe(true);
+});
+
+test('desktop navbar and tools remain on screen while scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 800 });
+  await mockApi(page);
+  await page.goto('/');
+  await expect(page.locator('[data-weekly-grid]')).toBeVisible();
+  const header = page.locator('header');
+  await expect(header).toBeInViewport();
+  const initialTop = await header.evaluate(element => element.getBoundingClientRect().top);
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect(header).toBeInViewport();
+  const scrolledTop = await header.evaluate(element => element.getBoundingClientRect().top);
+  expect(scrolledTop).toBe(initialTop);
+  expect(scrolledTop).toBe(0);
+
+  // Tools menu is accessible while scrolled
+  const toolsBtn = page.getByRole('button', { name: 'Araçlar' });
+  await expect(toolsBtn).toBeVisible();
+  await toolsBtn.click();
+  await expect(page.getByRole('button', { name: 'Yapay Zeka Asistanı' })).toBeVisible();
+});
+
+test('desktop timetable shows Friday without horizontal scrolling beside the catalog', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 800 });
+  await mockApi(page);
+  await page.goto('/');
+
+  const grid = page.locator('[data-grid-scroll]');
+  const catalog = page.locator('[data-catalog-drawer]');
+  const main = page.locator('#main-content');
+  const catalogWidth = await catalog.evaluate(element => element.getBoundingClientRect().width);
+  const mainWidth = await main.evaluate(element => element.getBoundingClientRect().width);
+  expect(catalogWidth / mainWidth).toBeGreaterThanOrEqual(0.3);
+  expect(catalogWidth / mainWidth).toBeLessThanOrEqual(0.35);
+  await expect(page.locator('[data-weekly-grid] th', { hasText: 'Cuma' })).toBeVisible();
+  const widths = await grid.evaluate(element => ({ visible: element.clientWidth, content: element.scrollWidth }));
+  expect(widths.content).toBeLessThanOrEqual(widths.visible);
 });
 
 test('responsive shell: desktop 1280x800 catalog and schedule side-by-side workspace', async ({ page }) => {
